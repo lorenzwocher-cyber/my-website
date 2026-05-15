@@ -343,8 +343,23 @@
   }
 
   .status-idea { color: var(--muted); border-color: var(--muted); }
+  .status-live { color: #6dc8a0; border-color: #6dc8a0; }
   .status-process { color: #8ab4a0; border-color: #8ab4a0; }
   .status-complete { color: var(--accent); border-color: var(--accent); }
+
+  .project-link {
+    display: inline-block;
+    font-family: var(--sans);
+    font-size: 0.6rem;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--accent);
+    text-decoration: none;
+    margin-top: 1.5rem;
+    transition: opacity 0.3s;
+  }
+
+  .project-link:hover { opacity: 0.65; }
 
   .project-title {
     font-size: 1.35rem;
@@ -520,6 +535,18 @@
   <h2 class="section-title reveal">Things I'm<br><em>building.</em></h2>
   <p class="projects-intro reveal">Ideas at different stages — from rough concepts to shipped MVPs. Everything is honest about where it actually is.</p>
   <div class="projects-grid reveal">
+
+    <div class="project-card">
+      <span class="project-status status-live">Live</span>
+      <h3 class="project-title">AI Travel Agents</h3>
+      <p class="project-desc">Three prompt generators for car rental search, trip planning and hiking route finding — built with Claude Code.</p>
+      <div class="project-tags">
+        <span class="tag">Agents</span>
+        <span class="tag">Claude</span>
+        <span class="tag">Travel</span>
+      </div>
+      <a href="/agents.html" class="project-link">Open Agents →</a>
+    </div>
 
     <div class="project-card">
       <span class="project-status status-process">In progress</span>

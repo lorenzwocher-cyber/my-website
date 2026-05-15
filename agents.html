@@ -1,0 +1,810 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI Agents — Lorenz Wocher</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Tenor+Sans&family=Space+Mono:wght@400&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+  :root {
+    --cream: #e8e0d0;
+    --fog:   #b8b0a0;
+    --dark:  #0e0d0b;
+    --deep:  #1a1816;
+    --mid:   #2a2724;
+    --accent:#c8a96e;
+    --muted: #6b6560;
+    --green: #8ab4a0;
+    --serif: 'Cormorant Garamond', serif;
+    --sans:  'Tenor Sans', sans-serif;
+    --mono:  'Space Mono', monospace;
+  }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--dark);
+    color: var(--cream);
+    font-family: var(--serif);
+    overflow-x: hidden;
+  }
+
+  /* ── NAV ── */
+  nav {
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    z-index: 100;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1.75rem 3.5rem;
+  }
+
+  nav::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(to bottom, rgba(14,13,11,0.85) 0%, transparent 100%);
+    pointer-events: none;
+  }
+
+  .nav-logo {
+    font-family: var(--sans);
+    font-size: 0.72rem;
+    letter-spacing: 0.28em;
+    text-transform: uppercase;
+    color: var(--cream);
+    text-decoration: none;
+    position: relative;
+    z-index: 1;
+  }
+
+  .nav-links {
+    display: flex;
+    gap: 2.5rem;
+    list-style: none;
+    position: relative;
+    z-index: 1;
+  }
+
+  .nav-links a {
+    font-family: var(--sans);
+    font-size: 0.68rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--fog);
+    text-decoration: none;
+    transition: color 0.3s;
+  }
+
+  .nav-links a:hover { color: var(--cream); }
+  .nav-links a.active { color: var(--cream); }
+
+  /* ── SUBPAGE HERO ── */
+  .page-hero {
+    padding: 13rem 3.5rem 5rem;
+    max-width: 1100px;
+    margin: 0 auto;
+  }
+
+  .back-link {
+    font-family: var(--sans);
+    font-size: 0.62rem;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: var(--muted);
+    text-decoration: none;
+    display: inline-block;
+    margin-bottom: 3.5rem;
+    transition: color 0.3s;
+  }
+
+  .back-link:hover { color: var(--cream); }
+
+  .page-eyebrow {
+    font-family: var(--sans);
+    font-size: 0.65rem;
+    letter-spacing: 0.32em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 1.2rem;
+  }
+
+  .page-title {
+    font-size: clamp(3rem, 7vw, 6rem);
+    font-weight: 300;
+    line-height: 1.0;
+    letter-spacing: -0.02em;
+    margin-bottom: 1.75rem;
+  }
+
+  .page-subtitle {
+    font-size: clamp(1rem, 1.8vw, 1.2rem);
+    font-weight: 300;
+    font-style: italic;
+    color: var(--fog);
+    border-left: 1px solid var(--accent);
+    padding-left: 1.5rem;
+    max-width: 480px;
+    line-height: 1.7;
+  }
+
+  /* ── AGENTS SECTION ── */
+  #agents {
+    padding: 4rem 3.5rem 10rem;
+    max-width: 1350px;
+    margin: 0 auto;
+    border-top: 1px solid var(--mid);
+  }
+
+  .agents-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1px;
+    background: var(--mid);
+    border: 1px solid var(--mid);
+  }
+
+  /* ── AGENT CARD ── */
+  .agent-card {
+    background: var(--deep);
+    padding: 2.5rem;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .agent-number {
+    font-family: var(--mono);
+    font-size: 0.58rem;
+    letter-spacing: 0.18em;
+    color: var(--muted);
+    margin-bottom: 0.65rem;
+  }
+
+  .agent-title {
+    font-size: 1.45rem;
+    font-weight: 400;
+    margin-bottom: 0.6rem;
+    line-height: 1.2;
+  }
+
+  .agent-desc {
+    font-size: 0.88rem;
+    font-weight: 300;
+    color: var(--fog);
+    line-height: 1.65;
+    margin-bottom: 2rem;
+    padding-bottom: 2rem;
+    border-bottom: 1px solid var(--mid);
+  }
+
+  /* ── FORM ELEMENTS ── */
+  .field-group {
+    margin-bottom: 1.1rem;
+  }
+
+  .field-label {
+    font-family: var(--sans);
+    font-size: 0.55rem;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: var(--accent);
+    display: block;
+    margin-bottom: 0.45rem;
+  }
+
+  input[type="text"],
+  input[type="number"],
+  input[type="date"],
+  input[type="time"],
+  select,
+  textarea {
+    width: 100%;
+    background: var(--dark);
+    border: 1px solid var(--mid);
+    color: var(--cream);
+    font-family: var(--serif);
+    font-size: 0.9rem;
+    font-weight: 300;
+    padding: 0.55rem 0.8rem;
+    outline: none;
+    transition: border-color 0.3s;
+    -webkit-appearance: none;
+    appearance: none;
+    color-scheme: dark;
+    border-radius: 0;
+  }
+
+  input[type="text"]::placeholder,
+  input[type="number"]::placeholder,
+  textarea::placeholder {
+    color: var(--muted);
+    font-style: italic;
+  }
+
+  input:focus,
+  select:focus,
+  textarea:focus {
+    border-color: var(--accent);
+  }
+
+  select {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'%3E%3Cpath d='M1 1l4 4 4-4' stroke='%236b6560' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 0.8rem center;
+    padding-right: 2.2rem;
+    cursor: pointer;
+  }
+
+  select option {
+    background: var(--deep);
+    color: var(--cream);
+  }
+
+  textarea {
+    resize: vertical;
+    min-height: 72px;
+    line-height: 1.6;
+  }
+
+  .field-row-2 {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.6rem;
+  }
+
+  /* ── TOGGLE BUTTONS ── */
+  .toggle-group {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.45rem;
+  }
+
+  .toggle-btn {
+    font-family: var(--mono);
+    font-size: 0.55rem;
+    letter-spacing: 0.04em;
+    padding: 0.35rem 0.65rem;
+    border: 1px solid var(--mid);
+    background: var(--dark);
+    color: var(--muted);
+    cursor: pointer;
+    transition: all 0.2s;
+    white-space: nowrap;
+  }
+
+  .toggle-btn:hover {
+    border-color: var(--fog);
+    color: var(--fog);
+  }
+
+  .toggle-btn.active {
+    border-color: var(--accent);
+    color: var(--accent);
+    background: rgba(200, 169, 110, 0.07);
+  }
+
+  /* ── GENERATE BUTTON ── */
+  .generate-btn {
+    width: 100%;
+    padding: 0.9rem 1rem;
+    background: transparent;
+    border: 1px solid var(--accent);
+    color: var(--accent);
+    font-family: var(--sans);
+    font-size: 0.62rem;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: all 0.3s;
+    margin-top: auto;
+    padding-top: 0.9rem;
+  }
+
+  .agent-form {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .form-fields {
+    flex: 1;
+  }
+
+  .generate-btn:hover {
+    background: var(--accent);
+    color: var(--dark);
+  }
+
+  .copy-confirm {
+    text-align: center;
+    font-family: var(--mono);
+    font-size: 0.6rem;
+    letter-spacing: 0.05em;
+    color: var(--green);
+    margin-top: 0.65rem;
+    min-height: 1.4em;
+  }
+
+  /* ── FOOTER ── */
+  footer {
+    border-top: 1px solid var(--mid);
+    padding: 5rem 3.5rem;
+    max-width: 1100px;
+    margin: 0 auto;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+  }
+
+  .footer-name {
+    font-size: 2rem;
+    font-weight: 300;
+    margin-bottom: 0.5rem;
+  }
+
+  .footer-tagline {
+    font-family: var(--sans);
+    font-size: 0.62rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+
+  .footer-links {
+    display: flex;
+    gap: 2rem;
+    list-style: none;
+  }
+
+  .footer-links a {
+    font-family: var(--sans);
+    font-size: 0.62rem;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--muted);
+    text-decoration: none;
+    transition: color 0.3s;
+  }
+
+  .footer-links a:hover { color: var(--cream); }
+
+  /* ── RESPONSIVE ── */
+  @media (max-width: 1000px) {
+    .agents-grid { grid-template-columns: 1fr; }
+  }
+
+  @media (max-width: 768px) {
+    nav { padding: 1.5rem; }
+    .nav-links { display: none; }
+    .page-hero { padding: 10rem 1.5rem 4rem; }
+    #agents { padding: 4rem 1.5rem 8rem; }
+    footer { flex-direction: column; gap: 2.5rem; align-items: flex-start; padding: 4rem 1.5rem; }
+  }
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <a href="/" class="nav-logo">L. Wocher</a>
+  <ul class="nav-links">
+    <li><a href="/#about">About</a></li>
+    <li><a href="/#projects">Projects</a></li>
+    <li><a href="/agents.html" class="active">Agents</a></li>
+  </ul>
+</nav>
+
+<!-- HERO -->
+<div class="page-hero">
+  <a href="/" class="back-link">← Back</a>
+  <p class="page-eyebrow">AI Tools</p>
+  <h1 class="page-title">AI Agents</h1>
+  <p class="page-subtitle">Prompt generators for smarter travel planning</p>
+</div>
+
+<!-- AGENTS -->
+<section id="agents">
+  <div class="agents-grid">
+
+    <!-- ── AGENT 1: MIETWAGEN FINDER ── -->
+    <div class="agent-card">
+      <p class="agent-number">01</p>
+      <h2 class="agent-title">Mietwagen Finder</h2>
+      <p class="agent-desc">Generiert einen detaillierten Such-Prompt für günstige Mietwagen — mit harten Ausschlusskriterien und strukturierter Ergebnisübersicht.</p>
+
+      <div class="agent-form">
+        <div class="form-fields">
+
+          <div class="field-group">
+            <label class="field-label" for="mw-pickup">Abholort</label>
+            <input type="text" id="mw-pickup" value="Wien Flughafen">
+          </div>
+
+          <div class="field-group">
+            <label class="field-label" for="mw-dropoff">Rückgabeort</label>
+            <input type="text" id="mw-dropoff" value="Wien Flughafen">
+          </div>
+
+          <div class="field-group">
+            <label class="field-label">Abholdatum &amp; Uhrzeit</label>
+            <div class="field-row-2">
+              <input type="date" id="mw-pickup-date" value="2026-05-23">
+              <input type="time" id="mw-pickup-time" value="09:30">
+            </div>
+          </div>
+
+          <div class="field-group">
+            <label class="field-label">Rückgabedatum &amp; Uhrzeit</label>
+            <div class="field-row-2">
+              <input type="date" id="mw-return-date" value="2026-05-30">
+              <input type="time" id="mw-return-time" value="21:00">
+            </div>
+          </div>
+
+          <div class="field-group">
+            <label class="field-label">Fahreralter &amp; Fahrzeugklasse</label>
+            <div class="field-row-2">
+              <input type="number" id="mw-age" value="25" min="18" max="99">
+              <select id="mw-class">
+                <option>Kleinwagen</option>
+                <option>Kompakt</option>
+                <option>Mittelklasse</option>
+                <option>Automatik</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="field-group">
+            <label class="field-label">Max. Kaution (EUR) &amp; Min. Bewertung</label>
+            <div class="field-row-2">
+              <input type="number" id="mw-deposit" value="1500" min="0">
+              <select id="mw-rating">
+                <option>7.0</option>
+                <option>7.5</option>
+                <option selected>8.0</option>
+                <option>8.5</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="field-group">
+            <label class="field-label">Tags / Filter</label>
+            <div class="toggle-group" id="mw-tags">
+              <button class="toggle-btn active" type="button">Italien ✓</button>
+              <button class="toggle-btn" type="button">Keine Grenzgebühr</button>
+              <button class="toggle-btn" type="button">Kostenlos stornierbar</button>
+              <button class="toggle-btn" type="button">Unbegrenzte km</button>
+              <button class="toggle-btn" type="button">Vollkasko inkl.</button>
+            </div>
+          </div>
+
+        </div>
+        <button class="generate-btn" onclick="generateMietwagen()">Prompt generieren &amp; kopieren</button>
+        <div class="copy-confirm" id="mw-confirm"></div>
+      </div>
+    </div>
+
+    <!-- ── AGENT 2: REISEPLAN GENERATOR ── -->
+    <div class="agent-card">
+      <p class="agent-number">02</p>
+      <h2 class="agent-title">Reiseplan Generator</h2>
+      <p class="agent-desc">Erstellt einen vollständigen Roadtrip-Plan mit Tagesstruktur, Unterkünften, Essen und Gesamtkosten — direkt als Markdown-Datei gespeichert.</p>
+
+      <div class="agent-form">
+        <div class="form-fields">
+
+          <div class="field-group">
+            <label class="field-label" for="rp-start">Startort</label>
+            <input type="text" id="rp-start" placeholder="z.B. Wien">
+          </div>
+
+          <div class="field-group">
+            <label class="field-label" for="rp-destinations">Reiseziele</label>
+            <textarea id="rp-destinations" placeholder="z.B. Toskana, Cinque Terre, Mailand"></textarea>
+          </div>
+
+          <div class="field-group">
+            <label class="field-label">Startdatum &amp; Enddatum</label>
+            <div class="field-row-2">
+              <input type="date" id="rp-start-date">
+              <input type="date" id="rp-end-date">
+            </div>
+          </div>
+
+          <div class="field-group">
+            <label class="field-label">Personen &amp; Budget/Tag (EUR)</label>
+            <div class="field-row-2">
+              <input type="number" id="rp-persons" value="2" min="1">
+              <input type="number" id="rp-budget" value="80" min="0">
+            </div>
+          </div>
+
+          <div class="field-group">
+            <label class="field-label" for="rp-accommodation">Unterkunftstyp</label>
+            <select id="rp-accommodation">
+              <option>Hostel</option>
+              <option>Budget Hotel</option>
+              <option>Egal</option>
+            </select>
+          </div>
+
+          <div class="field-group">
+            <label class="field-label" for="rp-wishes">Besondere Wünsche</label>
+            <textarea id="rp-wishes" placeholder="z.B. Wandern, Weinprobe, Strand, lokales Essen"></textarea>
+          </div>
+
+        </div>
+        <button class="generate-btn" onclick="generateReiseplan()">Prompt generieren &amp; kopieren</button>
+        <div class="copy-confirm" id="rp-confirm"></div>
+      </div>
+    </div>
+
+    <!-- ── AGENT 3: KOMOOT WANDERUNG FINDER ── -->
+    <div class="agent-card">
+      <p class="agent-number">03</p>
+      <h2 class="agent-title">Komoot Wanderung Finder</h2>
+      <p class="agent-desc">Findet verifizierte Wanderrouten auf komoot.com mit echten Links, Höhenmetern, Bewertungen und persönlichen Filterpräferenzen.</p>
+
+      <div class="agent-form">
+        <div class="form-fields">
+
+          <div class="field-group">
+            <label class="field-label" for="ko-region">Region / Gebiet</label>
+            <input type="text" id="ko-region" placeholder="z.B. Dolomiten, Innsbruck">
+          </div>
+
+          <div class="field-group">
+            <label class="field-label" for="ko-type">Wandertyp</label>
+            <select id="ko-type">
+              <option>Rundweg</option>
+              <option>Gipfeltour</option>
+              <option>See-Wanderung</option>
+              <option>Egal</option>
+            </select>
+          </div>
+
+          <div class="field-group">
+            <label class="field-label">Dauer &amp; Schwierigkeit</label>
+            <div class="field-row-2">
+              <select id="ko-duration">
+                <option>2-4h</option>
+                <option>4-6h</option>
+                <option>6-8h</option>
+                <option>Ganztag</option>
+              </select>
+              <select id="ko-difficulty">
+                <option>Leicht</option>
+                <option>Mittel</option>
+                <option>Anspruchsvoll</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="field-group">
+            <label class="field-label" for="ko-count">Anzahl Routen</label>
+            <input type="number" id="ko-count" value="3" min="1" max="10">
+          </div>
+
+          <div class="field-group">
+            <label class="field-label">Bergsee gewünscht</label>
+            <div class="toggle-group">
+              <button class="toggle-btn" id="ko-lake" type="button" onclick="this.classList.toggle('active'); this.textContent = this.classList.contains('active') ? 'Ja — Bergsee' : 'Bergsee'">Bergsee</button>
+            </div>
+          </div>
+
+        </div>
+        <button class="generate-btn" onclick="generateKomoot()">Prompt generieren &amp; kopieren</button>
+        <div class="copy-confirm" id="ko-confirm"></div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div>
+    <p class="footer-name">Lorenz Wocher</p>
+    <p class="footer-tagline">From nothing · to something · to everything</p>
+  </div>
+  <ul class="footer-links">
+    <li><a href="mailto:lorenz@example.com">Email</a></li>
+    <li><a href="#">LinkedIn</a></li>
+    <li><a href="#">GitHub</a></li>
+  </ul>
+</footer>
+
+<script>
+  // ── TOGGLE BUTTONS ──
+  document.querySelectorAll('.toggle-group').forEach(group => {
+    group.querySelectorAll('.toggle-btn:not(#ko-lake)').forEach(btn => {
+      btn.addEventListener('click', () => btn.classList.toggle('active'));
+    });
+  });
+
+  // ── HELPERS ──
+  function fmtDate(dateStr) {
+    if (!dateStr) return '—';
+    const [y, m, d] = dateStr.split('-');
+    return `${d}.${m}.${y}`;
+  }
+
+  function val(id) {
+    return document.getElementById(id).value;
+  }
+
+  function copyToClipboard(text, confirmId) {
+    navigator.clipboard.writeText(text).then(() => {
+      const el = document.getElementById(confirmId);
+      el.textContent = '✓ Prompt kopiert!';
+      setTimeout(() => { el.textContent = ''; }, 3000);
+    }).catch(() => {
+      const ta = document.createElement('textarea');
+      ta.value = text;
+      ta.style.position = 'fixed';
+      ta.style.opacity = '0';
+      document.body.appendChild(ta);
+      ta.select();
+      document.execCommand('copy');
+      document.body.removeChild(ta);
+      const el = document.getElementById(confirmId);
+      el.textContent = '✓ Prompt kopiert!';
+      setTimeout(() => { el.textContent = ''; }, 3000);
+    });
+  }
+
+  // ── AGENT 1: MIETWAGEN FINDER ──
+  function generateMietwagen() {
+    const pickup     = val('mw-pickup')      || 'Wien Flughafen';
+    const dropoff    = val('mw-dropoff')     || 'Wien Flughafen';
+    const pickupDate = fmtDate(val('mw-pickup-date'));
+    const pickupTime = val('mw-pickup-time') || '09:30';
+    const returnDate = fmtDate(val('mw-return-date'));
+    const returnTime = val('mw-return-time') || '21:00';
+    const age        = val('mw-age')         || '25';
+    const cls        = val('mw-class');
+    const deposit    = val('mw-deposit')     || '1500';
+    const rating     = val('mw-rating')      || '8.0';
+
+    const tags = Array.from(document.querySelectorAll('#mw-tags .toggle-btn.active'))
+      .map(b => b.textContent.replace(/\s*✓\s*$/, '').trim());
+    const tagsLine = tags.length > 0
+      ? `\n- Gewünschte Filter: ${tags.join(', ')}`
+      : '';
+
+    const prompt =
+`Verwende dein web_search Tool mindestens 8-10 mal um aktuelle, buchbare Mietwagenangebote zu finden.
+
+Suche nach dem günstigsten Mietwagen mit folgenden Kriterien:
+- Abholort: ${pickup}
+- Rückgabeort: ${dropoff}
+- Abholung: ${pickupDate} um ${pickupTime} Uhr
+- Rückgabe: ${returnDate} um ${returnTime} Uhr
+- Fahreralter: ${age} Jahre
+- Fahrzeugklasse: ${cls}${tagsLine}
+
+Harte Ausschlusskriterien (sofort überspringen, nicht anzeigen):
+- Kaution über ${deposit} EUR
+- Kundenbewertung unter ${rating}
+
+Durchsuche mindestens diese Plattformen: Check24, AutoEurope, Rentalcars.com, HolidayAutos, Booking.com Mietwagen sowie direkte Anbieter-Websites (Europcar, Sixt, Hertz, Avis, Enterprise, Budget).
+
+Zeige die 5 günstigsten qualifizierten Angebote sortiert nach Gesamtpreis aufsteigend. Pro Angebot:
+1. Anbieter & Buchungsplattform
+2. Fahrzeugmodell & Klasse
+3. Grundpreis gesamt
+4. Grenzgebühr (ja/nein — Kosten falls ja)
+5. Jungfahrerzuschlag (falls Fahreralter unter 26 Jahre)
+6. Gesamtpreis inkl. aller Pflichtgebühren
+7. Kaution in EUR
+8. Selbstbeteiligung im Schadensfall
+9. Kundenbewertung (Quelle angeben)
+10. Direkter Buchungslink
+
+Markiere das beste Preis-Leistungs-Verhältnis mit ⭐. Füge am Ende eine kurze Empfehlung hinzu, welches Angebot du buchen würdest und warum.`;
+
+    copyToClipboard(prompt, 'mw-confirm');
+  }
+
+  // ── AGENT 2: REISEPLAN GENERATOR ──
+  function generateReiseplan() {
+    const start         = val('rp-start')         || 'Startort';
+    const destinations  = val('rp-destinations')  || 'Reiseziele';
+    const startDate     = fmtDate(val('rp-start-date'));
+    const endDate       = fmtDate(val('rp-end-date'));
+    const persons       = val('rp-persons')        || '2';
+    const budget        = val('rp-budget')         || '80';
+    const accommodation = val('rp-accommodation');
+    const wishes        = val('rp-wishes')         || 'keine besonderen Wünsche';
+
+    const prompt =
+`Verwende dein web_search Tool mindestens 15-20 mal um aktuelle Preise, Öffnungszeiten und Buchungsoptionen zu recherchieren.
+
+Plane eine komplette Roadtrip-Route für ${persons} Person(en) mit Mietwagen:
+- Startort: ${start}
+- Reiseziele: ${destinations}
+- Reisezeitraum: ${startDate} bis ${endDate}
+- Budget: ${budget} EUR pro Person/Tag
+- Unterkunft: ${accommodation}
+- Besondere Wünsche: ${wishes}
+
+Schreibe ALLES direkt in die Datei ~/Downloads/reiseplan.md. Erstelle die Datei falls sie nicht existiert, überschreibe sie falls sie existiert.
+
+Struktur der Datei:
+
+# Reiseplan: ${destinations}
+**${persons} Person(en) · ${startDate}–${endDate} · Budget: ${budget} EUR/Person/Tag**
+
+## Route & Tagesplan
+(Gliedere nach Tagen — z.B. ## Tag 1: ${start} → Erster Stopp)
+
+Pro Tag:
+- 🚗 Fahrtstrecke mit Kilometer und Fahrtdauer
+- 📍 2-3 Highlights & Sehenswürdigkeiten (mit aktuellen Eintrittspreisen)
+- 🏨 Konkrete Unterkunftsempfehlung mit Booking.com/Hostelworld-Link und Preis/Nacht
+- 🍽️ Restaurant- oder Supermarkt-Empfehlung für das Abendessen (mit Google Maps Link)
+
+## Gesamtkostenübersicht
+| Kategorie | Kosten gesamt |
+|-----------|---------------|
+| Unterkunft | X EUR |
+| Essen (geschätzt) | X EUR |
+| Aktivitäten & Eintritt | X EUR |
+| Sprit (geschätzt) | X EUR |
+| **Total** | **X EUR** |
+
+## Buchungslinks & wichtige Infos
+(Alle relevanten Links gesammelt, Öffnungszeiten der wichtigsten Sehenswürdigkeiten)
+
+## Packliste
+(Angepasst an die Reise und Jahreszeit)
+
+## 3 Geheimtipps
+(Insider-Empfehlungen abseits der Touristenpfade)`;
+
+    copyToClipboard(prompt, 'rp-confirm');
+  }
+
+  // ── AGENT 3: KOMOOT WANDERUNG FINDER ──
+  function generateKomoot() {
+    const region     = val('ko-region')     || 'Dolomiten';
+    const type       = val('ko-type');
+    const duration   = val('ko-duration');
+    const difficulty = val('ko-difficulty');
+    const count      = val('ko-count')      || '3';
+    const wantLake   = document.getElementById('ko-lake').classList.contains('active');
+    const lakeLine   = wantLake ? '\n- Bergsee als Ziel oder auf der Route erwünscht' : '';
+
+    const prompt =
+`Suche auf komoot.com nach den besten Wanderrouten in der Region ${region}.
+
+Nutze web_search UND web_fetch direkt auf komoot.com. Finde genau ${count} Routen mit folgenden Kriterien:
+- Wandertyp: ${type}
+- Dauer: ${duration}
+- Schwierigkeit: ${difficulty}${lakeLine}
+
+WICHTIG: Gib nur Routen mit echten, verifizierten Komoot-Links zurück (Format: komoot.com/tour/XXXXXXXXX). Öffne jeden Link mit web_fetch und verifiziere, dass die Seite existiert und die Route den Kriterien entspricht. Lehne Routen ohne verifizierten Link ab.
+
+Pro Route (strukturiert und vollständig):
+1. 📍 Titel der Route
+2. 🔗 Echter Komoot-Link (komoot.com/tour/XXXXXXXXX)
+3. 📏 Streckenlänge in km
+4. ⛰️ Höhenmeter (Aufstieg / Abstieg)
+5. ⏱️ Geschätzte Gehzeit
+6. 🎯 Schwierigkeitsgrad
+7. ⭐ Kundenbewertung (Durchschnitt + Anzahl Bewertungen)
+8. 📝 2 Sätze Beschreibung (was macht diese Route besonders?)
+9. 🗓️ Beste Jahreszeit für diese Route
+10. 🚗 Anfahrt & Parkplatz (falls verfügbar)
+
+Sortiere nach Bewertung absteigend. Hebe die empfohlene Route mit ⭐ hervor und begründe in einem Satz warum.`;
+
+    copyToClipboard(prompt, 'ko-confirm');
+  }
+</script>
+</body>
+</html>

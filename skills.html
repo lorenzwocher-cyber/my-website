@@ -11,17 +11,15 @@
 
   :root {
     --cream: #e8e0d0;
-    --fog:   #b8b0a0;
-    --dark:  #0e0d0b;
-    --deep:  #1a1816;
-    --mid:   #2a2724;
-    --accent:#c8a96e;
+    --fog: #b8b0a0;
+    --dark: #0e0d0b;
+    --deep: #1a1816;
+    --mid: #2a2724;
+    --accent: #c8a96e;
     --muted: #6b6560;
-    --green: #8ab4a0;
-    --blue:  #7aa8c8;
     --serif: 'Cormorant Garamond', serif;
-    --sans:  'Tenor Sans', sans-serif;
-    --mono:  'Space Mono', monospace;
+    --sans: 'Tenor Sans', sans-serif;
+    --mono: 'Space Mono', monospace;
   }
 
   html { scroll-behavior: smooth; }
@@ -31,6 +29,7 @@
     color: var(--cream);
     font-family: var(--serif);
     overflow-x: hidden;
+    min-height: 100vh;
   }
 
   /* ── NAV ── */
@@ -41,39 +40,30 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 1.75rem 3.5rem;
-  }
-
-  nav::before {
-    content: '';
-    position: absolute;
-    inset: 0;
-    background: linear-gradient(to bottom, rgba(14,13,11,0.85) 0%, transparent 100%);
-    pointer-events: none;
+    padding: 1.5rem 3rem;
+    background: linear-gradient(to bottom, rgba(14,13,11,0.95) 0%, rgba(14,13,11,0.6) 100%);
+    backdrop-filter: blur(8px);
+    border-bottom: 1px solid rgba(200,169,110,0.08);
   }
 
   .nav-logo {
     font-family: var(--sans);
-    font-size: 0.72rem;
-    letter-spacing: 0.28em;
+    font-size: 0.75rem;
+    letter-spacing: 0.25em;
     text-transform: uppercase;
     color: var(--cream);
     text-decoration: none;
-    position: relative;
-    z-index: 1;
   }
 
   .nav-links {
     display: flex;
     gap: 2.5rem;
     list-style: none;
-    position: relative;
-    z-index: 1;
   }
 
   .nav-links a {
     font-family: var(--sans);
-    font-size: 0.68rem;
+    font-size: 0.7rem;
     letter-spacing: 0.2em;
     text-transform: uppercase;
     color: var(--fog);
@@ -81,259 +71,533 @@
     transition: color 0.3s;
   }
 
-  .nav-links a:hover { color: var(--cream); }
-  .nav-links a.active { color: var(--cream); }
+  .nav-links a:hover,
+  .nav-links a.active { color: var(--accent); }
 
-  /* ── SUBPAGE HERO ── */
-  .page-hero {
-    padding: 13rem 3.5rem 5rem;
-    max-width: 1100px;
+  /* ── HERO ── */
+  .hero {
+    padding: 10rem 3rem 5rem;
+    max-width: 1200px;
     margin: 0 auto;
+    position: relative;
   }
 
-  .back-link {
-    font-family: var(--sans);
-    font-size: 0.62rem;
-    letter-spacing: 0.22em;
-    text-transform: uppercase;
-    color: var(--muted);
-    text-decoration: none;
-    display: inline-block;
-    margin-bottom: 3.5rem;
-    transition: color 0.3s;
-  }
-
-  .back-link:hover { color: var(--cream); }
-
-  .page-eyebrow {
+  .hero-eyebrow {
     font-family: var(--sans);
     font-size: 0.65rem;
-    letter-spacing: 0.32em;
+    letter-spacing: 0.35em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 2rem;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+  }
+
+  .hero-eyebrow::after {
+    content: '';
+    display: block;
+    width: 40px;
+    height: 1px;
+    background: var(--accent);
+    opacity: 0.5;
+  }
+
+  .hero-title {
+    font-family: var(--serif);
+    font-size: clamp(3rem, 6vw, 5.5rem);
+    font-weight: 300;
+    line-height: 1.05;
+    letter-spacing: -0.01em;
+    margin-bottom: 2rem;
+  }
+
+  .hero-title em {
+    font-style: italic;
+    color: var(--accent);
+  }
+
+  .hero-desc {
+    font-family: var(--serif);
+    font-size: 1.15rem;
+    font-weight: 300;
+    color: var(--fog);
+    line-height: 1.8;
+    max-width: 600px;
+  }
+
+  /* ── WHAT IS A SKILL ── */
+  .explainer {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 3rem 5rem;
+  }
+
+  .explainer-box {
+    background: var(--deep);
+    border: 1px solid var(--mid);
+    border-left: 3px solid var(--accent);
+    padding: 2rem 2.5rem;
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: 2rem;
+    align-items: start;
+  }
+
+  .explainer-icon {
+    font-family: var(--mono);
+    font-size: 1.5rem;
+    color: var(--accent);
+    margin-top: 0.2rem;
+  }
+
+  .explainer-text h3 {
+    font-family: var(--sans);
+    font-size: 0.7rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 0.75rem;
+  }
+
+  .explainer-text p {
+    font-size: 1rem;
+    color: var(--fog);
+    line-height: 1.75;
+    font-weight: 300;
+  }
+
+  .explainer-text p + p {
+    margin-top: 0.75rem;
+  }
+
+  /* ── SKILLS GRID ── */
+  .skills-section {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 2rem 3rem 8rem;
+  }
+
+  .section-label {
+    font-family: var(--sans);
+    font-size: 0.65rem;
+    letter-spacing: 0.35em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 3rem;
+  }
+
+  .skill-card {
+    border: 1px solid var(--mid);
+    margin-bottom: 2.5rem;
+    transition: border-color 0.4s;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .skill-card:hover {
+    border-color: rgba(200,169,110,0.4);
+  }
+
+  .skill-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 2px;
+    background: linear-gradient(90deg, var(--accent) 0%, transparent 60%);
+    opacity: 0;
+    transition: opacity 0.4s;
+  }
+
+  .skill-card:hover::before { opacity: 1; }
+
+  .skill-header {
+    padding: 2.5rem 3rem;
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 2rem;
+    align-items: start;
+    border-bottom: 1px solid var(--mid);
+  }
+
+  .skill-meta {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 1rem;
+  }
+
+  .skill-number {
+    font-family: var(--mono);
+    font-size: 0.6rem;
+    color: var(--muted);
+    letter-spacing: 0.1em;
+  }
+
+  .skill-tag {
+    font-family: var(--sans);
+    font-size: 0.55rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    padding: 0.25rem 0.75rem;
+    border: 1px solid var(--mid);
+    color: var(--muted);
+  }
+
+  .skill-tag.live {
+    border-color: rgba(120,200,120,0.4);
+    color: #90c890;
+  }
+
+  .skill-name {
+    font-size: clamp(1.8rem, 3vw, 2.8rem);
+    font-weight: 300;
+    line-height: 1.1;
+    margin-bottom: 0.75rem;
+  }
+
+  .skill-name em {
+    font-style: italic;
+    color: var(--accent);
+  }
+
+  .skill-tagline {
+    font-size: 1rem;
+    color: var(--fog);
+    font-weight: 300;
+    line-height: 1.6;
+  }
+
+  .skill-version {
+    font-family: var(--mono);
+    font-size: 0.65rem;
+    color: var(--muted);
+    text-align: right;
+    white-space: nowrap;
+  }
+
+  /* ── SKILL BODY ── */
+  .skill-body {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0;
+  }
+
+  .skill-description {
+    padding: 2.5rem 3rem;
+    border-right: 1px solid var(--mid);
+  }
+
+  .skill-description h4 {
+    font-family: var(--sans);
+    font-size: 0.6rem;
+    letter-spacing: 0.25em;
     text-transform: uppercase;
     color: var(--accent);
     margin-bottom: 1.2rem;
   }
 
-  .page-title {
-    font-size: clamp(3rem, 7vw, 6rem);
-    font-weight: 300;
-    line-height: 1.0;
-    letter-spacing: -0.02em;
-    margin-bottom: 1.75rem;
-  }
-
-  .page-subtitle {
-    font-size: clamp(1rem, 1.8vw, 1.2rem);
-    font-weight: 300;
-    font-style: italic;
+  .skill-description p {
+    font-size: 0.95rem;
     color: var(--fog);
-    border-left: 1px solid var(--accent);
-    padding-left: 1.5rem;
-    max-width: 480px;
-    line-height: 1.7;
+    line-height: 1.8;
+    font-weight: 300;
+    margin-bottom: 1rem;
   }
 
-  /* ── SKILLS SECTION ── */
-  #skills {
-    padding: 4rem 3.5rem 10rem;
-    max-width: 1350px;
-    margin: 0 auto;
+  /* ── PATTERNS / ADVISORS ── */
+  .skill-features {
+    padding: 2.5rem 3rem;
+  }
+
+  .skill-features h4 {
+    font-family: var(--sans);
+    font-size: 0.6rem;
+    letter-spacing: 0.25em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 1.2rem;
+  }
+
+  .feature-list {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  .feature-list li {
+    font-size: 0.9rem;
+    color: var(--fog);
+    font-weight: 300;
+    padding-left: 1.25rem;
+    position: relative;
+    line-height: 1.5;
+  }
+
+  .feature-list li::before {
+    content: '—';
+    position: absolute;
+    left: 0;
+    color: var(--accent);
+    font-size: 0.7rem;
+  }
+
+  /* ── TRIGGER WORDS ── */
+  .triggers {
+    padding: 1.5rem 3rem;
+    border-top: 1px solid var(--mid);
+    background: rgba(200,169,110,0.03);
+    display: flex;
+    gap: 1.5rem;
+    align-items: center;
+    flex-wrap: wrap;
+  }
+
+  .triggers-label {
+    font-family: var(--sans);
+    font-size: 0.55rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--muted);
+    white-space: nowrap;
+  }
+
+  .trigger-chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+
+  .chip {
+    font-family: var(--mono);
+    font-size: 0.65rem;
+    padding: 0.3rem 0.75rem;
+    border: 1px solid rgba(200,169,110,0.25);
+    color: var(--accent);
+    background: rgba(200,169,110,0.05);
+    white-space: nowrap;
+  }
+
+  /* ── EXAMPLE ── */
+  .skill-example {
+    padding: 2rem 3rem;
     border-top: 1px solid var(--mid);
   }
 
-  .skills-grid {
+  .skill-example h4 {
+    font-family: var(--sans);
+    font-size: 0.6rem;
+    letter-spacing: 0.25em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 1.2rem;
+  }
+
+  .example-before-after {
     display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: 1px;
-    background: var(--mid);
+    grid-template-columns: 1fr 1fr;
+    gap: 1.5rem;
+  }
+
+  .example-block {
+    padding: 1.25rem 1.5rem;
     border: 1px solid var(--mid);
   }
 
-  /* ── SKILL CARD ── */
-  .skill-card {
-    background: var(--deep);
-    padding: 2.5rem;
+  .example-block.before { border-left: 2px solid #c87070; }
+  .example-block.after  { border-left: 2px solid #70c890; }
+
+  .example-label {
+    font-family: var(--mono);
+    font-size: 0.55rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 0.75rem;
+  }
+
+  .example-block.before .example-label { color: #c87070; }
+  .example-block.after  .example-label { color: #70c890; }
+
+  .example-block p {
+    font-size: 0.85rem;
+    color: var(--fog);
+    line-height: 1.65;
+    font-weight: 300;
+  }
+
+  /* ── CTA / INSTALL ── */
+  .skill-install {
+    padding: 2rem 3rem;
+    border-top: 1px solid var(--mid);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 2rem;
+    flex-wrap: wrap;
+  }
+
+  .install-info {
     display: flex;
     flex-direction: column;
+    gap: 0.5rem;
   }
 
-  .skill-header {
-    display: flex;
-    align-items: flex-start;
-    justify-content: space-between;
-    margin-bottom: 0.65rem;
-  }
-
-  .skill-number {
-    font-family: var(--mono);
-    font-size: 0.58rem;
-    letter-spacing: 0.18em;
+  .install-label {
+    font-family: var(--sans);
+    font-size: 0.6rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
     color: var(--muted);
   }
 
-  .badge-claude-code {
+  .install-command {
     font-family: var(--mono);
-    font-size: 0.48rem;
-    letter-spacing: 0.12em;
-    text-transform: uppercase;
-    color: var(--blue);
-    border: 1px solid var(--blue);
-    padding: 0.2rem 0.5rem;
-    opacity: 0.85;
-  }
-
-  .skill-title {
-    font-size: 1.45rem;
-    font-weight: 400;
-    margin-bottom: 0.6rem;
-    line-height: 1.2;
-  }
-
-  .skill-desc {
-    font-size: 0.88rem;
-    font-weight: 300;
-    color: var(--fog);
-    line-height: 1.65;
-    margin-bottom: 2rem;
-    padding-bottom: 2rem;
-    border-bottom: 1px solid var(--mid);
-  }
-
-  /* ── SKILL META ── */
-  .skill-meta {
-    flex: 1;
+    font-size: 0.8rem;
+    color: var(--cream);
+    background: var(--deep);
+    padding: 0.6rem 1rem;
+    border: 1px solid var(--mid);
+    cursor: pointer;
+    transition: border-color 0.3s;
     display: flex;
-    flex-direction: column;
-    gap: 1.1rem;
+    align-items: center;
+    gap: 0.75rem;
+    position: relative;
   }
 
-  .meta-row {
-    display: flex;
-    flex-direction: column;
-    gap: 0.35rem;
-  }
+  .install-command:hover { border-color: var(--accent); }
 
-  .meta-label {
-    font-family: var(--sans);
+  .copy-hint {
     font-size: 0.55rem;
-    letter-spacing: 0.22em;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--muted);
+    transition: color 0.2s;
+  }
+
+  .install-command:hover .copy-hint { color: var(--accent); }
+
+  .install-buttons {
+    display: flex;
+    gap: 1rem;
+    align-items: center;
+  }
+
+  .btn-primary {
+    font-family: var(--sans);
+    font-size: 0.65rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    padding: 0.85rem 2rem;
+    background: var(--accent);
+    color: var(--dark);
+    text-decoration: none;
+    border: none;
+    cursor: pointer;
+    transition: opacity 0.2s, transform 0.2s;
+    display: inline-block;
+  }
+
+  .btn-primary:hover { opacity: 0.85; transform: translateY(-1px); }
+
+  .btn-ghost {
+    font-family: var(--sans);
+    font-size: 0.65rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    padding: 0.85rem 2rem;
+    background: transparent;
+    color: var(--fog);
+    text-decoration: none;
+    border: 1px solid var(--mid);
+    cursor: pointer;
+    transition: border-color 0.3s, color 0.3s;
+    display: inline-block;
+  }
+
+  .btn-ghost:hover { border-color: var(--accent); color: var(--cream); }
+
+  /* ── COUNCIL ADVISORS ── */
+  .advisors-grid {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 0;
+    border-top: 1px solid var(--mid);
+  }
+
+  .advisor-cell {
+    padding: 1.5rem;
+    border-right: 1px solid var(--mid);
+  }
+
+  .advisor-cell:last-child { border-right: none; }
+
+  .advisor-name {
+    font-family: var(--sans);
+    font-size: 0.6rem;
+    letter-spacing: 0.15em;
     text-transform: uppercase;
     color: var(--accent);
+    margin-bottom: 0.5rem;
   }
 
-  .meta-value {
-    font-family: var(--mono);
-    font-size: 0.72rem;
-    letter-spacing: 0.02em;
-    color: var(--cream);
-    word-break: break-all;
+  .advisor-desc {
+    font-size: 0.8rem;
+    color: var(--fog);
+    font-weight: 300;
+    line-height: 1.55;
   }
 
-  .meta-value a {
-    color: var(--cream);
+  /* ── BACK LINK ── */
+  .back-nav {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 6rem 3rem 3rem;
+    display: flex;
+    align-items: center;
+    gap: 3rem;
+  }
+
+  .back-link {
+    font-family: var(--sans);
+    font-size: 0.65rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--muted);
     text-decoration: none;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
     transition: color 0.3s;
   }
 
-  .meta-value a:hover { color: var(--accent); }
-
-  .trigger-pill {
-    display: inline-block;
-    font-family: var(--mono);
-    font-size: 0.68rem;
-    letter-spacing: 0.04em;
-    color: var(--green);
-    border: 1px solid rgba(138, 180, 160, 0.35);
-    padding: 0.28rem 0.65rem;
-    background: rgba(138, 180, 160, 0.05);
+  .back-link::before {
+    content: '←';
+    font-family: serif;
   }
 
-  .trigger-pill.auto {
-    color: var(--fog);
-    border-color: rgba(184, 176, 160, 0.3);
-    background: transparent;
-    font-style: italic;
-  }
+  .back-link:hover { color: var(--accent); }
 
-  /* ── FEATURES LIST ── */
-  .features-list {
-    list-style: none;
-    display: flex;
-    flex-wrap: wrap;
-    gap: 0.45rem;
-    margin-top: 0.35rem;
-  }
-
-  .features-list li {
-    font-family: var(--mono);
-    font-size: 0.55rem;
-    letter-spacing: 0.04em;
-    padding: 0.28rem 0.6rem;
-    border: 1px solid var(--mid);
-    color: var(--muted);
-  }
-
-  /* ── INSTALL BUTTON ── */
-  .install-btn {
-    width: 100%;
-    padding: 0.9rem 1rem;
-    background: transparent;
-    border: 1px solid var(--accent);
-    color: var(--accent);
-    font-family: var(--sans);
-    font-size: 0.62rem;
-    letter-spacing: 0.22em;
-    text-transform: uppercase;
-    cursor: pointer;
-    transition: all 0.3s;
-    margin-top: 2rem;
-  }
-
-  .install-btn:hover {
-    background: var(--accent);
-    color: var(--dark);
-  }
-
-  .install-btn.plugin-btn {
-    border-color: var(--blue);
-    color: var(--blue);
-  }
-
-  .install-btn.plugin-btn:hover {
-    background: var(--blue);
-    color: var(--dark);
-  }
-
-  .copy-confirm {
-    text-align: center;
-    font-family: var(--mono);
-    font-size: 0.6rem;
-    letter-spacing: 0.05em;
-    color: var(--green);
-    margin-top: 0.65rem;
-    min-height: 1.4em;
+  .page-title-area {
+    flex: 1;
   }
 
   /* ── FOOTER ── */
   footer {
     border-top: 1px solid var(--mid);
-    padding: 5rem 3.5rem;
-    max-width: 1100px;
+    padding: 3rem;
+    max-width: 1200px;
     margin: 0 auto;
     display: flex;
     justify-content: space-between;
-    align-items: flex-end;
+    align-items: center;
   }
 
-  .footer-name {
-    font-size: 2rem;
-    font-weight: 300;
-    margin-bottom: 0.5rem;
-  }
-
-  .footer-tagline {
+  .footer-left {
     font-family: var(--sans);
-    font-size: 0.62rem;
+    font-size: 0.65rem;
     letter-spacing: 0.2em;
     text-transform: uppercase;
     color: var(--muted);
@@ -347,8 +611,8 @@
 
   .footer-links a {
     font-family: var(--sans);
-    font-size: 0.62rem;
-    letter-spacing: 0.18em;
+    font-size: 0.65rem;
+    letter-spacing: 0.15em;
     text-transform: uppercase;
     color: var(--muted);
     text-decoration: none;
@@ -357,17 +621,55 @@
 
   .footer-links a:hover { color: var(--cream); }
 
-  /* ── RESPONSIVE ── */
-  @media (max-width: 900px) {
-    .skills-grid { grid-template-columns: 1fr; }
+  /* ── ANIMATIONS ── */
+  .reveal {
+    opacity: 0;
+    transform: translateY(24px);
+    transition: opacity 0.7s ease, transform 0.7s ease;
   }
 
-  @media (max-width: 768px) {
+  .reveal.visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  /* ── COPIED TOAST ── */
+  .toast {
+    position: fixed;
+    bottom: 2rem;
+    right: 2rem;
+    background: var(--accent);
+    color: var(--dark);
+    font-family: var(--mono);
+    font-size: 0.7rem;
+    letter-spacing: 0.1em;
+    padding: 0.75rem 1.5rem;
+    opacity: 0;
+    transform: translateY(8px);
+    transition: opacity 0.3s, transform 0.3s;
+    pointer-events: none;
+    z-index: 999;
+  }
+
+  .toast.show { opacity: 1; transform: translateY(0); }
+
+  /* ── RESPONSIVE ── */
+  @media (max-width: 900px) {
     nav { padding: 1.5rem; }
     .nav-links { display: none; }
-    .page-hero { padding: 10rem 1.5rem 4rem; }
-    #skills { padding: 4rem 1.5rem 8rem; }
-    footer { flex-direction: column; gap: 2.5rem; align-items: flex-start; padding: 4rem 1.5rem; }
+    .hero, .explainer, .skills-section { padding-left: 1.5rem; padding-right: 1.5rem; }
+    .skill-header { grid-template-columns: 1fr; }
+    .skill-body { grid-template-columns: 1fr; }
+    .skill-description { border-right: none; border-bottom: 1px solid var(--mid); }
+    .example-before-after { grid-template-columns: 1fr; }
+    .advisors-grid { grid-template-columns: 1fr 1fr; }
+    .advisor-cell:nth-child(2) { border-right: none; }
+    .advisor-cell:nth-child(3) { border-top: 1px solid var(--mid); }
+    .advisor-cell:nth-child(4) { border-top: 1px solid var(--mid); border-right: none; }
+    .advisor-cell:nth-child(5) { grid-column: 1/-1; border-top: 1px solid var(--mid); border-right: none; }
+    .skill-install { flex-direction: column; align-items: flex-start; }
+    .install-buttons { width: 100%; }
+    footer { flex-direction: column; gap: 1.5rem; }
   }
 </style>
 </head>
@@ -375,218 +677,365 @@
 
 <!-- NAV -->
 <nav>
-  <a href="/" class="nav-logo">L. Wocher</a>
+  <a href="index.html" class="nav-logo">L. Wocher</a>
   <ul class="nav-links">
-    <li><a href="/#about">About</a></li>
-    <li><a href="/#projects">Projects</a></li>
-    <li><a href="/agents.html">Agents</a></li>
-    <li><a href="/skills.html" class="active">Skills</a></li>
+    <li><a href="index.html">Home</a></li>
+    <li><a href="index.html#projects">Projects</a></li>
+    <li><a href="agents.html">AI Agents</a></li>
+    <li><a href="skills.html" class="active">Claude Skills</a></li>
   </ul>
 </nav>
 
-<!-- HERO -->
-<div class="page-hero">
-  <a href="/" class="back-link">← Back</a>
-  <p class="page-eyebrow">Claude Code</p>
-  <h1 class="page-title">Claude Skills</h1>
-  <p class="page-subtitle">Community-built skills that extend Claude's capabilities — installed once, available everywhere</p>
+<!-- BACK + HERO -->
+<div class="back-nav">
+  <a href="index.html" class="back-link">Back to home</a>
 </div>
 
-<!-- SKILLS -->
-<section id="skills">
-  <div class="skills-grid">
+<div class="hero reveal">
+  <p class="hero-eyebrow">Claude Skills</p>
+  <h1 class="hero-title">AI tools that live<br>inside <em>your workflow.</em></h1>
+  <p class="hero-desc">Skills are instruction sets you install into Claude Code — they teach the AI a specialised behaviour that triggers automatically. These two I use every day.</p>
+</div>
 
-    <!-- ── SKILL 1: HUMANIZER ── -->
-    <div class="skill-card">
-      <div class="skill-header">
-        <p class="skill-number">01</p>
-      </div>
-      <h2 class="skill-title">Humanizer</h2>
-      <p class="skill-desc">Removes 29 documented AI writing patterns that make text feel machine-generated — filler phrases, passive hedges, hollow transitions. Rewrites output to sound genuinely human without losing substance.</p>
-
-      <div class="skill-meta">
-
-        <div class="meta-row">
-          <span class="meta-label">Source</span>
-          <span class="meta-value">
-            <a href="https://github.com/blader/humanizer" target="_blank" rel="noopener">github.com/blader/humanizer</a>
-          </span>
-        </div>
-
-        <div class="meta-row">
-          <span class="meta-label">Trigger</span>
-          <span class="trigger-pill">"humanize this"</span>
-        </div>
-
-        <div class="meta-row">
-          <span class="meta-label">Capabilities</span>
-          <ul class="features-list">
-            <li>29 AI patterns removed</li>
-            <li>Context-aware rewriting</li>
-            <li>Preserves original tone</li>
-            <li>Works on any text</li>
-          </ul>
-        </div>
-
-      </div>
-
-      <button class="install-btn" onclick="copySkill('https://github.com/blader/humanizer', 'hw-confirm')">Copy GitHub URL</button>
-      <div class="copy-confirm" id="hw-confirm"></div>
+<!-- WHAT IS A SKILL -->
+<div class="explainer reveal">
+  <div class="explainer-box">
+    <div class="explainer-icon">//</div>
+    <div class="explainer-text">
+      <h3>What is a Claude Skill?</h3>
+      <p>A skill is a single Markdown file (SKILL.md) that gives Claude Code a set of specialised instructions — like a job description for a very specific task. Once installed, Claude reads it automatically at startup and knows exactly how to handle certain requests.</p>
+      <p>Think of it as a plugin for Claude: instead of writing the same long prompt every time, you install the skill once and just say the trigger phrase. No code, no API keys, no configuration. Just a Markdown file in the right folder.</p>
     </div>
-
-    <!-- ── SKILL 2: LLM COUNCIL ── -->
-    <div class="skill-card">
-      <div class="skill-header">
-        <p class="skill-number">02</p>
-      </div>
-      <h2 class="skill-title">LLM Council</h2>
-      <p class="skill-desc">Summons five specialized AI advisors who each analyze your problem from a distinct angle, challenge each other's reasoning in a structured peer review, and synthesize a single consensus answer.</p>
-
-      <div class="skill-meta">
-
-        <div class="meta-row">
-          <span class="meta-label">Source</span>
-          <span class="meta-value">
-            <a href="https://github.com/aiwithremy/claude-skills-llm-council" target="_blank" rel="noopener">github.com/aiwithremy/claude-skills-llm-council</a>
-          </span>
-        </div>
-
-        <div class="meta-row">
-          <span class="meta-label">Trigger</span>
-          <span class="trigger-pill">"council this"</span>
-        </div>
-
-        <div class="meta-row">
-          <span class="meta-label">Capabilities</span>
-          <ul class="features-list">
-            <li>5 distinct AI advisors</li>
-            <li>Structured peer review</li>
-            <li>Multi-perspective synthesis</li>
-            <li>Consensus output</li>
-          </ul>
-        </div>
-
-      </div>
-
-      <button class="install-btn" onclick="copySkill('https://github.com/aiwithremy/claude-skills-llm-council', 'council-confirm')">Copy GitHub URL</button>
-      <div class="copy-confirm" id="council-confirm"></div>
-    </div>
-
-    <!-- ── SKILL 3: TASK OBSERVER ── -->
-    <div class="skill-card">
-      <div class="skill-header">
-        <p class="skill-number">03</p>
-      </div>
-      <h2 class="skill-title">Task Observer</h2>
-      <p class="skill-desc">A meta-skill that monitors every other skill in real-time and quietly improves their output. Acts as an invisible quality layer — no trigger needed, no configuration. One skill that makes all others sharper.</p>
-
-      <div class="skill-meta">
-
-        <div class="meta-row">
-          <span class="meta-label">Source</span>
-          <span class="meta-value">
-            <a href="https://github.com/rebelytics/one-skill-to-rule-them-all" target="_blank" rel="noopener">github.com/rebelytics/one-skill-to-rule-them-all</a>
-          </span>
-        </div>
-
-        <div class="meta-row">
-          <span class="meta-label">Trigger</span>
-          <span class="trigger-pill auto">Automatic — always active</span>
-        </div>
-
-        <div class="meta-row">
-          <span class="meta-label">Capabilities</span>
-          <ul class="features-list">
-            <li>Meta-skill layer</li>
-            <li>Improves all other skills</li>
-            <li>Background monitoring</li>
-            <li>Zero configuration</li>
-          </ul>
-        </div>
-
-      </div>
-
-      <button class="install-btn" onclick="copySkill('https://github.com/rebelytics/one-skill-to-rule-them-all', 'observer-confirm')">Copy GitHub URL</button>
-      <div class="copy-confirm" id="observer-confirm"></div>
-    </div>
-
-    <!-- ── SKILL 4: SUPERPOWERS ── -->
-    <div class="skill-card">
-      <div class="skill-header">
-        <p class="skill-number">04</p>
-        <span class="badge-claude-code">Claude Code Plugin</span>
-      </div>
-      <h2 class="skill-title">Superpowers</h2>
-      <p class="skill-desc">Official Claude Code plugin that unlocks a structured 7-phase engineering workflow — from problem scoping through implementation, testing, and review. Transforms Claude Code into a disciplined senior engineer.</p>
-
-      <div class="skill-meta">
-
-        <div class="meta-row">
-          <span class="meta-label">Install Command</span>
-          <span class="meta-value">/plugin install superpowers@claude-plugins-official</span>
-        </div>
-
-        <div class="meta-row">
-          <span class="meta-label">Trigger</span>
-          <span class="trigger-pill">/superpowers</span>
-        </div>
-
-        <div class="meta-row">
-          <span class="meta-label">Capabilities</span>
-          <ul class="features-list">
-            <li>7-phase workflow</li>
-            <li>Problem scoping</li>
-            <li>Implementation plan</li>
-            <li>Auto testing</li>
-            <li>Code review</li>
-            <li>Refactoring pass</li>
-            <li>Docs generation</li>
-          </ul>
-        </div>
-
-      </div>
-
-      <button class="install-btn plugin-btn" onclick="copySkill('/plugin install superpowers@claude-plugins-official', 'sp-confirm')">Copy install command</button>
-      <div class="copy-confirm" id="sp-confirm"></div>
-    </div>
-
   </div>
-</section>
+</div>
+
+<!-- SKILLS LIST -->
+<div class="skills-section">
+  <p class="section-label">Installed Skills — 04</p>
+
+  <!-- ───────────────────────── HUMANIZER ───────────────────────── -->
+  <div class="skill-card reveal">
+    <div class="skill-header">
+      <div>
+        <div class="skill-meta">
+          <span class="skill-number">01</span>
+          <span class="skill-tag live">Installed</span>
+          <span class="skill-tag">Writing</span>
+        </div>
+        <h2 class="skill-name">Huma<em>nizer</em></h2>
+        <p class="skill-tagline">Strips 29 AI writing patterns from any text — and rewrites it with an actual personality.</p>
+      </div>
+      <div class="skill-version">v2.5.1 · MIT</div>
+    </div>
+
+    <div class="skill-body">
+      <div class="skill-description">
+        <h4>What it does</h4>
+        <p>Most AI-generated text has tells: inflated significance, em-dash overuse, "at its core" filler, rule-of-three lists, promotional phrasing. Humanizer catches all 29 of these patterns, documented by Wikipedia's WikiProject AI Cleanup.</p>
+        <p>But it doesn't just strip the bad stuff. It adds voice back in — varying sentence rhythm, injecting opinions, acknowledging uncertainty like a real person would. Then it does a second pass: asks "what still sounds AI-generated?" and revises again.</p>
+        <p>If you give it a sample of your own writing first, it calibrates to your specific style — your sentence lengths, word choices, punctuation habits — so the output sounds like you, not like generic clean prose.</p>
+      </div>
+      <div class="skill-features">
+        <h4>29 patterns detected</h4>
+        <ul class="feature-list">
+          <li>Significance inflation ("pivotal moment", "testament to")</li>
+          <li>Em dash overuse → replaced with commas or periods</li>
+          <li>Superficial -ing phrases (highlighting, underscoring)</li>
+          <li>Promotional language & AI vocabulary words</li>
+          <li>Rule of three / synonym cycling</li>
+          <li>Passive voice & copula avoidance</li>
+          <li>Filler phrases ("at its core", "the real question is")</li>
+          <li>Sycophantic openers ("Great question!")</li>
+          <li>False ranges ("from X to Y, from A to B")</li>
+          <li>Formulaic conclusions + double-pass audit</li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- Example -->
+    <div class="skill-example">
+      <h4>Before / After</h4>
+      <div class="example-before-after">
+        <div class="example-block before">
+          <p class="example-label">AI-sounding</p>
+          <p>AI-assisted coding serves as an enduring testament to the transformative potential of large language models, marking a pivotal moment in the evolution of software development.</p>
+        </div>
+        <div class="example-block after">
+          <p class="example-label">Humanized</p>
+          <p>AI coding assistants can make you faster at the boring parts. Not everything. Definitely not architecture.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Triggers -->
+    <div class="triggers">
+      <span class="triggers-label">Trigger phrases</span>
+      <div class="trigger-chips">
+        <span class="chip">humanize this</span>
+        <span class="chip">make this less AI</span>
+        <span class="chip">remove AI patterns</span>
+        <span class="chip">/humanizer</span>
+      </div>
+    </div>
+
+    <!-- Install -->
+    <div class="skill-install">
+      <div class="install-info">
+        <span class="install-label">Install via terminal</span>
+        <div class="install-command" onclick="copyCommand(this, 'git clone https://github.com/blader/humanizer ~/.claude/skills/humanizer')">
+          <span>git clone https://github.com/blader/humanizer ~/.claude/skills/humanizer</span>
+          <span class="copy-hint">copy</span>
+        </div>
+      </div>
+      <div class="install-buttons">
+        <a href="https://github.com/blader/humanizer" target="_blank" class="btn-primary">View on GitHub →</a>
+        <a href="https://github.com/blader/humanizer/raw/main/SKILL.md" target="_blank" class="btn-ghost">Download SKILL.md</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- ───────────────────────── LLM COUNCIL ───────────────────────── -->
+  <div class="skill-card reveal">
+    <div class="skill-header">
+      <div>
+        <div class="skill-meta">
+          <span class="skill-number">02</span>
+          <span class="skill-tag live">Installed</span>
+          <span class="skill-tag">Decision-Making</span>
+        </div>
+        <h2 class="skill-name">LLM <em>Council</em></h2>
+        <p class="skill-tagline">Runs any decision through 5 AI advisors who think from different angles, peer-review each other, then deliver a synthesised verdict.</p>
+      </div>
+      <div class="skill-version">Based on Karpathy · MIT</div>
+    </div>
+
+    <div class="skill-body">
+      <div class="skill-description">
+        <h4>What it does</h4>
+        <p>Claude is agreeable by nature. Ask "should I launch this?" and it finds reasons to say yes. Reframe the same question negatively and it finds reasons to say no. That's fine for writing emails — it's dangerous for real decisions.</p>
+        <p>The Council fixes this. It spawns 5 independent advisors, each with a fundamentally different thinking style. They all analyse your question without seeing each other's work. Then their responses are anonymised and each advisor peer-reviews the others. Finally, a Chairman synthesises everything into a verdict: where the council agrees, where it clashes, blind spots it caught, a clear recommendation, and one concrete next step.</p>
+        <p>Adapted from Andrej Karpathy's LLM Council methodology — originally about dispatching queries to multiple models. This version runs entirely inside Claude using sub-agents with different lenses.</p>
+      </div>
+      <div class="skill-features">
+        <h4>How it runs</h4>
+        <ul class="feature-list">
+          <li>Step 1: Scans your workspace for context, frames the question</li>
+          <li>Step 2: Spawns all 5 advisors in parallel (no cross-contamination)</li>
+          <li>Step 3: Anonymises responses A–E, runs peer review round</li>
+          <li>Step 4: Chairman synthesises verdict from advisors + reviews</li>
+          <li>Step 5: Delivers structured output directly in chat (~4 minutes total)</li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- The 5 Advisors -->
+    <div class="advisors-grid">
+      <div class="advisor-cell">
+        <p class="advisor-name">The Contrarian</p>
+        <p class="advisor-desc">Actively looks for what's wrong, what's missing, what will fail. Assumes there's a fatal flaw.</p>
+      </div>
+      <div class="advisor-cell">
+        <p class="advisor-name">First Principles</p>
+        <p class="advisor-desc">Strips away assumptions and rebuilds the problem from scratch. Often says "you're asking the wrong question."</p>
+      </div>
+      <div class="advisor-cell">
+        <p class="advisor-name">The Expansionist</p>
+        <p class="advisor-desc">Looks for upside everyone else is missing. What could be bigger? What adjacent opportunity is hiding?</p>
+      </div>
+      <div class="advisor-cell">
+        <p class="advisor-name">The Outsider</p>
+        <p class="advisor-desc">Zero context about you or your field. Catches the curse of knowledge — things obvious to you, confusing to everyone else.</p>
+      </div>
+      <div class="advisor-cell">
+        <p class="advisor-name">The Executor</p>
+        <p class="advisor-desc">Only cares about: can this be done, and what's the fastest path? Looks at every idea through "what do you do Monday morning?"</p>
+      </div>
+    </div>
+
+    <!-- Triggers -->
+    <div class="triggers">
+      <span class="triggers-label">Trigger phrases</span>
+      <div class="trigger-chips">
+        <span class="chip">council this</span>
+        <span class="chip">war room this</span>
+        <span class="chip">pressure-test this</span>
+        <span class="chip">debate this</span>
+        <span class="chip">should I X or Y</span>
+      </div>
+    </div>
+
+    <!-- Install -->
+    <div class="skill-install">
+      <div class="install-info">
+        <span class="install-label">Install via terminal</span>
+        <div class="install-command" onclick="copyCommand(this, 'git clone https://github.com/aiwithremy/claude-skills-llm-council ~/.claude/skills/llm-council')">
+          <span>git clone https://github.com/aiwithremy/claude-skills-llm-council ~/.claude/skills/llm-council</span>
+          <span class="copy-hint">copy</span>
+        </div>
+      </div>
+      <div class="install-buttons">
+        <a href="https://github.com/aiwithremy/claude-skills-llm-council" target="_blank" class="btn-primary">View on GitHub →</a>
+        <a href="https://github.com/aiwithremy/claude-skills-llm-council/raw/main/SKILL.md" target="_blank" class="btn-ghost">Download SKILL.md</a>
+      </div>
+    </div>
+  <!-- ───────────────────────── TASK-OBSERVER ───────────────────────── -->
+  <div class="skill-card reveal">
+    <div class="skill-header">
+      <div>
+        <div class="skill-meta">
+          <span class="skill-number">03</span>
+          <span class="skill-tag live">Installed</span>
+          <span class="skill-tag">Meta</span>
+        </div>
+        <h2 class="skill-name">Task <em>Observer</em></h2>
+        <p class="skill-tagline">Watches every session silently and improves all your other skills automatically over time. Also known as "One Skill to Rule Them All."</p>
+      </div>
+      <div class="skill-version">CC BY 4.0 · rebelytics</div>
+    </div>
+
+    <div class="skill-body">
+      <div class="skill-description">
+        <h4>What it does</h4>
+        <p>Most skills stay frozen after you install them. Task Observer fixes that. It runs as a persistent background layer during every task-oriented session — watching for corrections you make, patterns that repeat, workflows that could be formalised.</p>
+        <p>Every time you correct an output, discover a better approach, or develop a structured process, it logs an observation. On a weekly cadence it applies these observations back to your skill library — improving humanizer, council, and skill-creator based on how you actually use them.</p>
+        <p>After three months of use, the original creator logged 600+ improvements across 40 skills — all generated automatically from real session observations.</p>
+      </div>
+      <div class="skill-features">
+        <h4>How it works</h4>
+        <ul class="feature-list">
+          <li>Runs silently in the background — never interrupts your flow</li>
+          <li>Logs observations: user corrections, emerging patterns, new workflows</li>
+          <li>Weekly review applies improvements back to your skill library</li>
+          <li>Feeds skill-creator for new skills when patterns repeat enough</li>
+          <li>Works in claude.ai (handoff doc mode) and Claude Code (file system)</li>
+          <li>Self-improving — also improves its own methodology over time</li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- Triggers -->
+    <div class="triggers">
+      <span class="triggers-label">Trigger phrases</span>
+      <div class="trigger-chips">
+        <span class="chip">automatic</span>
+        <span class="chip">one skill to rule them all</span>
+        <span class="chip">task-oriented sessions</span>
+      </div>
+    </div>
+
+    <!-- Install -->
+    <div class="skill-install">
+      <div class="install-info">
+        <span class="install-label">Install via terminal</span>
+        <div class="install-command" onclick="copyCommand(this, 'git clone https://github.com/rebelytics/one-skill-to-rule-them-all ~/.claude/skills/task-observer')">
+          <span>git clone https://github.com/rebelytics/one-skill-to-rule-them-all ~/.claude/skills/task-observer</span>
+          <span class="copy-hint">copy</span>
+        </div>
+      </div>
+      <div class="install-buttons">
+        <a href="https://github.com/rebelytics/one-skill-to-rule-them-all" target="_blank" class="btn-primary">View on GitHub →</a>
+        <a href="https://github.com/rebelytics/one-skill-to-rule-them-all/raw/main/SKILL.md" target="_blank" class="btn-ghost">Download SKILL.md</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- ───────────────────────── SUPERPOWERS ───────────────────────── -->
+  <div class="skill-card reveal">
+    <div class="skill-header">
+      <div>
+        <div class="skill-meta">
+          <span class="skill-number">04</span>
+          <span class="skill-tag live">Installed</span>
+          <span class="skill-tag" style="border-color: rgba(200,169,110,0.6); color: var(--accent);">Claude Code</span>
+        </div>
+        <h2 class="skill-name">Super<em>powers</em></h2>
+        <p class="skill-tagline">Turns Claude Code from a code generator into a disciplined senior developer — brainstorm first, spec second, build third. No exceptions.</p>
+      </div>
+      <div class="skill-version">v5.0 · MIT · obra</div>
+    </div>
+
+    <div class="skill-body">
+      <div class="skill-description">
+        <h4>What it does</h4>
+        <p>Claude Code by default jumps straight into writing code the moment you describe something. Superpowers stops that. It enforces a structured 7-phase workflow: brainstorm the idea, explore alternatives, write a spec, get approval, then build — with test-driven development throughout.</p>
+        <p>The result: Claude Code doesn't make autonomous decisions, doesn't expand scope, and doesn't declare success without proving things work. Every task has a plan detailed enough that a junior engineer could follow it. Every step gates the next.</p>
+        <p>Installed via the official Anthropic plugin marketplace. Activates automatically — no trigger needed. 170k+ GitHub stars, officially maintained.</p>
+      </div>
+      <div class="skill-features">
+        <h4>7-phase workflow</h4>
+        <ul class="feature-list">
+          <li>Brainstorming — explores context, proposes 2–3 approaches, writes spec</li>
+          <li>Writing plans — breaks work into 2–5 min tasks with exact file paths</li>
+          <li>Execution — subagents implement each task, inspect their own work</li>
+          <li>TDD — enforces RED → GREEN → REFACTOR, no exceptions</li>
+          <li>Code review — checks against plan after each task, blocks on critical issues</li>
+          <li>Systematic debugging — 4-phase root cause process, no random guessing</li>
+          <li>Branch finishing — verifies tests, offers merge/PR/discard options</li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- Triggers -->
+    <div class="triggers">
+      <span class="triggers-label">Activation</span>
+      <div class="trigger-chips">
+        <span class="chip">automatic in Claude Code</span>
+        <span class="chip">/superpowers:brainstorming</span>
+        <span class="chip">plugin marketplace</span>
+      </div>
+    </div>
+
+    <!-- Install -->
+    <div class="skill-install">
+      <div class="install-info">
+        <span class="install-label">Install in Claude Code</span>
+        <div class="install-command" onclick="copyCommand(this, '/plugin install superpowers@claude-plugins-official')">
+          <span>/plugin install superpowers@claude-plugins-official</span>
+          <span class="copy-hint">copy</span>
+        </div>
+      </div>
+      <div class="install-buttons">
+        <a href="https://github.com/obra/superpowers" target="_blank" class="btn-primary">View on GitHub →</a>
+        <a href="https://www.claudepluginhub.com/plugins/obra-superpowers-2" target="_blank" class="btn-ghost">Plugin Hub</a>
+      </div>
+    </div>
+  </div>
+
+</div>
 
 <!-- FOOTER -->
 <footer>
-  <div>
-    <p class="footer-name">Lorenz Wocher</p>
-    <p class="footer-tagline">From nothing · to something · to everything</p>
-  </div>
+  <div class="footer-left">Lorenz Wocher · Claude Skills</div>
   <ul class="footer-links">
-    <li><a href="mailto:lorenz@example.com">Email</a></li>
-    <li><a href="#">LinkedIn</a></li>
-    <li><a href="#">GitHub</a></li>
+    <li><a href="index.html">Home</a></li>
+    <li><a href="agents.html">AI Agents</a></li>
+    <li><a href="https://github.com/lorenzwocher-cyber/my-website" target="_blank">GitHub</a></li>
   </ul>
 </footer>
 
-<script>
-  function copySkill(text, confirmId) {
-    navigator.clipboard.writeText(text).then(() => {
-      showConfirm(confirmId);
-    }).catch(() => {
-      const ta = document.createElement('textarea');
-      ta.value = text;
-      ta.style.position = 'fixed';
-      ta.style.opacity = '0';
-      document.body.appendChild(ta);
-      ta.select();
-      document.execCommand('copy');
-      document.body.removeChild(ta);
-      showConfirm(confirmId);
-    });
-  }
+<!-- TOAST -->
+<div class="toast" id="toast">Copied to clipboard</div>
 
-  function showConfirm(confirmId) {
-    const el = document.getElementById(confirmId);
-    el.textContent = '✓ Copied!';
-    setTimeout(() => { el.textContent = ''; }, 3000);
+<script>
+  // Scroll reveal
+  const reveals = document.querySelectorAll('.reveal');
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach((entry, i) => {
+      if (entry.isIntersecting) {
+        setTimeout(() => entry.target.classList.add('visible'), i * 100);
+        observer.unobserve(entry.target);
+      }
+    });
+  }, { threshold: 0.08 });
+  reveals.forEach(el => observer.observe(el));
+
+  // Copy command
+  function copyCommand(el, text) {
+    navigator.clipboard.writeText(text).then(() => {
+      const toast = document.getElementById('toast');
+      toast.classList.add('show');
+      setTimeout(() => toast.classList.remove('show'), 2000);
+    });
   }
 </script>
 </body>

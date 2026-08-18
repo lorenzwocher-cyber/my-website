@@ -3,23 +3,26 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Claude Skills — Lorenz Wocher</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Tenor+Sans&family=Space+Mono:wght@400&display=swap" rel="stylesheet">
+<title>Claude Skills, Lorenz Wocher</title>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Instrument+Sans:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
   *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
 
   :root {
-    --cream: #e8e0d0;
-    --fog: #b8b0a0;
-    --dark: #0e0d0b;
-    --deep: #1a1816;
-    --mid: #2a2724;
-    --accent: #c8a96e;
-    --muted: #6b6560;
-    --serif: 'Cormorant Garamond', serif;
-    --sans: 'Tenor Sans', sans-serif;
-    --mono: 'Space Mono', monospace;
+    /* Helle Palette, identisch mit databook.html und style.css.
+       Die Variablennamen bleiben, damit der restliche Seitencode unveraendert gilt. */
+    --cream: rgba(43,34,28,.94);      /* Haupttext */
+    --fog:   rgba(43,34,28,.66);      /* Nebentext */
+    --dark:  #F5F1EA;                 /* Seitenhintergrund */
+    --deep:  #FBF9F5;                 /* Karten */
+    --mid:   #EFEAE1;                 /* erhoehte Flaechen, Rahmen */
+    --accent:#55603A;                 /* Akzent */
+    --muted: rgba(43,34,28,.46);
+    --green: #0F8A6E;
+    --serif: 'Instrument Serif', Georgia, serif;
+    --sans:  'Instrument Sans', -apple-system, system-ui, sans-serif;
+    --mono:  ui-monospace, SFMono-Regular, Menlo, monospace;
   }
 
   html { scroll-behavior: smooth; }
@@ -41,9 +44,9 @@
     justify-content: space-between;
     align-items: center;
     padding: 1.5rem 3rem;
-    background: linear-gradient(to bottom, rgba(14,13,11,0.95) 0%, rgba(14,13,11,0.6) 100%);
+    background: linear-gradient(to bottom, rgba(245,241,234,0.95) 0%, rgba(245,241,234,0.6) 100%);
     backdrop-filter: blur(8px);
-    border-bottom: 1px solid rgba(200,169,110,0.08);
+    border-bottom: 1px solid rgba(85,96,58,0.08);
   }
 
   .nav-logo {
@@ -196,7 +199,7 @@
   }
 
   .skill-card:hover {
-    border-color: rgba(200,169,110,0.4);
+    border-color: rgba(85,96,58,0.4);
   }
 
   .skill-card::before {
@@ -245,7 +248,7 @@
   }
 
   .skill-tag.live {
-    border-color: rgba(120,200,120,0.4);
+    border-color: rgba(15,138,110,0.4);
     color: #90c890;
   }
 
@@ -347,7 +350,7 @@
   .triggers {
     padding: 1.5rem 3rem;
     border-top: 1px solid var(--mid);
-    background: rgba(200,169,110,0.03);
+    background: rgba(85,96,58,0.03);
     display: flex;
     gap: 1.5rem;
     align-items: center;
@@ -373,9 +376,9 @@
     font-family: var(--mono);
     font-size: 0.65rem;
     padding: 0.3rem 0.75rem;
-    border: 1px solid rgba(200,169,110,0.25);
+    border: 1px solid rgba(85,96,58,0.25);
     color: var(--accent);
-    background: rgba(200,169,110,0.05);
+    background: rgba(85,96,58,0.05);
     white-space: nowrap;
   }
 
@@ -679,11 +682,10 @@
 <nav>
   <a href="index.html" class="nav-logo">L. Wocher</a>
   <ul class="nav-links">
-    <li><a href="index.html">Home</a></li>
-    <li><a href="index.html#projects">Projects</a></li>
-    <li><a href="agents.html">AI Agents</a></li>
-    <li><a href="skills.html" class="active">Claude Skills</a></li>
-  </ul>
+<li><a href="index.html">Projekte</a></li>
+<li><a href="agent.html">AI Agent</a></li>
+<li><a href="databook.html#de/ov">Databook</a></li>
+</ul>
 </nav>
 
 <!-- BACK + HERO -->
@@ -694,7 +696,7 @@
 <div class="hero reveal">
   <p class="hero-eyebrow">Claude Skills</p>
   <h1 class="hero-title">AI tools that live<br>inside <em>your workflow.</em></h1>
-  <p class="hero-desc">Skills are instruction sets you install into Claude Code — they teach the AI a specialised behaviour that triggers automatically. These two I use every day.</p>
+  <p class="hero-desc">Skills are instruction sets you install into Claude Code. They teach the model a specific behaviour that triggers on its own once it is installed. These two I use every day.</p>
 </div>
 
 <!-- WHAT IS A SKILL -->
@@ -703,7 +705,7 @@
     <div class="explainer-icon">//</div>
     <div class="explainer-text">
       <h3>What is a Claude Skill?</h3>
-      <p>A skill is a single Markdown file (SKILL.md) that gives Claude Code a set of specialised instructions — like a job description for a very specific task. Once installed, Claude reads it automatically at startup and knows exactly how to handle certain requests.</p>
+      <p>A skill is a single Markdown file (SKILL.md) that gives Claude Code a set of specific instructions, closer to a job description for one narrow task. Once installed, Claude reads it automatically at startup and knows exactly how to handle certain requests.</p>
       <p>Think of it as a plugin for Claude: instead of writing the same long prompt every time, you install the skill once and just say the trigger phrase. No code, no API keys, no configuration. Just a Markdown file in the right folder.</p>
     </div>
   </div>
@@ -711,7 +713,7 @@
 
 <!-- SKILLS LIST -->
 <div class="skills-section">
-  <p class="section-label">Installed Skills — 04</p>
+  <p class="section-label">Installed Skills, 04</p>
 
   <!-- ───────────────────────── HUMANIZER ───────────────────────── -->
   <div class="skill-card reveal">
@@ -723,7 +725,7 @@
           <span class="skill-tag">Writing</span>
         </div>
         <h2 class="skill-name">Huma<em>nizer</em></h2>
-        <p class="skill-tagline">Strips 29 AI writing patterns from any text — and rewrites it with an actual personality.</p>
+        <p class="skill-tagline">Strips 29 AI writing patterns from any text, and rewrites it with an actual personality.</p>
       </div>
       <div class="skill-version">v2.5.1 · MIT</div>
     </div>
@@ -732,8 +734,8 @@
       <div class="skill-description">
         <h4>What it does</h4>
         <p>Most AI-generated text has tells: inflated significance, em-dash overuse, "at its core" filler, rule-of-three lists, promotional phrasing. Humanizer catches all 29 of these patterns, documented by Wikipedia's WikiProject AI Cleanup.</p>
-        <p>But it doesn't just strip the bad stuff. It adds voice back in — varying sentence rhythm, injecting opinions, acknowledging uncertainty like a real person would. Then it does a second pass: asks "what still sounds AI-generated?" and revises again.</p>
-        <p>If you give it a sample of your own writing first, it calibrates to your specific style — your sentence lengths, word choices, punctuation habits — so the output sounds like you, not like generic clean prose.</p>
+        <p>But it doesn't just strip the bad stuff. It adds voice back in, varying sentence rhythm, injecting opinions, acknowledging uncertainty like a real person would. Then it does a second pass: asks "what still sounds AI-generated?" and revises again.</p>
+        <p>If you give it a sample of your own writing first, it calibrates to your own style, meaning sentence length, word choice and punctuation habits, so the output sounds like you, not like generic clean prose.</p>
       </div>
       <div class="skill-features">
         <h4>29 patterns detected</h4>
@@ -812,9 +814,9 @@
     <div class="skill-body">
       <div class="skill-description">
         <h4>What it does</h4>
-        <p>Claude is agreeable by nature. Ask "should I launch this?" and it finds reasons to say yes. Reframe the same question negatively and it finds reasons to say no. That's fine for writing emails — it's dangerous for real decisions.</p>
+        <p>Claude is agreeable by nature. Ask "should I launch this?" and it finds reasons to say yes. Reframe the same question negatively and it finds reasons to say no. That's fine for writing emails, it's dangerous for real decisions.</p>
         <p>The Council fixes this. It spawns 5 independent advisors, each with a fundamentally different thinking style. They all analyse your question without seeing each other's work. Then their responses are anonymised and each advisor peer-reviews the others. Finally, a Chairman synthesises everything into a verdict: where the council agrees, where it clashes, blind spots it caught, a clear recommendation, and one concrete next step.</p>
-        <p>Adapted from Andrej Karpathy's LLM Council methodology — originally about dispatching queries to multiple models. This version runs entirely inside Claude using sub-agents with different lenses.</p>
+        <p>Adapted from Andrej Karpathy's LLM Council methodology, originally about dispatching queries to multiple models. This version runs entirely inside Claude using sub-agents with different lenses.</p>
       </div>
       <div class="skill-features">
         <h4>How it runs</h4>
@@ -844,7 +846,7 @@
       </div>
       <div class="advisor-cell">
         <p class="advisor-name">The Outsider</p>
-        <p class="advisor-desc">Zero context about you or your field. Catches the curse of knowledge — things obvious to you, confusing to everyone else.</p>
+        <p class="advisor-desc">Zero context about you or your field. Catches the curse of knowledge, things obvious to you, confusing to everyone else.</p>
       </div>
       <div class="advisor-cell">
         <p class="advisor-name">The Executor</p>
@@ -896,19 +898,19 @@
     <div class="skill-body">
       <div class="skill-description">
         <h4>What it does</h4>
-        <p>Most skills stay frozen after you install them. Task Observer fixes that. It runs as a persistent background layer during every task-oriented session — watching for corrections you make, patterns that repeat, workflows that could be formalised.</p>
-        <p>Every time you correct an output, discover a better approach, or develop a structured process, it logs an observation. On a weekly cadence it applies these observations back to your skill library — improving humanizer, council, and skill-creator based on how you actually use them.</p>
-        <p>After three months of use, the original creator logged 600+ improvements across 40 skills — all generated automatically from real session observations.</p>
+        <p>Most skills stay frozen after you install them. Task Observer fixes that. It runs as a persistent background layer during every task-oriented session. It watches for corrections you make, patterns that repeat and workflows that could be formalised.</p>
+        <p>Every time you correct an output, discover a better approach, or develop a structured process, it logs an observation. On a weekly cadence it applies these observations back to your skill library and improves humanizer, council and skill-creator based on how you actually use them.</p>
+        <p>After three months of use, the original creator logged 600+ improvements across 40 skills, all generated automatically from real session observations.</p>
       </div>
       <div class="skill-features">
         <h4>How it works</h4>
         <ul class="feature-list">
-          <li>Runs silently in the background — never interrupts your flow</li>
+          <li>Runs silently in the background, never interrupts your flow</li>
           <li>Logs observations: user corrections, emerging patterns, new workflows</li>
           <li>Weekly review applies improvements back to your skill library</li>
           <li>Feeds skill-creator for new skills when patterns repeat enough</li>
           <li>Works in claude.ai (handoff doc mode) and Claude Code (file system)</li>
-          <li>Self-improving — also improves its own methodology over time</li>
+          <li>Self-improving, also improves its own methodology over time</li>
         </ul>
       </div>
     </div>
@@ -946,10 +948,10 @@
         <div class="skill-meta">
           <span class="skill-number">04</span>
           <span class="skill-tag live">Installed</span>
-          <span class="skill-tag" style="border-color: rgba(200,169,110,0.6); color: var(--accent);">Claude Code</span>
+          <span class="skill-tag" style="border-color: rgba(85,96,58,0.6); color: var(--accent);">Claude Code</span>
         </div>
         <h2 class="skill-name">Super<em>powers</em></h2>
-        <p class="skill-tagline">Turns Claude Code from a code generator into a disciplined senior developer — brainstorm first, spec second, build third. No exceptions.</p>
+        <p class="skill-tagline">Turns Claude Code from a code generator into a disciplined senior developer, brainstorm first, spec second, build third. No exceptions.</p>
       </div>
       <div class="skill-version">v5.0 · MIT · obra</div>
     </div>
@@ -957,20 +959,20 @@
     <div class="skill-body">
       <div class="skill-description">
         <h4>What it does</h4>
-        <p>Claude Code by default jumps straight into writing code the moment you describe something. Superpowers stops that. It enforces a structured 7-phase workflow: brainstorm the idea, explore alternatives, write a spec, get approval, then build — with test-driven development throughout.</p>
+        <p>Claude Code by default jumps straight into writing code the moment you describe something. Superpowers stops that. It enforces a structured 7-phase workflow: brainstorm the idea, explore alternatives, write a spec, get approval, then build, with test-driven development throughout.</p>
         <p>The result: Claude Code doesn't make autonomous decisions, doesn't expand scope, and doesn't declare success without proving things work. Every task has a plan detailed enough that a junior engineer could follow it. Every step gates the next.</p>
-        <p>Installed via the official Anthropic plugin marketplace. Activates automatically — no trigger needed. 170k+ GitHub stars, officially maintained.</p>
+        <p>Installed via the official Anthropic plugin marketplace. Activates automatically, no trigger needed. 170k+ GitHub stars, officially maintained.</p>
       </div>
       <div class="skill-features">
         <h4>7-phase workflow</h4>
         <ul class="feature-list">
-          <li>Brainstorming — explores context, proposes 2–3 approaches, writes spec</li>
-          <li>Writing plans — breaks work into 2–5 min tasks with exact file paths</li>
-          <li>Execution — subagents implement each task, inspect their own work</li>
-          <li>TDD — enforces RED → GREEN → REFACTOR, no exceptions</li>
-          <li>Code review — checks against plan after each task, blocks on critical issues</li>
-          <li>Systematic debugging — 4-phase root cause process, no random guessing</li>
-          <li>Branch finishing — verifies tests, offers merge/PR/discard options</li>
+          <li>Brainstorming, explores context, proposes 2–3 approaches, writes spec</li>
+          <li>Writing plans, breaks work into 2–5 min tasks with exact file paths</li>
+          <li>Execution, subagents implement each task, inspect their own work</li>
+          <li>TDD, enforces RED → GREEN → REFACTOR, no exceptions</li>
+          <li>Code review, checks against plan after each task, blocks on critical issues</li>
+          <li>Systematic debugging, 4-phase root cause process, no random guessing</li>
+          <li>Branch finishing, verifies tests, offers merge/PR/discard options</li>
         </ul>
       </div>
     </div>

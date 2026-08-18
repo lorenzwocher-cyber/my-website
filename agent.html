@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Personal AI Agent · Lorenz Wocher</title>
+<meta name="description" content="Ein Telegram-Assistent auf eigenem Server. Nachricht rein, Sprachmodell sortiert, Datenbank speichert, Antwort zurück.">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Instrument+Sans:wght@400;500;600&display=swap">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<nav class="topnav">
+  <a class="logo" href="index.html">L.&nbsp;Wocher</a>
+  <div class="navright">
+    <div class="lang" id="lang">
+      <button data-lng="de" aria-pressed="true">DE</button>
+      <button data-lng="en" aria-pressed="false">EN</button>
+    </div>
+    <ul class="navlinks">
+      <li><a href="index.html" data-i18n="nav.projects">Projekte</a></li>
+      <li><a class="ghost" href="databook.html" data-db data-i18n="nav.databook">Databook</a></li>
+    </ul>
+  </div>
+</nav>
+
+<div class="page">
+  <a class="back" href="index.html" data-i18n="back">&#8592; Zurück zu den Projekten</a>
+  <p class="eyebrow" data-i18n="eyebrow">Projekt 02 · Läuft seit 2025</p>
+  <h1 data-i18n="h1">Personal AI Agent</h1>
+  <p class="lede" data-i18n="lede">Ein Telegram-Bot, der meine Aufgaben aufnimmt und meine Fragen beantwortet. Ich schreibe ihm eine Nachricht, ein Sprachmodell entscheidet, was damit zu tun ist, und die Antwort kommt im selben Chat zurück. Er läuft rund um die Uhr auf einem eigenen Server.</p>
+
+  <div class="kpis">
+    <div class="kp"><div class="v">24/7</div><div class="l" data-i18n="k1">verfügbar, unabhängig von meinem Laptop</div></div>
+    <div class="kp"><div class="v">5,34 €</div><div class="l" data-i18n="k2">Serverkosten im Monat</div></div>
+    <div class="kp"><div class="v">2</div><div class="l" data-i18n="k3">Wege: Aufgabe speichern oder Frage beantworten</div></div>
+    <div class="kp"><div class="v">0</div><div class="l" data-i18n="k4">Zeilen eigener Servercode</div></div>
+  </div>
+
+  <div class="callout" data-i18n="callout">Der eigentliche Punkt ist nicht das Sprachmodell. Es ist, dass die Sache läuft, wenn mein Rechner aus ist. Ein Automatisierungsablauf auf dem eigenen Laptop ist ein Skript. Auf einem Server ist es ein Dienst.</div>
+
+  <div class="card">
+    <h3 data-i18n="why.h">Warum ich das gebaut habe</h3>
+    <p class="sub" data-i18n="why.s">Das Problem war klein und trotzdem lästig.</p>
+    <p data-i18n="why.p1">Ideen und Aufgaben kommen selten am Schreibtisch. Sie kommen in der U-Bahn, im Gespräch, beim Laufen. Bis ich die richtige App geöffnet, das richtige Projekt gefunden und die Sache getippt hatte, war der Gedanke oft schon weg oder ich hatte keine Lust mehr.</p>
+    <p data-i18n="why.p2">Telegram habe ich ohnehin offen. Also sollte der Weg von Gedanke zu gespeicherter Aufgabe genau eine Nachricht lang sein, ohne Formular, ohne Kategorie auswählen, ohne Nachdenken über Struktur. Das Sortieren übernimmt das Modell.</p>
+  </div>
+
+  <div class="card">
+    <h3 data-i18n="flow.h">Wie eine Nachricht durchläuft</h3>
+    <p class="sub" data-i18n="flow.s">Fünf Schritte, alle in einem einzigen n8n-Ablauf.</p>
+    <div class="flow">
+      <div class="flow-step"><div class="flow-dot"><i></i><span></span></div><div class="flow-body">
+        <b data-i18n="f1.h">Nachricht an den Bot</b><p data-i18n="f1.p">Ich schreibe in Telegram, etwa „bis Freitag Folien für den Kurs fertig" oder „was steht diese Woche noch an".</p></div></div>
+      <div class="flow-step"><div class="flow-dot"><i></i><span></span></div><div class="flow-body">
+        <b data-i18n="f2.h">n8n nimmt sie entgegen</b><p data-i18n="f2.p">Ein Webhook im Ablauf empfängt die Nachricht. n8n ist der Klebstoff zwischen allen Beteiligten und läuft als Docker-Container auf dem Server.</p></div></div>
+      <div class="flow-step"><div class="flow-dot"><i></i><span></span></div><div class="flow-body">
+        <b data-i18n="f3.h">Claude sortiert ein</b><p data-i18n="f3.p">Das Modell bekommt die Nachricht und entscheidet: ist das eine Aufgabe, die gespeichert gehört, oder eine Frage an den Bestand? Bei einer Aufgabe zieht es zusätzlich Titel, Frist und Thema heraus.</p></div></div>
+      <div class="flow-step"><div class="flow-dot"><i></i><span></span></div><div class="flow-body">
+        <b data-i18n="f4.h">Supabase speichert oder liefert</b><p data-i18n="f4.p">Aufgaben landen in einer Postgres-Tabelle. Bei einer Frage wird stattdessen gelesen, und das Modell formuliert die Antwort aus dem, was wirklich in der Datenbank steht.</p></div></div>
+      <div class="flow-step"><div class="flow-dot"><i></i></div><div class="flow-body">
+        <b data-i18n="f5.h">Antwort zurück in den Chat</b><p data-i18n="f5.p">Bestätigung oder Antwort kommt in denselben Telegram-Chat. Der ganze Durchlauf dauert ein paar Sekunden.</p></div></div>
+    </div>
+  </div>
+
+  <div class="two">
+    <div class="card">
+      <h3 data-i18n="stack.h">Der Stack</h3>
+      <p class="sub" data-i18n="stack.s">Nichts davon habe ich selbst geschrieben, alles ist zusammengesteckt.</p>
+      <table>
+        <thead><tr><th data-i18n="stack.t1">Baustein</th><th data-i18n="stack.t2">Rolle</th></tr></thead>
+        <tbody>
+          <tr><td>n8n</td><td data-i18n="s1">Ablaufsteuerung, im Docker-Container</td></tr>
+          <tr><td>Telegram Bot API</td><td data-i18n="s2">Ein- und Ausgabe</td></tr>
+          <tr><td>Claude</td><td data-i18n="s3">Einordnung und Antworttext</td></tr>
+          <tr><td>Supabase</td><td data-i18n="s4">Postgres-Datenbank für Aufgaben</td></tr>
+          <tr><td>Hetzner Cloud</td><td data-i18n="s5">Kleiner Server in Falkenstein, Linux</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="card">
+      <h3 data-i18n="next.h">Was als Nächstes kommt</h3>
+      <p class="sub" data-i18n="next.s">Geplant, noch nicht gebaut.</p>
+      <ul class="plain">
+        <li data-i18n="n1">Sprachnachrichten. Telegram liefert die Audiodatei, ein Whisper-Modell über Groq schreibt sie mit, der Rest bleibt gleich.</li>
+        <li data-i18n="n2">Eine Tagesseite in Notion, die morgens automatisch mit den offenen Punkten befüllt wird.</li>
+        <li data-i18n="n3">Ein getrennter Weg für Ideen, damit halbfertige Gedanken nicht in derselben Liste landen wie echte Aufgaben.</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="card">
+    <h3 data-i18n="learn.h">Was ich dabei gelernt habe</h3>
+    <p data-i18n="learn.p1">Der schwierigste Teil war nicht der Prompt, sondern die Frage, was passiert, wenn das Modell danebenliegt. Eine falsch einsortierte Nachricht ist ärgerlicher als gar keine Automatisierung, weil man ihr nicht mehr traut. Deshalb bestätigt der Bot jede gespeicherte Aufgabe im Klartext zurück. Man sieht sofort, was angekommen ist, und kann korrigieren.</p>
+    <p data-i18n="learn.p2">Der zweite Punkt war der Betrieb. Ein Ablauf, der nur läuft, wenn der Laptop offen ist, wird nicht benutzt. Ein Server für gut fünf Euro im Monat hat aus einem Bastelprojekt etwas gemacht, das ich täglich verwende.</p>
+    <p class="src" data-i18n="learn.src">Zugangsdaten, Serveradresse und Bot-Token stehen bewusst nicht auf dieser Seite. Sie liegen in den Zugangsdaten von n8n und in einer Umgebungsdatei, die nicht im Repository liegt.</p>
+  </div>
+</div>
+
+<footer class="foot">
+  <div class="wrap footgrid">
+    <div>
+      <p class="footname">Lorenz Wocher</p>
+      <p class="foottag" data-i18n="foot.tag">Wien und Maastricht</p>
+    </div>
+    <ul class="footlinks">
+      <li><a href="mailto:lorenz.wocher@gmail.com">E-Mail</a></li>
+      <li><a href="https://github.com/lorenzwocher-cyber" rel="noopener">GitHub</a></li>
+      <li><a href="index.html" data-i18n="nav.projects">Projekte</a></li>
+    </ul>
+  </div>
+</footer>
+
+<script src="site.js"></script>
+<script>
+SITE.dict.en = {
+ 'nav.projects':'Projects','nav.databook':'Databook','foot.tag':'Vienna and Maastricht',
+ 'back':'&#8592; Back to the projects',
+ 'eyebrow':'Project 02 · Running since 2025','h1':'Personal AI Agent',
+ 'lede':'A Telegram bot that takes my tasks and answers my questions. I send it a message, a language model decides what to do with it, and the answer comes back in the same chat. It runs around the clock on a server of my own.',
+ 'k1':'available, independent of my laptop','k2':'server cost per month',
+ 'k3':'paths: store a task or answer a question','k4':'lines of server code I wrote myself',
+ 'callout':'The point is not the language model. The point is that it keeps running when my machine is off. An automation on your own laptop is a script. On a server it is a service.',
+ 'why.h':'Why I built it','why.s':'The problem was small and annoying anyway.',
+ 'why.p1':'Ideas and tasks rarely arrive at a desk. They arrive on the underground, mid-conversation, out running. By the time I had opened the right app, found the right project and typed the thing out, the thought was often gone or I had lost interest.',
+ 'why.p2':'Telegram is open anyway. So the path from thought to stored task should be exactly one message long, with no form, no category to pick, no thinking about structure. The model does the sorting.',
+ 'flow.h':'How a message travels','flow.s':'Five steps, all inside a single n8n workflow.',
+ 'f1.h':'Message to the bot','f1.p':'I type in Telegram, something like “slides for the course done by Friday” or “what is still open this week”.',
+ 'f2.h':'n8n picks it up','f2.p':'A webhook in the workflow receives the message. n8n is the glue between everything involved and runs as a Docker container on the server.',
+ 'f3.h':'Claude sorts it','f3.p':'The model gets the message and decides: is this a task to store, or a question about what is already there? For a task it also pulls out the title, the deadline and the topic.',
+ 'f4.h':'Supabase stores or supplies','f4.p':'Tasks go into a Postgres table. For a question it reads instead, and the model writes the answer from what is actually in the database.',
+ 'f5.h':'Answer back in the chat','f5.p':'The confirmation or the answer lands in the same Telegram chat. The whole round trip takes a few seconds.',
+ 'stack.h':'The stack','stack.s':'I wrote none of this myself, it is all plugged together.',
+ 'stack.t1':'Component','stack.t2':'Role',
+ 's1':'Workflow orchestration, in a Docker container','s2':'Input and output','s3':'Classification and answer text',
+ 's4':'Postgres database for the tasks','s5':'Small Linux server in Falkenstein',
+ 'next.h':'What comes next','next.s':'Planned, not built yet.',
+ 'n1':'Voice messages. Telegram delivers the audio file, a Whisper model through Groq transcribes it, and the rest stays the same.',
+ 'n2':'A daily page in Notion that fills itself with the open items every morning.',
+ 'n3':'A separate path for ideas, so half-formed thoughts do not end up in the same list as real tasks.',
+ 'learn.h':'What I took away from it',
+ 'learn.p1':'The hard part was not the prompt, it was working out what happens when the model gets it wrong. A misfiled message is worse than no automation at all, because you stop trusting it. So the bot echoes every stored task back in plain text. You see immediately what arrived and can correct it.',
+ 'learn.p2':'The second thing was operations. A workflow that only runs while the laptop is open does not get used. A server for just over five euros a month turned a side project into something I use every day.',
+ 'learn.src':'Credentials, the server address and the bot token are deliberately not on this page. They live in the n8n credential store and in an environment file that is not in the repository.'
+};
+SITE.init();
+</script>
+</body>
+</html>

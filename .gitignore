@@ -1,0 +1,14 @@
+# Interne Notizen, gehoeren nicht in ein oeffentliches Repository.
+# HANDOVER.md enthaelt Serveradresse, Projekt-IDs und Arbeitsstaende.
+HANDOVER.md
+Website-Kontext.md
+
+# Sicherungen frueherer Staende
+*-vorher.html
+databook-vorher-*.html
+databook-v2-*.html
+dashboards.html
+
+# Systemdateien
+.DS_Store
+node_modules/

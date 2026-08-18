@@ -1,0 +1,1209 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Data Room — Lorenz Wocher</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Tenor+Sans&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+<style>
+  *, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
+
+  :root{
+    /* ── Surfaces & ink (validated light-mode chart tokens) ── */
+    --surface-1:  #fcfcfb;   /* chart surface */
+    --plane:      #f9f9f7;   /* page plane   */
+    --ink:        #0b0b0b;
+    --ink-2:      #52514e;
+    --muted:      #898781;
+    --grid:       #e1e0d9;
+    --baseline:   #c3c2b7;
+    --hair:       rgba(11,11,11,0.10);
+
+    /* ── Categorical slots (fixed order — never cycled) ── */
+    --s1:#2a78d6; --s2:#eb6834; --s3:#1baf7a; --s4:#eda100;
+    --s5:#e87ba4; --s6:#008300; --s7:#4a3aa7;
+
+    /* ── Sequential (single hue, light→dark) ── */
+    --seq-250:#86b6ef; --seq-350:#5598e7; --seq-450:#2a78d6;
+    --seq-550:#1c5cab; --seq-650:#104281;
+
+    /* ── Status (reserved — never a series) ── */
+    --good:#0ca30c; --warn:#fab219; --serious:#ec835a; --critical:#d03b3b;
+
+    --accent:#2a78d6;
+    --sans:'Tenor Sans', system-ui, -apple-system, 'Segoe UI', sans-serif;
+    --ui:system-ui, -apple-system, 'Segoe UI', sans-serif;
+    --mono:'Space Mono', ui-monospace, monospace;
+
+    --sidebar-w: 288px;
+  }
+
+  html{ scroll-behavior:smooth; }
+  body{
+    background:var(--plane); color:var(--ink);
+    font-family:var(--ui); font-size:15px; line-height:1.6;
+    -webkit-font-smoothing:antialiased;
+  }
+
+  /* ══════════ SIDEBAR ══════════ */
+  aside{
+    position:fixed; top:0; left:0; bottom:0; width:var(--sidebar-w);
+    background:var(--surface-1); border-right:1px solid var(--hair);
+    display:flex; flex-direction:column; z-index:50; overflow-y:auto;
+  }
+  .brand{ padding:1.9rem 1.75rem 1.25rem; }
+  .brand a{
+    font-family:var(--sans); font-size:.78rem; letter-spacing:.26em;
+    text-transform:uppercase; color:var(--ink); text-decoration:none;
+  }
+  .brand p{
+    font-family:var(--mono); font-size:.6rem; letter-spacing:.12em;
+    color:var(--muted); text-transform:uppercase; margin-top:.5rem;
+  }
+
+  nav.side{ padding:.5rem .85rem 2.5rem; }
+  .nav-group-label{
+    font-family:var(--mono); font-size:.58rem; letter-spacing:.18em;
+    text-transform:uppercase; color:var(--muted);
+    padding:1.5rem .9rem .55rem;
+  }
+  .nav-item{
+    display:flex; align-items:center; gap:.7rem;
+    padding:.6rem .9rem; border-radius:6px;
+    font-size:.88rem; color:var(--ink-2); text-decoration:none;
+    cursor:pointer; border:none; background:none; width:100%;
+    text-align:left; font-family:var(--ui);
+    transition:background .15s, color .15s;
+  }
+  .nav-item:hover{ background:rgba(11,11,11,0.04); color:var(--ink); }
+  .nav-item.active{ background:rgba(42,120,214,0.09); color:var(--accent); font-weight:600; }
+  .nav-item .dot{
+    width:6px; height:6px; border-radius:50%; background:var(--baseline); flex:none;
+  }
+  .nav-item.active .dot{ background:var(--accent); }
+  .nav-sub{
+    display:flex; flex-direction:column; gap:1px;
+    margin:.15rem 0 .4rem 1.55rem;
+    border-left:1px solid var(--grid); padding-left:.55rem;
+  }
+  .nav-sub .nav-item{ font-size:.83rem; padding:.45rem .8rem; }
+  .nav-caret{ margin-left:auto; font-size:.65rem; color:var(--muted); transition:transform .2s; }
+  .nav-group.collapsed .nav-caret{ transform:rotate(-90deg); }
+  .nav-group.collapsed .nav-sub{ display:none; }
+
+  /* ══════════ MAIN ══════════ */
+  main{ margin-left:var(--sidebar-w); min-height:100vh; }
+  .page{ display:none; padding:4.5rem 4rem 6rem; max-width:1240px; }
+  .page.active{ display:block; }
+
+  .eyebrow{
+    font-family:var(--mono); font-size:.62rem; letter-spacing:.2em;
+    text-transform:uppercase; color:var(--muted); margin-bottom:.7rem;
+  }
+  h1.page-title{
+    font-family:var(--sans); font-size:clamp(2rem,3.6vw,2.9rem);
+    font-weight:400; line-height:1.1; color:var(--accent);
+    letter-spacing:-.01em; margin-bottom:1.6rem;
+  }
+  .lede{ font-size:1.02rem; color:var(--ink-2); max-width:64ch; margin-bottom:2rem; }
+
+  /* Kernaussage-Kasten */
+  .callout{
+    background:var(--accent); color:#fff;
+    padding:1.4rem 1.6rem; border-radius:8px;
+    font-size:1.02rem; line-height:1.55; max-width:78ch; margin-bottom:2.2rem;
+  }
+  .callout strong{ font-weight:700; }
+
+  /* Key takeaways */
+  .takeaways{
+    border:1px solid var(--hair); border-radius:8px; background:var(--surface-1);
+    padding:1.4rem 1.6rem; margin-bottom:1.5rem; max-width:78ch;
+  }
+  .takeaways h3{
+    font-family:var(--mono); font-size:.6rem; letter-spacing:.2em;
+    text-transform:uppercase; color:var(--muted); font-weight:400;
+    margin-bottom:.9rem; display:flex; align-items:center; gap:.5rem;
+  }
+  .takeaways ul{ list-style:none; display:flex; flex-direction:column; gap:.7rem; }
+  .takeaways li{
+    font-size:.92rem; color:var(--ink-2); padding-left:1.1rem; position:relative; line-height:1.6;
+  }
+  .takeaways li::before{
+    content:''; position:absolute; left:0; top:.6em;
+    width:5px; height:5px; border-radius:50%; background:var(--accent);
+  }
+
+  /* Reading example */
+  .reading{
+    border-left:2px solid var(--serious); padding:.2rem 0 .2rem 1.2rem;
+    margin-bottom:2.4rem; max-width:78ch;
+  }
+  .reading h4{
+    font-family:var(--mono); font-size:.58rem; letter-spacing:.2em;
+    text-transform:uppercase; color:var(--serious); font-weight:400; margin-bottom:.5rem;
+  }
+  .reading p{ font-size:.88rem; color:var(--ink-2); line-height:1.65; }
+
+  /* ── Filter row (one row above everything it scopes) ── */
+  .filters{
+    display:flex; flex-wrap:wrap; gap:1.75rem; align-items:flex-end;
+    padding:1.1rem 1.3rem; background:var(--surface-1);
+    border:1px solid var(--hair); border-radius:8px; margin-bottom:1.6rem;
+  }
+  .filter-field{ display:flex; flex-direction:column; gap:.45rem; }
+  .filter-label{
+    font-family:var(--mono); font-size:.56rem; letter-spacing:.18em;
+    text-transform:uppercase; color:var(--muted);
+  }
+  .chips{ display:flex; flex-wrap:wrap; gap:.4rem; }
+  .chip{
+    font-family:var(--ui); font-size:.76rem; padding:.32rem .7rem;
+    border:1px solid var(--grid); border-radius:999px; background:var(--surface-1);
+    color:var(--ink-2); cursor:pointer; transition:all .15s;
+    display:inline-flex; align-items:center; gap:.4rem;
+  }
+  .chip:hover{ border-color:var(--baseline); }
+  .chip[aria-pressed="true"]{ border-color:var(--accent); background:rgba(42,120,214,0.08); color:var(--accent); font-weight:600; }
+  .chip .swatch{ width:9px; height:9px; border-radius:2px; flex:none; }
+  select.filter-select{
+    font-family:var(--ui); font-size:.82rem; padding:.42rem .7rem;
+    border:1px solid var(--grid); border-radius:6px; background:var(--surface-1);
+    color:var(--ink); cursor:pointer; min-width:170px;
+  }
+  .filter-reset{
+    margin-left:auto; font-family:var(--mono); font-size:.62rem;
+    letter-spacing:.1em; text-transform:uppercase; color:var(--muted);
+    background:none; border:none; cursor:pointer; padding:.4rem 0;
+  }
+  .filter-reset:hover{ color:var(--accent); }
+
+  /* ── KPI row ── */
+  .kpi-row{
+    display:grid; grid-template-columns:repeat(auto-fit,minmax(170px,1fr));
+    gap:1px; background:var(--hair); border:1px solid var(--hair);
+    border-radius:8px; overflow:hidden; margin-bottom:1.8rem;
+  }
+  .kpi{ background:var(--surface-1); padding:1.3rem 1.4rem; }
+  .kpi .val{
+    font-family:var(--ui); font-size:2.15rem; font-weight:600;
+    color:var(--accent); line-height:1.05; letter-spacing:-.02em;
+  }
+  .kpi .lbl{ font-size:.78rem; color:var(--ink-2); margin-top:.45rem; line-height:1.4; }
+  .kpi .sub{ font-family:var(--mono); font-size:.6rem; color:var(--muted); margin-top:.3rem; }
+
+  /* ── Chart cards ── */
+  .card{
+    background:var(--surface-1); border:1px solid var(--hair);
+    border-radius:8px; padding:1.5rem 1.6rem 1.3rem; margin-bottom:1.5rem;
+  }
+  .card-head{ display:flex; align-items:baseline; justify-content:space-between; gap:1rem; margin-bottom:.35rem; flex-wrap:wrap; }
+  .card h3{ font-family:var(--sans); font-size:1.05rem; font-weight:400; color:var(--ink); }
+  .card .card-note{ font-size:.82rem; color:var(--muted); }
+  .card .card-sub{ font-size:.85rem; color:var(--ink-2); margin-bottom:1.2rem; max-width:70ch; }
+  .grid-2{ display:grid; grid-template-columns:1fr 1fr; gap:1.5rem; }
+  @media (max-width:1080px){ .grid-2{ grid-template-columns:1fr; } }
+
+  /* legend */
+  .legend{ display:flex; flex-wrap:wrap; gap:.5rem 1.15rem; margin-bottom:1rem; }
+  .legend-item{ display:inline-flex; align-items:center; gap:.42rem; font-size:.78rem; color:var(--ink-2); }
+  .legend-item svg{ flex:none; }
+
+  /* table view */
+  .table-toggle{
+    font-family:var(--mono); font-size:.6rem; letter-spacing:.12em;
+    text-transform:uppercase; color:var(--muted); background:none;
+    border:none; cursor:pointer; padding:.35rem 0;
+  }
+  .table-toggle:hover{ color:var(--accent); }
+  table.dataview{
+    width:100%; border-collapse:collapse; margin-top:1rem; font-size:.82rem;
+  }
+  table.dataview th, table.dataview td{
+    text-align:left; padding:.5rem .6rem; border-bottom:1px solid var(--grid);
+  }
+  table.dataview th{
+    font-family:var(--mono); font-size:.58rem; letter-spacing:.14em;
+    text-transform:uppercase; color:var(--muted); font-weight:400;
+  }
+  table.dataview td.num{ text-align:right; font-variant-numeric:tabular-nums; }
+  table.dataview tbody tr:hover{ background:rgba(11,11,11,0.02); }
+  .hidden{ display:none !important; }
+
+  /* svg chart text */
+  svg text{ font-family:var(--ui); }
+  .axis-label{ font-size:11px; fill:var(--muted); font-variant-numeric:tabular-nums; }
+  .cat-label{ font-size:12px; fill:var(--ink-2); }
+  .val-label{ font-size:11.5px; fill:var(--ink-2); font-variant-numeric:tabular-nums; }
+
+  /* map */
+  #spotmap{ height:520px; border-radius:6px; border:1px solid var(--hair); z-index:1; }
+  .leaflet-container{ background:var(--plane); font-family:var(--ui); }
+  .spot-pop b{ font-size:.92rem; }
+  .spot-pop .meta{ font-family:var(--mono); font-size:.66rem; color:var(--muted); text-transform:uppercase; letter-spacing:.08em; }
+
+  /* progress meters */
+  .meter-row{ margin-bottom:1.15rem; }
+  .meter-head{ display:flex; justify-content:space-between; align-items:baseline; margin-bottom:.4rem; gap:1rem; }
+  .meter-head .name{ font-size:.9rem; color:var(--ink); }
+  .meter-head .state{ font-family:var(--mono); font-size:.62rem; letter-spacing:.1em; text-transform:uppercase; color:var(--muted); }
+  .meter-track{ height:8px; border-radius:4px; background:var(--seq-250); opacity:.45; position:relative; overflow:hidden; }
+  .meter-fill{ position:absolute; inset:0 auto 0 0; border-radius:4px; background:var(--seq-550); }
+  .meter-note{ font-size:.8rem; color:var(--muted); margin-top:.35rem; }
+
+  /* status + matrix */
+  .status-pill{
+    display:inline-flex; align-items:center; gap:.35rem;
+    font-family:var(--mono); font-size:.6rem; letter-spacing:.08em; text-transform:uppercase;
+  }
+  td.mx{ text-align:center; }
+  .mx-mark{ display:inline-flex; align-items:center; justify-content:center; gap:.25rem; font-size:.78rem; }
+
+  .state-msg{
+    padding:2.5rem 1.5rem; text-align:center; color:var(--muted); font-size:.9rem;
+  }
+  .loading-dim{ opacity:.45; transition:opacity .2s; }
+
+  footer.dash-foot{
+    margin-left:var(--sidebar-w); padding:2rem 4rem 3rem;
+    border-top:1px solid var(--hair); font-family:var(--mono);
+    font-size:.6rem; letter-spacing:.1em; text-transform:uppercase; color:var(--muted);
+    display:flex; justify-content:space-between; gap:2rem; flex-wrap:wrap;
+  }
+  footer.dash-foot a{ color:var(--muted); text-decoration:none; }
+  footer.dash-foot a:hover{ color:var(--accent); }
+
+  @media (max-width:900px){
+    aside{ position:static; width:auto; height:auto; border-right:none; border-bottom:1px solid var(--hair); }
+    main, footer.dash-foot{ margin-left:0; }
+    .page{ padding:2.5rem 1.5rem 4rem; }
+    footer.dash-foot{ padding:2rem 1.5rem 3rem; }
+  }
+</style>
+</head>
+<body data-palette="#2a78d6,#eb6834,#1baf7a,#eda100,#e87ba4,#008300,#4a3aa7">
+
+<!-- ══════════ SIDEBAR ══════════ -->
+<aside>
+  <div class="brand">
+    <a href="index.html">L. Wocher</a>
+    <p>Data Room</p>
+  </div>
+
+  <nav class="side">
+    <button class="nav-item active" data-page="overview"><span class="dot"></span>Overview</button>
+
+    <div class="nav-group" id="grp-roamly">
+      <div class="nav-group-label" style="display:flex;align-items:center;cursor:pointer" onclick="toggleGroup('grp-roamly')">
+        Roamly<span class="nav-caret">▾</span>
+      </div>
+      <div class="nav-sub">
+        <button class="nav-item" data-page="r-map"><span class="dot"></span>1.1 Spot-Karte</button>
+        <button class="nav-item" data-page="r-cities"><span class="dot"></span>1.2 Städte &amp; Kategorien</button>
+        <button class="nav-item" data-page="r-quality"><span class="dot"></span>1.3 Kuratierungsqualität</button>
+        <button class="nav-item" data-page="r-market"><span class="dot"></span>1.4 Wettbewerbsumfeld</button>
+        <button class="nav-item" data-page="r-roadmap"><span class="dot"></span>1.5 Produktfortschritt</button>
+      </div>
+    </div>
+  </nav>
+</aside>
+
+<main>
+
+<!-- ══════════ OVERVIEW ══════════ -->
+<section class="page active" id="page-overview">
+  <p class="eyebrow">Data Room</p>
+  <h1 class="page-title">Overview</h1>
+  <p class="lede">
+    Ein Datenraum zu den Projekten, die ich baue. Alle Zahlen auf den Roamly-Seiten
+    werden live aus der Produktionsdatenbank geladen — keine Beispieldaten, keine
+    Platzhalter. Was hier steht, ist der tatsächliche Stand.
+  </p>
+
+  <div class="callout">
+    <strong>Roamly ist der Schwerpunkt.</strong> Eine social Travel-Map, deren MVP live ist:
+    Karte, Auth, Social Layer und Ranking-System stehen. Die folgenden Seiten zeigen
+    den echten kuratierten Datenbestand, das Wettbewerbsumfeld und den Produktfortschritt.
+  </div>
+
+  <div class="kpi-row" id="ov-kpis">
+    <div class="kpi"><div class="val" data-kpi="spots">—</div><div class="lbl">Kuratierte Orte</div><div class="sub">live aus Supabase</div></div>
+    <div class="kpi"><div class="val" data-kpi="cities">—</div><div class="lbl">Städte</div><div class="sub">aus Adressen abgeleitet</div></div>
+    <div class="kpi"><div class="val" data-kpi="trips">—</div><div class="lbl">Trips</div><div class="sub">Reise-Sammlungen</div></div>
+    <div class="kpi"><div class="val" data-kpi="cats">—</div><div class="lbl">Kategorien belegt</div><div class="sub">von 7 möglichen</div></div>
+  </div>
+
+  <div class="card">
+    <div class="card-head"><h3>Produktfortschritt</h3><span class="card-note">Stand August 2026</span></div>
+    <p class="card-sub">Vier Phasen von MVP bis Monetarisierung. Der Fortschritt bildet ab, was tatsächlich deployed ist — nicht was geplant ist.</p>
+    <div id="ov-roadmap"></div>
+  </div>
+
+  <div class="card">
+    <div class="card-head"><h3>Weitere Projekte</h3><span class="card-note">Kurzüberblick</span></div>
+    <p class="card-sub">Neben Roamly laufen mehrere kleinere Systeme im Dauerbetrieb. Diese Seite wird schrittweise um eigene Auswertungen dazu ergänzt.</p>
+    <table class="dataview">
+      <thead><tr><th>Projekt</th><th>Was es tut</th><th>Stack</th><th>Status</th></tr></thead>
+      <tbody>
+        <tr>
+          <td>Telegram-Agent</td>
+          <td>Nachricht wird klassifiziert, als Task gespeichert oder beantwortet</td>
+          <td>n8n · Claude · Supabase</td>
+          <td><span class="status-pill" style="color:var(--good)">● 24/7 live</span></td>
+        </tr>
+        <tr>
+          <td>Weekly AI Brief</td>
+          <td>7 RSS-Quellen werden montags zusammengefasst und per Mail verschickt</td>
+          <td>n8n · Groq/Claude · Gmail</td>
+          <td><span class="status-pill" style="color:var(--good)">● wöchentlich live</span></td>
+        </tr>
+        <tr>
+          <td>AI Travel Agents</td>
+          <td>Drei Prompt-Generatoren für Mietwagen, Reiseplan und Wanderrouten</td>
+          <td>Vanilla JS</td>
+          <td><span class="status-pill" style="color:var(--good)">● live</span></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<!-- ══════════ 1.1 SPOT MAP ══════════ -->
+<section class="page" id="page-r-map">
+  <p class="eyebrow">1.1 Roamly</p>
+  <h1 class="page-title">Spot-Karte</h1>
+
+  <div class="callout" id="map-callout">Daten werden geladen …</div>
+
+  <div class="takeaways">
+    <h3>Key Takeaways</h3>
+    <ul id="map-takeaways"><li>Wird aus den Live-Daten berechnet.</li></ul>
+  </div>
+
+  <div class="reading">
+    <h4>Reading Example</h4>
+    <p>
+      Jeder Marker ist ein Ort, den jemand in Roamly gepinnt hat. Die <em>Farbe</em> steht für die
+      Kategorie, die <em>Form</em> wiederholt dieselbe Information — so bleibt die Karte auch bei
+      Farbfehlsichtigkeit lesbar. Ein Marker mit kräftigem Ring ist ein „Must See“ (5 Sterne).
+      Über die Filterzeile lassen sich Kategorie und Mindestbewertung eingrenzen; Karte, Kennzahlen
+      und Tabelle darunter reagieren gemeinsam auf dieselbe Auswahl.
+    </p>
+  </div>
+
+  <div class="filters" id="map-filters">
+    <div class="filter-field">
+      <span class="filter-label">Kategorie</span>
+      <div class="chips" id="cat-chips"></div>
+    </div>
+    <div class="filter-field">
+      <span class="filter-label">Mindestbewertung</span>
+      <div class="chips" id="rating-chips">
+        <button class="chip" data-rating="0" aria-pressed="true">Alle</button>
+        <button class="chip" data-rating="3" aria-pressed="false">≥ 3 ★</button>
+        <button class="chip" data-rating="4" aria-pressed="false">≥ 4 ★</button>
+        <button class="chip" data-rating="5" aria-pressed="false">Nur 5 ★</button>
+      </div>
+    </div>
+    <div class="filter-field">
+      <span class="filter-label">Trip</span>
+      <select class="filter-select" id="trip-select"><option value="">Alle Trips</option></select>
+    </div>
+    <button class="filter-reset" id="map-reset">Zurücksetzen</button>
+  </div>
+
+  <div class="kpi-row">
+    <div class="kpi"><div class="val" data-kpi="f-spots">—</div><div class="lbl">Orte in Auswahl</div></div>
+    <div class="kpi"><div class="val" data-kpi="f-cities">—</div><div class="lbl">Städte in Auswahl</div></div>
+    <div class="kpi"><div class="val" data-kpi="f-mustsee">—</div><div class="lbl">Must-Sees (5 ★)</div></div>
+    <div class="kpi"><div class="val" data-kpi="f-countries">—</div><div class="lbl">Länder</div></div>
+  </div>
+
+  <div class="card">
+    <div class="card-head"><h3>Alle kuratierten Orte</h3><span class="card-note">Farbe = Kategorie · Form = Kategorie · Ring = Must See</span></div>
+    <div class="legend" id="map-legend"></div>
+    <div id="spotmap"></div>
+    <button class="table-toggle" data-table="map-table">▸ Tabellenansicht anzeigen</button>
+    <div class="hidden" id="map-table"></div>
+  </div>
+</section>
+
+<!-- ══════════ 1.2 CITIES & CATEGORIES ══════════ -->
+<section class="page" id="page-r-cities">
+  <p class="eyebrow">1.2 Roamly</p>
+  <h1 class="page-title">Städte &amp; Kategorien</h1>
+
+  <div class="callout" id="cities-callout">Daten werden geladen …</div>
+
+  <div class="takeaways">
+    <h3>Key Takeaways</h3>
+    <ul id="cities-takeaways"><li>Wird aus den Live-Daten berechnet.</li></ul>
+  </div>
+
+  <div class="reading">
+    <h4>Reading Example</h4>
+    <p>
+      Links: wie viele Orte auf jede Stadt entfallen — die Stadt wird aus der Google-Adresse
+      abgeleitet, nicht separat gespeichert. Rechts: wie sich dieselben Orte auf die sieben
+      Kategorien verteilen. Beide Balken sind einfarbig, weil hier <em>Menge</em> verglichen wird
+      und nicht Identität; die Länge trägt die Aussage, nicht die Farbe. Der Wert steht jeweils
+      am Balkenende.
+    </p>
+  </div>
+
+  <div class="grid-2">
+    <div class="card">
+      <div class="card-head"><h3>Orte je Stadt</h3></div>
+      <p class="card-sub">Absteigend sortiert. Die Stadt ist die Einheit, in der eine Empfehlung nützlich ist.</p>
+      <div id="chart-cities"></div>
+      <button class="table-toggle" data-table="cities-table">▸ Tabellenansicht anzeigen</button>
+      <div class="hidden" id="cities-table"></div>
+    </div>
+    <div class="card">
+      <div class="card-head"><h3>Orte je Kategorie</h3></div>
+      <p class="card-sub">Sieben Kategorien stehen zur Verfügung; belegt ist nur, was tatsächlich gepinnt wurde.</p>
+      <div id="chart-cats"></div>
+      <button class="table-toggle" data-table="cats-table">▸ Tabellenansicht anzeigen</button>
+      <div class="hidden" id="cats-table"></div>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════ 1.3 QUALITY ══════════ -->
+<section class="page" id="page-r-quality">
+  <p class="eyebrow">1.3 Roamly</p>
+  <h1 class="page-title">Kuratierungsqualität</h1>
+
+  <div class="callout" id="qual-callout">Daten werden geladen …</div>
+
+  <div class="takeaways">
+    <h3>Key Takeaways</h3>
+    <ul id="qual-takeaways"><li>Wird aus den Live-Daten berechnet.</li></ul>
+  </div>
+
+  <div class="reading">
+    <h4>Reading Example</h4>
+    <p>
+      Roamlys Kernversprechen ist, dass Empfehlungen von Menschen kommen statt aus anonymen
+      Bewertungen. Ob das trägt, hängt daran, wie vollständig ein Ort erfasst ist: ein Pin ohne
+      Notiz und ohne Foto ist nur eine Koordinate. Links die Verteilung der vergebenen Sterne,
+      rechts der Anteil der Orte, die Notiz, Foto und Bewertung tatsächlich gesetzt haben.
+    </p>
+  </div>
+
+  <div class="grid-2">
+    <div class="card">
+      <div class="card-head"><h3>Verteilung der Bewertungen</h3></div>
+      <p class="card-sub">Geordnete Skala von 1 bis 5 Sternen — dunkler heißt höher bewertet.</p>
+      <div id="chart-ratings"></div>
+      <button class="table-toggle" data-table="ratings-table">▸ Tabellenansicht anzeigen</button>
+      <div class="hidden" id="ratings-table"></div>
+    </div>
+    <div class="card">
+      <div class="card-head"><h3>Vollständigkeit der Einträge</h3></div>
+      <p class="card-sub">Anteil der Orte, bei denen das jeweilige Feld gefüllt ist.</p>
+      <div id="chart-completeness"></div>
+      <button class="table-toggle" data-table="compl-table">▸ Tabellenansicht anzeigen</button>
+      <div class="hidden" id="compl-table"></div>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════ 1.4 MARKET ══════════ -->
+<section class="page" id="page-r-market">
+  <p class="eyebrow">1.4 Roamly</p>
+  <h1 class="page-title">Wettbewerbsumfeld</h1>
+
+  <div class="callout">
+    <strong>Die exakte Idee existiert nicht eins zu eins am Markt — ähnliche schon, und die sind finanziert.</strong>
+    Das belegt den Markt und verschiebt die Aufgabe von „gibt es Nachfrage?“ zu „worin unterscheide ich mich?“.
+  </div>
+
+  <div class="takeaways">
+    <h3>Key Takeaways</h3>
+    <ul>
+      <li>Kein Wettbewerber kombiniert Map-first-Design mit Trip-Struktur — die etablierten Apps haben entweder das eine oder das andere.</li>
+      <li>Der Markt ist validiert, nicht hypothetisch: ein niederländischer Wettbewerber hat €575k eingesammelt, ein französischer besteht seit über zehn Jahren.</li>
+      <li>Die Kernidee ist in Wochen nachbaubar. Der Verteidigungsgraben muss aus Content und Community kommen, nicht aus Technik.</li>
+      <li>Das härteste Problem ist kein Feature, sondern Wachstum: ohne Freunde in der App entsteht kein Wert (Cold-Start).</li>
+    </ul>
+  </div>
+
+  <div class="reading">
+    <h4>Reading Example</h4>
+    <p>
+      Die Matrix vergleicht Roamly mit fünf Wettbewerbern über zehn Merkmale. Jede Zelle trägt ein
+      Symbol <em>und</em> eine Beschriftung — die Farbe wiederholt die Aussage nur, sie transportiert
+      sie nicht allein. Eine gefüllte Zeile heißt nicht „besser“: Merkmale, die bewusst nicht gebaut
+      werden, sind eine Entscheidung, keine Lücke.
+    </p>
+  </div>
+
+  <div class="card">
+    <div class="card-head"><h3>Merkmalsvergleich</h3><span class="card-note">Eigene Recherche, Stand 2025/26</span></div>
+    <div class="legend">
+      <span class="legend-item"><span style="color:var(--good)">●</span> vorhanden</span>
+      <span class="legend-item"><span style="color:var(--warn)">◐</span> geplant</span>
+      <span class="legend-item"><span style="color:var(--muted)">○</span> nicht vorhanden</span>
+      <span class="legend-item"><span style="color:var(--muted)">?</span> unklar</span>
+    </div>
+    <div id="market-matrix"></div>
+  </div>
+
+  <div class="card">
+    <div class="card-head"><h3>Wettbewerber im Profil</h3></div>
+    <div id="market-profiles"></div>
+  </div>
+</section>
+
+<!-- ══════════ 1.5 ROADMAP ══════════ -->
+<section class="page" id="page-r-roadmap">
+  <p class="eyebrow">1.5 Roamly</p>
+  <h1 class="page-title">Produktfortschritt</h1>
+
+  <div class="callout">
+    <strong>Der MVP ist im Kern fertig und deployed.</strong> Karte, Authentifizierung, Social Layer
+    und Ranking-System laufen; der Code liegt auf GitHub mit automatischem Deploy bei jedem Push.
+    Die laufenden Betriebskosten liegen bei null.
+  </div>
+
+  <div class="takeaways">
+    <h3>Key Takeaways</h3>
+    <ul>
+      <li>Zwei Phasen sind abgeschlossen, die dritte läuft — der Fortschritt bildet ab, was deployed ist, nicht was geplant ist.</li>
+      <li>Es gibt keinen eigenen Server: die App läuft im Browser und spricht direkt mit Datenbank, Karte und Places-API.</li>
+      <li>Bewusst auf kostenlosen Kontingenten gebaut — das hält die Laufkosten bei €0 und verschiebt Fixkosten nach hinten.</li>
+      <li>Bekannter offener Punkt: das JS-Bundle ist mit rund 2,3&nbsp;MB größer als nötig. Kein Launch-Blocker, aber eine offene Optimierung.</li>
+    </ul>
+  </div>
+
+  <div class="reading">
+    <h4>Reading Example</h4>
+    <p>
+      Jede Phase ist ein Balken: die gefüllte Länge steht für den Anteil abgeschlossener Arbeit,
+      der hellere Rest für das, was in dieser Phase noch offen ist. Darunter listet die Tabelle den
+      Technologie-Stack mit den jeweiligen Kontingenten — sie erklärt, warum die Kostenzeile
+      derzeit bei null steht und ab wann sich das ändern würde.
+    </p>
+  </div>
+
+  <div class="card">
+    <div class="card-head"><h3>Roadmap-Phasen</h3></div>
+    <div id="roadmap-full"></div>
+  </div>
+
+  <div class="card">
+    <div class="card-head"><h3>Technologie-Stack &amp; Kontingente</h3></div>
+    <p class="card-sub">Jede Zeile ist eine bewusste Entscheidung für ein kostenloses Kontingent statt eigener Infrastruktur.</p>
+    <table class="dataview">
+      <thead><tr><th>Ebene</th><th>Dienst</th><th>Kostenloses Kontingent</th><th class="num">Kosten</th></tr></thead>
+      <tbody>
+        <tr><td>Frontend</td><td>React · Vite · Tailwind</td><td>Open Source</td><td class="num">€0</td></tr>
+        <tr><td>Karte</td><td>Mapbox GL JS</td><td>50.000 Map-Loads / Monat</td><td class="num">€0</td></tr>
+        <tr><td>Orte / POI</td><td>Google Places API</td><td>~$200 Guthaben / Monat</td><td class="num">€0</td></tr>
+        <tr><td>Datenbank · Auth · Storage</td><td>Supabase</td><td>500 MB DB · 1 GB Storage</td><td class="num">€0</td></tr>
+        <tr><td>Hosting</td><td>Cloudflare Pages</td><td>unbegrenzte Bandbreite</td><td class="num">€0</td></tr>
+        <tr><td>Repository</td><td>GitHub (privat)</td><td>—</td><td class="num">€0</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+</main>
+
+<footer class="dash-foot">
+  <span>Lorenz Wocher · Data Room · Roamly-Kennzahlen live aus Supabase</span>
+  <span><a href="index.html">← Zurück zur Startseite</a></span>
+</footer>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script>
+/* ═══════════════════════════════════════════════════════════
+   CONFIG
+   Nur der als "publishable" gekennzeichnete Supabase-Key steht
+   hier. Die RLS-Policies erlauben ausschließlich Lesezugriff
+   (spots_read_public / trips_read_public); Schreiben ist an den
+   Eigentümer gebunden. Google-Places- und Mapbox-Schlüssel
+   gehören NICHT in dieses Repository.
+   ═══════════════════════════════════════════════════════════ */
+const SUPABASE_URL = 'https://oaptfqfhuemdlcrucctq.supabase.co';
+const SUPABASE_KEY = 'sb_publishable_PoHkeLYMeKnFHDS7GyeHtA_a8aOf2_N';
+
+/* ── Categorical slots: fixed order, never cycled, colour follows the entity ── */
+const CATS = [
+  { key:'restaurant',    label:'Restaurant',      color:'#2a78d6', shape:'circle'   },
+  { key:'cafe',          label:'Café',            color:'#eb6834', shape:'square'   },
+  { key:'nature',        label:'Natur',           color:'#1baf7a', shape:'triangle' },
+  { key:'sight',         label:'Sehenswürdigkeit',color:'#eda100', shape:'diamond'  },
+  { key:'shopping',      label:'Shopping',        color:'#e87ba4', shape:'cross'    },
+  { key:'accommodation', label:'Unterkunft',      color:'#008300', shape:'hexagon'  },
+  { key:'other',         label:'Sonstiges',       color:'#4a3aa7', shape:'star'     },
+];
+/* Legacy enum values still present on older rows */
+const LEGACY = { food:'restaurant', drink:'cafe', activity:'sight', view:'nature', stay:'accommodation' };
+const catOf   = k => LEGACY[k] || k || 'other';
+const catMeta = k => CATS.find(c => c.key === catOf(k)) || CATS[6];
+
+/* ═══════ City derivation — mirrors src/lib/cities.js in the Roamly repo ═══════ */
+const NO_CITY = 'Ohne Ort';
+const LEADING_POSTCODE     = /^[A-Z]?\d{3,6}(-\d{3,4})?\s+/;
+const TRAILING_UK_POSTCODE = /\s+[A-Z]{1,2}\d[A-Z\d]?\s*\d[A-Z]{2}$/i;
+const TRAILING_REGION_CODE = /\s+[A-Z]{2,3}(\s+\d{3,6})?$/;
+const TRAILING_DIGITS      = /\s+\d{3,6}$/;
+const HAS_LETTER           = /\p{L}/u;
+
+function cleanCandidate(raw){
+  return raw.replace(LEADING_POSTCODE,'').replace(TRAILING_UK_POSTCODE,'')
+            .replace(TRAILING_REGION_CODE,'').replace(TRAILING_DIGITS,'').trim();
+}
+const looksLikeStreet = s => /\d/.test(s);
+
+function cityFromAddress(address){
+  if(!address) return null;
+  const parts = address.split(',').map(p=>p.trim()).filter(Boolean);
+  if(!parts.length) return null;
+  const startAt = parts.length >= 2 ? parts.length - 2 : 0;
+  for(let i = startAt; i >= 0; i--){
+    const c = cleanCandidate(parts[i]);
+    if(!c || !HAS_LETTER.test(c)) continue;
+    if(looksLikeStreet(c)) continue;
+    return c;
+  }
+  return null;
+}
+/* Country = last comma-separated segment of the Google address */
+function countryFromAddress(address){
+  if(!address) return null;
+  const parts = address.split(',').map(p=>p.trim()).filter(Boolean);
+  return parts.length >= 2 ? parts[parts.length-1] : null;
+}
+
+/* ═══════ State ═══════ */
+let SPOTS = [], TRIPS = [], LOADED = false;
+const filters = { cats:new Set(), minRating:0, trip:'' };
+
+/* ═══════ Routing ═══════ */
+function showPage(id){
+  if(!document.getElementById('page-'+id)) id = 'overview';
+  document.querySelectorAll('.page').forEach(p => p.classList.toggle('active', p.id === 'page'+'-'+id));
+  document.querySelectorAll('.nav-item').forEach(b => b.classList.toggle('active', b.dataset.page === id));
+  window.scrollTo({ top:0 });
+  /* Leaflet measures its container on creation; a hidden container measures zero. */
+  if(id === 'r-map' && window._map) setTimeout(() => window._map.invalidateSize(), 60);
+}
+/* The hash is the single source of truth, so deep links, the browser's back
+   button and the sidebar all drive the same code path. */
+function routeFromHash(){ showPage(location.hash.replace('#','') || 'overview'); }
+document.querySelectorAll('.nav-item').forEach(btn =>
+  btn.addEventListener('click', () => {
+    if(location.hash.replace('#','') === btn.dataset.page) showPage(btn.dataset.page);
+    else location.hash = btn.dataset.page;
+  }));
+window.addEventListener('hashchange', routeFromHash);
+function toggleGroup(id){ document.getElementById(id).classList.toggle('collapsed'); }
+
+/* Table-view toggles */
+document.querySelectorAll('.table-toggle').forEach(btn => {
+  btn.addEventListener('click', () => {
+    const el = document.getElementById(btn.dataset.table);
+    const open = !el.classList.contains('hidden');
+    el.classList.toggle('hidden', open);
+    btn.textContent = (open ? '▸' : '▾') + ' Tabellenansicht ' + (open ? 'anzeigen' : 'ausblenden');
+  });
+});
+
+/* ═══════ Helpers ═══════ */
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const pct = (n,d) => d ? Math.round(n/d*100) : 0;
+function setKpi(key,val){ document.querySelectorAll(`[data-kpi="${key}"]`).forEach(el => el.textContent = val); }
+function counted(map){ return [...map.entries()].sort((a,b) => b[1]-a[1] || a[0].localeCompare(b[0])); }
+
+/* ═══════════════════════════════════════════════════════════
+   CHART PRIMITIVES — hand-rolled SVG so the mark specs hold:
+   ≤24px bars, 4px rounded data-end square at the baseline,
+   hairline solid axes, selective direct labels, hover tooltips.
+   ═══════════════════════════════════════════════════════════ */
+function hBarChart(el, rows, opts={}){
+  const { color = 'var(--seq-450)', colorFn = null, unit = '' } = opts;
+  if(!rows.length){ el.innerHTML = '<p class="state-msg">Keine Daten in dieser Auswahl.</p>'; return; }
+
+  const labelW = 132, valW = 46, rowH = 30, barH = 16, pad = 8;
+  const w = Math.max(el.clientWidth || 460, 340);
+  const plotW = w - labelW - valW - pad;
+  const h = rows.length * rowH + pad * 2;
+  const max = Math.max(...rows.map(r => r.value), 1);
+
+  let svg = `<svg viewBox="0 0 ${w} ${h}" width="100%" height="${h}" role="img">`;
+  svg += `<line x1="${labelW}" y1="${pad}" x2="${labelW}" y2="${h-pad}" stroke="var(--baseline)" stroke-width="1"/>`;
+
+  rows.forEach((r,i) => {
+    const y  = pad + i * rowH + (rowH - barH) / 2;
+    const bw = Math.max((r.value / max) * plotW, r.value > 0 ? 3 : 0);
+    const c  = colorFn ? colorFn(r,i) : color;
+    const lbl = r.label.length > 19 ? r.label.slice(0,18) + '…' : r.label;
+    /* square at the baseline, 4px rounded data-end */
+    const d = bw <= 4
+      ? `M${labelW} ${y} h${bw} v${barH} h-${bw} Z`
+      : `M${labelW} ${y} h${bw-4} a4 4 0 0 1 4 4 v${barH-8} a4 4 0 0 1 -4 4 h-${bw-4} Z`;
+    svg += `<g class="bar-g"><title>${esc(r.label)}: ${r.value}${unit}</title>`;
+    svg += `<text class="cat-label" x="${labelW-10}" y="${y+barH/2+4}" text-anchor="end">${esc(lbl)}</text>`;
+    svg += `<path d="${d}" fill="${c}"/>`;
+    svg += `<text class="val-label" x="${labelW+bw+8}" y="${y+barH/2+4}">${r.value}${unit}</text>`;
+    svg += `</g>`;
+  });
+  svg += `</svg>`;
+  el.innerHTML = svg;
+}
+
+function simpleTable(el, head, rows){
+  let t = `<table class="dataview"><thead><tr>`;
+  head.forEach((h,i) => t += `<th${i>0?' class="num"':''}>${esc(h)}</th>`);
+  t += `</tr></thead><tbody>`;
+  rows.forEach(r => {
+    t += `<tr>`;
+    r.forEach((c,i) => t += `<td${i>0?' class="num"':''}>${esc(c)}</td>`);
+    t += `</tr>`;
+  });
+  el.innerHTML = t + `</tbody></table>`;
+}
+
+/* ═══════ Marker shapes — composite encoding (hue × shape) ═══════ */
+function shapePath(shape){
+  switch(shape){
+    case 'square':   return '<rect x="4" y="4" width="12" height="12" rx="1.5"/>';
+    case 'triangle': return '<path d="M10 3.5 L17 16.5 L3 16.5 Z"/>';
+    case 'diamond':  return '<path d="M10 3 L17 10 L10 17 L3 10 Z"/>';
+    case 'cross':    return '<path d="M7.7 3 h4.6 v4.7 H17 v4.6 h-4.7 V17 H7.7 v-4.7 H3 V7.7 h4.7 Z"/>';
+    case 'hexagon':  return '<path d="M10 3 L16 6.5 L16 13.5 L10 17 L4 13.5 L4 6.5 Z"/>';
+    case 'star':     return '<path d="M10 3 L12 8 L17.5 8.3 L13.2 11.8 L14.7 17 L10 14 L5.3 17 L6.8 11.8 L2.5 8.3 L8 8 Z"/>';
+    default:         return '<circle cx="10" cy="10" r="6.5"/>';
+  }
+}
+function markerSvg(meta, mustSee){
+  const ring = mustSee
+    ? `<circle cx="10" cy="10" r="9" fill="none" stroke="${meta.color}" stroke-width="2" opacity="0.55"/>` : '';
+  /* 2px surface ring keeps overlapping markers legible */
+  return `<svg width="20" height="20" viewBox="0 0 20 20">
+    <g stroke="var(--surface-1)" stroke-width="2" paint-order="stroke">
+      <g fill="${meta.color}">${shapePath(meta.shape)}</g>
+    </g>${ring}</svg>`;
+}
+
+/* ═══════════════════════════════════════════════════════════
+   DATA LOAD
+   ═══════════════════════════════════════════════════════════ */
+async function sb(path){
+  const res = await fetch(`${SUPABASE_URL}/rest/v1/${path}`, {
+    headers:{ apikey:SUPABASE_KEY, Authorization:`Bearer ${SUPABASE_KEY}` }
+  });
+  if(!res.ok) throw new Error(`${res.status} ${res.statusText}`);
+  return res.json();
+}
+
+async function load(){
+  try{
+    const [spots, trips] = await Promise.all([
+      sb('spots?select=id,title,note,category,rating,lat,lng,address,photo_url,google_photo_url,trip_id,created_at&limit=2000'),
+      sb('trips?select=id,name&limit=200')
+    ]);
+    SPOTS = (spots || []).filter(s => typeof s.lat === 'number' && typeof s.lng === 'number');
+    TRIPS = trips || [];
+    LOADED = true;
+    buildFilters();
+    renderAll();
+  }catch(err){
+    console.error('[data room] load failed:', err);
+    showLoadError(err);
+  }
+}
+
+function showLoadError(err){
+  const msg = `<p class="state-msg">Die Live-Daten sind gerade nicht erreichbar (${esc(err.message)}).
+    Die Auswertungen auf dieser Seite werden direkt aus der Roamly-Datenbank geladen und
+    erscheinen, sobald die Verbindung wieder steht.</p>`;
+  ['spotmap','chart-cities','chart-cats','chart-ratings','chart-completeness'].forEach(id => {
+    const el = document.getElementById(id);
+    if(el){ el.style.height='auto'; el.innerHTML = msg; }
+  });
+  ['map-callout','cities-callout','qual-callout'].forEach(id => {
+    const el = document.getElementById(id);
+    if(el) el.textContent = 'Live-Daten derzeit nicht erreichbar.';
+  });
+}
+
+/* ═══════ Filters ═══════ */
+function buildFilters(){
+  const present = new Set(SPOTS.map(s => catOf(s.category)));
+  const wrap = document.getElementById('cat-chips');
+  wrap.innerHTML = `<button class="chip" data-cat="__all" aria-pressed="true">Alle</button>` +
+    CATS.filter(c => present.has(c.key)).map(c =>
+      `<button class="chip" data-cat="${c.key}" aria-pressed="false">
+         <span class="swatch" style="background:${c.color}"></span>${c.label}</button>`).join('');
+
+  wrap.querySelectorAll('.chip').forEach(chip => {
+    chip.addEventListener('click', () => {
+      const k = chip.dataset.cat;
+      if(k === '__all'){ filters.cats.clear(); }
+      else {
+        filters.cats.has(k) ? filters.cats.delete(k) : filters.cats.add(k);
+      }
+      syncCatChips(); renderAll();
+    });
+  });
+
+  const sel = document.getElementById('trip-select');
+  sel.innerHTML = `<option value="">Alle Trips</option>` +
+    TRIPS.map(t => `<option value="${esc(t.id)}">${esc(t.name)}</option>`).join('');
+  sel.addEventListener('change', e => { filters.trip = e.target.value; renderAll(); });
+
+  document.querySelectorAll('#rating-chips .chip').forEach(chip => {
+    chip.addEventListener('click', () => {
+      filters.minRating = Number(chip.dataset.rating);
+      document.querySelectorAll('#rating-chips .chip').forEach(c =>
+        c.setAttribute('aria-pressed', String(c === chip)));
+      renderAll();
+    });
+  });
+
+  document.getElementById('map-reset').addEventListener('click', () => {
+    filters.cats.clear(); filters.minRating = 0; filters.trip = '';
+    sel.value = '';
+    document.querySelectorAll('#rating-chips .chip').forEach(c =>
+      c.setAttribute('aria-pressed', String(c.dataset.rating === '0')));
+    syncCatChips(); renderAll();
+  });
+  syncCatChips();
+}
+function syncCatChips(){
+  document.querySelectorAll('#cat-chips .chip').forEach(chip => {
+    const k = chip.dataset.cat;
+    chip.setAttribute('aria-pressed',
+      String(k === '__all' ? filters.cats.size === 0 : filters.cats.has(k)));
+  });
+}
+function filtered(){
+  return SPOTS.filter(s => {
+    if(filters.cats.size && !filters.cats.has(catOf(s.category))) return false;
+    if(filters.minRating && !(s.rating >= filters.minRating)) return false;
+    if(filters.trip && s.trip_id !== filters.trip) return false;
+    return true;
+  });
+}
+
+/* ═══════════════════════════════════════════════════════════
+   RENDER
+   ═══════════════════════════════════════════════════════════ */
+/* Each block is isolated: one failing renderer (e.g. the map when its CDN
+   script is blocked) must never take the rest of the page down with it. */
+function safely(name, fn){
+  try { fn(); }
+  catch(err){ console.error(`[data room] ${name} failed:`, err); }
+}
+function renderAll(){
+  const rows = filtered();
+  safely('kpis',      () => renderKpis(rows));
+  safely('map',       () => renderMap(rows));
+  safely('map table', () => renderMapTable(rows));
+  safely('cities',    () => renderCities(rows));
+  safely('categories',() => renderCats(rows));
+  safely('quality',   () => renderQuality(rows));
+  safely('narrative', () => renderNarrative(rows));
+}
+
+function renderKpis(rows){
+  const cities = new Set(rows.map(s => cityFromAddress(s.address) || NO_CITY));
+  const countries = new Set(rows.map(s => countryFromAddress(s.address)).filter(Boolean));
+  setKpi('spots',  SPOTS.length);
+  setKpi('cities', new Set(SPOTS.map(s => cityFromAddress(s.address) || NO_CITY)).size);
+  setKpi('trips',  TRIPS.length);
+  setKpi('cats',   new Set(SPOTS.map(s => catOf(s.category))).size);
+  setKpi('f-spots',     rows.length);
+  setKpi('f-cities',    cities.size);
+  setKpi('f-mustsee',   rows.filter(s => s.rating === 5).length);
+  setKpi('f-countries', countries.size);
+}
+
+/* ── Map ── */
+function renderMap(rows){
+  const el = document.getElementById('spotmap');
+  if(!el) return;
+
+  /* The map library is a third-party script. If it did not load, degrade to the
+     table view rather than failing — every value on this page stays reachable. */
+  if(typeof L === 'undefined'){
+    el.style.height = 'auto';
+    el.innerHTML = `<p class="state-msg">Die Kartenbibliothek konnte nicht geladen werden.
+      Alle ${rows.length} Orte dieser Auswahl stehen unten in der Tabellenansicht.</p>`;
+    const t = document.getElementById('map-table');
+    const btn = document.querySelector('[data-table="map-table"]');
+    if(t && btn){ t.classList.remove('hidden'); btn.textContent = '▾ Tabellenansicht ausblenden'; }
+    return;
+  }
+
+  if(!window._map){
+    window._map = L.map('spotmap', { scrollWheelZoom:false }).setView([20,10], 2);
+    L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
+      attribution:'&copy; OpenStreetMap &copy; CARTO', maxZoom:19
+    }).addTo(window._map);
+    window._layer = L.layerGroup().addTo(window._map);
+  }
+  window._layer.clearLayers();
+
+  const legend = document.getElementById('map-legend');
+  const present = [...new Set(rows.map(s => catOf(s.category)))];
+  legend.innerHTML = CATS.filter(c => present.includes(c.key)).map(c =>
+    `<span class="legend-item">${markerSvg(c,false)}${c.label}</span>`).join('') +
+    `<span class="legend-item" style="color:var(--muted)">Ring = Must See (5 ★)</span>`;
+
+  if(!rows.length){ return; }
+
+  const bounds = [];
+  rows.forEach(s => {
+    const meta = catMeta(s.category);
+    const icon = L.divIcon({
+      html: markerSvg(meta, s.rating === 5),
+      className:'', iconSize:[20,20], iconAnchor:[10,10]
+    });
+    const stars = s.rating ? '★'.repeat(s.rating) + '☆'.repeat(5 - s.rating) : '– keine Bewertung';
+    const city  = cityFromAddress(s.address);
+    const m = L.marker([s.lat, s.lng], { icon, title:s.title })
+      .bindPopup(`<div class="spot-pop">
+          <div class="meta">${esc(meta.label)}${city ? ' · ' + esc(city) : ''}</div>
+          <b>${esc(s.title)}</b><br>
+          <span style="color:#8F6410">${stars}</span>
+          ${s.note ? '<br><span style="color:#52514e">' + esc(s.note.slice(0,140)) + (s.note.length>140?'…':'') + '</span>' : ''}
+        </div>`);
+    window._layer.addLayer(m);
+    bounds.push([s.lat, s.lng]);
+  });
+  if(bounds.length) window._map.fitBounds(bounds, { padding:[40,40], maxZoom:11 });
+}
+
+function renderMapTable(rows){
+  const sorted = [...rows].sort((a,b) =>
+    (a.title||'').localeCompare(b.title||''));
+  simpleTable(document.getElementById('map-table'),
+    ['Ort','Kategorie','Stadt','Land','Bewertung'],
+    sorted.map(s => [
+      s.title || '—',
+      catMeta(s.category).label,
+      cityFromAddress(s.address) || '—',
+      countryFromAddress(s.address) || '—',
+      s.rating ? s.rating + ' ★' : '—'
+    ]));
+}
+
+/* ── Cities ── */
+function renderCities(rows){
+  const m = new Map();
+  rows.forEach(s => {
+    const c = cityFromAddress(s.address) || NO_CITY;
+    m.set(c, (m.get(c) || 0) + 1);
+  });
+  const data = counted(m).map(([label,value]) => ({ label, value }));
+  hBarChart(document.getElementById('chart-cities'), data.slice(0,14));
+  simpleTable(document.getElementById('cities-table'), ['Stadt','Orte','Anteil'],
+    data.map(d => [d.label, d.value, pct(d.value, rows.length) + '%']));
+}
+
+/* ── Categories ── */
+function renderCats(rows){
+  const m = new Map();
+  rows.forEach(s => {
+    const k = catMeta(s.category).label;
+    m.set(k, (m.get(k) || 0) + 1);
+  });
+  const data = counted(m).map(([label,value]) => ({ label, value }));
+  hBarChart(document.getElementById('chart-cats'), data);
+  simpleTable(document.getElementById('cats-table'), ['Kategorie','Orte','Anteil'],
+    data.map(d => [d.label, d.value, pct(d.value, rows.length) + '%']));
+}
+
+/* ── Quality ── */
+function renderQuality(rows){
+  /* Ordinal ramp: 1★ → 5★, light→dark, no lighter than seq-250 on light surface */
+  const ramp = ['#86b6ef','#5598e7','#2a78d6','#1c5cab','#104281'];
+  const rated = rows.filter(s => s.rating);
+  const dist = [1,2,3,4,5].map(n => ({
+    label:'★'.repeat(n), value:rated.filter(s => s.rating === n).length, n
+  }));
+  hBarChart(document.getElementById('chart-ratings'), dist, { colorFn:r => ramp[r.n-1] });
+  simpleTable(document.getElementById('ratings-table'), ['Bewertung','Orte','Anteil bewerteter'],
+    dist.map(d => [d.n + ' ★', d.value, pct(d.value, rated.length) + '%']));
+
+  const has = f => rows.filter(f).length;
+  const compl = [
+    { label:'Bewertung', value:pct(has(s => !!s.rating), rows.length) },
+    { label:'Notiz',     value:pct(has(s => s.note && s.note.trim()), rows.length) },
+    { label:'Foto',      value:pct(has(s => s.photo_url || s.google_photo_url), rows.length) },
+    { label:'Adresse',   value:pct(has(s => s.address && s.address.trim()), rows.length) },
+  ].sort((a,b) => b.value - a.value);
+  hBarChart(document.getElementById('chart-completeness'), compl, { unit:'%' });
+  simpleTable(document.getElementById('compl-table'), ['Feld','Anteil gefüllt'],
+    compl.map(d => [d.label, d.value + '%']));
+}
+
+/* ── Narrative: callouts + takeaways computed from the live data ── */
+function renderNarrative(rows){
+  const all = SPOTS;
+  if(!all.length){
+    document.getElementById('map-callout').textContent = 'Noch keine Orte in der Datenbank.';
+    return;
+  }
+  const cityMap = new Map();
+  all.forEach(s => { const c = cityFromAddress(s.address) || NO_CITY; cityMap.set(c,(cityMap.get(c)||0)+1); });
+  const cities = counted(cityMap);
+  const topCity = cities[0];
+  const countries = new Set(all.map(s => countryFromAddress(s.address)).filter(Boolean));
+  const catMap = new Map();
+  all.forEach(s => { const k = catMeta(s.category).label; catMap.set(k,(catMap.get(k)||0)+1); });
+  const topCat = counted(catMap)[0];
+  const mustSee = all.filter(s => s.rating === 5).length;
+  const rated   = all.filter(s => s.rating).length;
+  const withNote = all.filter(s => s.note && s.note.trim()).length;
+  const withPhoto = all.filter(s => s.photo_url || s.google_photo_url).length;
+
+  document.getElementById('map-callout').innerHTML =
+    `<strong>${all.length} kuratierte Orte in ${cities.length} Städten und ${countries.size} ${countries.size===1?'Land':'Ländern'}.</strong>
+     Das ist kein Aggregat aus fremden Bewertungen, sondern ein von Hand gepflegter Bestand —
+     jeder Punkt auf der Karte wurde bewusst gesetzt.`;
+
+  document.getElementById('map-takeaways').innerHTML = [
+    `Der Bestand konzentriert sich auf <strong>${esc(topCity[0])}</strong> mit ${topCity[1]} von ${all.length} Orten (${pct(topCity[1],all.length)}%) — Empfehlungen sind dort dicht genug, um für jemanden vor Ort nützlich zu sein.`,
+    `<strong>${mustSee}</strong> Orte sind mit fünf Sternen als „Must See“ markiert; sie tragen auf der Karte einen Ring und heben sich damit ohne zusätzliche Erklärung ab.`,
+    `Die Verteilung über ${countries.size} ${countries.size===1?'Land':'Länder'} zeigt den Ursprung als Reise-Werkzeug: gepinnt wird unterwegs, nicht in der Heimatstadt.`,
+    `Kein Ort stammt aus einem gekauften Datensatz. Genau dieser handkuratierte Anfangsbestand ist das, was der Konkurrenz beim Start fehlt.`
+  ].map(t => `<li>${t}</li>`).join('');
+
+  document.getElementById('cities-callout').innerHTML =
+    `<strong>${esc(topCity[0])} führt mit ${topCity[1]} Orten, ${esc(topCat[0])} ist die häufigste Kategorie (${topCat[1]}).</strong>
+     Die Stadt — nicht die Person — ist die Einheit, in der eine Empfehlung nützlich wird.`;
+
+  document.getElementById('cities-takeaways').innerHTML = [
+    `${cities.length} Städte sind belegt, die Top-3 vereinen ${pct(cities.slice(0,3).reduce((a,c)=>a+c[1],0), all.length)}% aller Orte auf sich — Tiefe vor Breite.`,
+    `Die Stadtzuordnung wird zur Laufzeit aus der Google-Adresse abgeleitet statt als Feld gespeichert; das spart eine Migration und lässt sich jederzeit nachschärfen.`,
+    `<strong>${esc(topCat[0])}</strong> dominiert mit ${pct(topCat[1],all.length)}% — die Art von Ort, die man Freunden tatsächlich weitererzählt.`,
+    (() => {
+      const used = new Set(all.map(s => catOf(s.category)));
+      const missing = CATS.filter(c => !used.has(c.key)).map(c => c.label);
+      return missing.length
+        ? `${used.size} von 7 Kategorien sind belegt — ${esc(missing.join(', '))} ${missing.length===1?'fehlt':'fehlen'} noch und ${missing.length===1?'zeigt':'zeigen'}, wo der Bestand dünn ist.`
+        : `Alle 7 Kategorien sind belegt — der Bestand deckt die volle Bandbreite ab, von Essen über Natur bis Unterkunft.`;
+    })()
+  ].map(t => `<li>${t}</li>`).join('');
+
+  document.getElementById('qual-callout').innerHTML =
+    `<strong>${pct(rated,all.length)}% der Orte sind bewertet, ${pct(withNote,all.length)}% haben eine persönliche Notiz.</strong>
+     Notiz und Foto sind der Unterschied zwischen einer Empfehlung und einer Koordinate.`;
+
+  document.getElementById('qual-takeaways').innerHTML = [
+    `${rated} von ${all.length} Orten tragen eine Bewertung (${pct(rated,all.length)}%) — die Skala wird tatsächlich genutzt und nicht ignoriert.`,
+    `${withNote} Orte haben eine persönliche Notiz (${pct(withNote,all.length)}%). Das ist der Inhalt, den anonyme Bewertungsportale strukturell nicht liefern können.`,
+    `${withPhoto} Orte haben ein Foto (${pct(withPhoto,all.length)}%) — bei den übrigen fehlt der visuelle Anker, der einen Ort im Feed erst attraktiv macht.`,
+    `${mustSee} Orte sind als Must See markiert. Dass nicht alles fünf Sterne bekommt, ist das, was der Auszeichnung überhaupt Bedeutung gibt.`
+  ].map(t => `<li>${t}</li>`).join('');
+}
+
+/* ═══════ Static: roadmap ═══════ */
+const ROADMAP = [
+  { name:'Phase 0 — Personal MVP', pct:100, state:'abgeschlossen',
+    note:'Eigene Reise-Karte, erste Demo im Freundeskreis.' },
+  { name:'Phase 1 — Social Layer', pct:100, state:'abgeschlossen',
+    note:'Auth, Freunde folgen, öffentliche Profile, teilbare Trip-Links.' },
+  { name:'Phase 2 — Discovery', pct:45, state:'in Arbeit',
+    note:'Google-Maps-Import gebaut; Freundes-Feed und Stadt-Filter offen.' },
+  { name:'Phase 3 — Monetarisierung', pct:0, state:'geplant',
+    note:'Creator-Guides, Buchungs-Integrationen, Premium-Funktionen.' },
+];
+function renderRoadmap(el){
+  if(!el) return;
+  el.innerHTML = ROADMAP.map(p => `
+    <div class="meter-row">
+      <div class="meter-head"><span class="name">${esc(p.name)}</span><span class="state">${esc(p.state)} · ${p.pct}%</span></div>
+      <div class="meter-track"><div class="meter-fill" style="width:${p.pct}%"></div></div>
+      <p class="meter-note">${esc(p.note)}</p>
+    </div>`).join('');
+}
+
+/* ═══════ Static: competitive matrix ═══════ */
+const COMPETITORS = ['Roamly','Mapstr','Stippl','Corner','Boop','Wanderlog'];
+const FEATURES = [
+  ['Map-first Design',          ['y','y','n','n','n','y']],
+  ['Freunde auf Karte sehen',   ['p','y','n','y','n','n']],
+  ['Trip-Struktur',             ['y','n','y','n','y','y']],
+  ['Story-Telling um Reisen',   ['y','n','n','n','y','n']],
+  ['POI direkt anklickbar',     ['y','n','n','n','n','n']],
+  ['Europa-Fokus',              ['y','y','y','n','n','n']],
+  ['Modernes Design',           ['y','n','y','u','u','n']],
+  ['Stabil & einfach',          ['y','y','n','u','u','y']],
+  ['Creator-Monetarisierung',   ['p','n','n','n','y','n']],
+  ['Authentischer Startbestand',['y','n','n','n','n','n']],
+];
+const MARK = {
+  y:{ sym:'●', label:'ja',      color:'var(--good)'    },
+  p:{ sym:'◐', label:'geplant', color:'var(--warn)'    },
+  n:{ sym:'○', label:'nein',    color:'var(--muted)'   },
+  u:{ sym:'?', label:'unklar',  color:'var(--muted)'   },
+};
+function renderMatrix(el){
+  if(!el) return;
+  let t = `<table class="dataview"><thead><tr><th>Merkmal</th>`;
+  COMPETITORS.forEach(c => t += `<th style="text-align:center${c==='Roamly'?';color:var(--accent)':''}">${esc(c)}</th>`);
+  t += `</tr></thead><tbody>`;
+  FEATURES.forEach(([name, vals]) => {
+    t += `<tr><td>${esc(name)}</td>`;
+    vals.forEach(v => {
+      const m = MARK[v];
+      t += `<td class="mx"><span class="mx-mark" style="color:${m.color}" title="${m.label}">${m.sym}<span style="font-size:.62rem;color:var(--muted)">${m.label}</span></span></td>`;
+    });
+    t += `</tr>`;
+  });
+  el.innerHTML = t + `</tbody></table>`;
+}
+
+const PROFILES = [
+  { name:'Mapstr', origin:'Frankreich', status:'etabliert, 10+ Jahre',
+    strength:'Ausgereift, große Community, Privacy-first, bereits Magazin-Karten.',
+    weakness:'Kein Trip-Konzept — alles liegt auf einer flachen Karte; Design gealtert; kein Feed.' },
+  { name:'Stippl', origin:'Niederlande', status:'€575k Funding, 930k+ Downloads',
+    strength:'Sehr feature-reich, KI-Reiseplanung, 3D-Trip-Videos, gute Funding-Story.',
+    weakness:'Instabil, komplex, Fokus auf Planung vor der Reise statt Empfehlungen danach; listenbasiert.' },
+  { name:'Corner', origin:'USA', status:'Early Stage (2023)',
+    strength:'Klare Positionierung: „digitalisiert Mundpropaganda“.',
+    weakness:'Sehr früh, kaum aktive Community, nicht Map-first, rein US-fokussiert.' },
+  { name:'Boop', origin:'USA', status:'invite-only (Nov 2025)',
+    strength:'Starke Gründerin, cleveres Affiliate-Modell, AI-first.',
+    weakness:'Noch kein öffentlicher Launch, kein Map-first-Design, eher Itinerary-Tool.' },
+  { name:'Wanderlog', origin:'USA', status:'etabliert, kostenlos',
+    strength:'Solide kollaborative Routenplanung, Offline-Zugriff, kostenlos.',
+    weakness:'Kein Social-Layer, Fokus auf Logistik statt Inspiration.' },
+];
+function renderProfiles(el){
+  if(!el) return;
+  el.innerHTML = `<table class="dataview">
+    <thead><tr><th>Wettbewerber</th><th style="text-align:left">Herkunft / Status</th><th style="text-align:left">Stärke</th><th style="text-align:left">Schwäche</th></tr></thead>
+    <tbody>${PROFILES.map(p => `<tr>
+      <td><strong>${esc(p.name)}</strong></td>
+      <td>${esc(p.origin)} · ${esc(p.status)}</td>
+      <td>${esc(p.strength)}</td>
+      <td>${esc(p.weakness)}</td>
+    </tr>`).join('')}</tbody></table>`;
+}
+
+/* ═══════ Init ═══════ */
+renderRoadmap(document.getElementById('ov-roadmap'));
+renderRoadmap(document.getElementById('roadmap-full'));
+renderMatrix(document.getElementById('market-matrix'));
+renderProfiles(document.getElementById('market-profiles'));
+
+routeFromHash();
+
+let rt;
+window.addEventListener('resize', () => { clearTimeout(rt); rt = setTimeout(() => { if(LOADED) renderAll(); }, 180); });
+
+load();
+</script>
+</body>
+</html>

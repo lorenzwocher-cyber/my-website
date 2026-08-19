@@ -386,6 +386,12 @@
     #agents { padding: 4rem 1.5rem 8rem; }
     footer { flex-direction: column; gap: 2.5rem; align-items: flex-start; padding: 4rem 1.5rem; }
   }
+
+  @media (max-width: 620px) {
+    .agents-grid { grid-template-columns: 1fr; }
+    .agent-card { max-width: 100%; padding-left: 18px; padding-right: 18px; }
+    .nav-links { gap: 14px; flex-wrap: wrap; }
+  }
 </style>
 </head>
 <body>

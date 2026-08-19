@@ -199,7 +199,12 @@ svg text{font-family:var(--sans)}
 footer{margin-left:var(--sb);padding:20px 44px 40px;border-top:1px solid var(--line);font-size:10.5px;color:var(--ink3)}
 @media(max-width:900px){
   aside{position:static;width:auto;border-right:0;border-bottom:1px solid var(--line)}
-  main,footer{margin-left:0}.pg{padding:22px 16px 60px}.topbar{padding:12px 16px}footer{padding:20px 16px 40px}
+  main,footer{margin-left:0}.pg{padding:22px 14px 60px;max-width:100%}.topbar{padding:12px 14px}footer{padding:20px 14px 40px}
+  .card,.tk,.callout,.rx,.gap,.note,.flt,.kpis{max-width:100%}
+  .kpis{grid-template-columns:repeat(auto-fit,minmax(128px,1fr))}
+  .kp .v{font-size:26px}
+  .card{padding:16px 15px}.callout{padding:15px 16px;font-size:17px}.tk{padding:15px 16px}
+  table{font-size:11.5px}th,td{padding:6px 6px}
 }
 @media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}html{scroll-behavior:auto}}
 </style>

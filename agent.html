@@ -80,12 +80,12 @@
       </table>
     </div>
     <div class="card">
-      <h3 data-i18n="next.h">Was als Nächstes kommt</h3>
-      <p class="sub" data-i18n="next.s">Geplant, noch nicht gebaut.</p>
+      <h3 data-i18n="next.h">Gerade in Arbeit</h3>
+      <p class="sub" data-i18n="next.s">Woran ich im Moment sitze.</p>
       <ul class="plain">
-        <li data-i18n="n1">Sprachnachrichten. Telegram liefert die Audiodatei, ein Whisper-Modell über Groq schreibt sie mit, der Rest bleibt gleich.</li>
+        <li data-i18n="n1">Sprachnachrichten, damit der Agent auch im Gehen funktioniert. Telegram liefert die Audiodatei, ein Whisper-Modell über Groq schreibt sie mit, der restliche Ablauf bleibt gleich.</li>
         <li data-i18n="n2">Eine Tagesseite in Notion, die morgens automatisch mit den offenen Punkten befüllt wird.</li>
-        <li data-i18n="n3">Ein getrennter Weg für Ideen, damit halbfertige Gedanken nicht in derselben Liste landen wie echte Aufgaben.</li>
+        <li data-i18n="n3">Eine eigene Wissensbasis über Vektorsuche. Meine Notizen werden in Abschnitte zerlegt, als Embeddings mit pgvector in Supabase abgelegt und bei einer Frage nach Ähnlichkeit statt nach Stichwort durchsucht. Damit schaut der Agent nicht mehr nur auf seine eigene Aufgabentabelle, sondern auf alles, was ich ohnehin schon aufgeschrieben habe.</li>
       </ul>
     </div>
   </div>
@@ -102,10 +102,10 @@
   <div class="wrap footgrid">
     <div>
       <p class="footname">Lorenz Wocher</p>
-      <p class="foottag" data-i18n="foot.tag">Wien und Maastricht</p>
     </div>
     <ul class="footlinks">
       <li><a href="mailto:lorenz.wocher@gmail.com">E-Mail</a></li>
+      <li><a href="https://www.linkedin.com/in/lorenz-wocher-498263200/" rel="noopener">LinkedIn</a></li>
       <li><a href="https://github.com/lorenzwocher-cyber" rel="noopener">GitHub</a></li>
       <li><a href="index.html" data-i18n="nav.projects">Projekte</a></li>
     </ul>
@@ -115,7 +115,7 @@
 <script src="site.js"></script>
 <script>
 SITE.dict.en = {
- 'nav.projects':'Projects','nav.databook':'Databook','foot.tag':'Vienna and Maastricht',
+ 'nav.projects':'Projects','nav.databook':'Databook',
  'back':'&#8592; Back to the projects',
  'eyebrow':'Project 02 · Running since 2025','h1':'Personal AI Agent',
  'lede':'A Telegram bot that takes my tasks and answers my questions. I send it a message, a language model decides what to do with it, and the answer comes back in the same chat. It runs around the clock on a server of my own.',
@@ -135,10 +135,10 @@ SITE.dict.en = {
  'stack.t1':'Component','stack.t2':'Role',
  's1':'Workflow orchestration, in a Docker container','s2':'Input and output','s3':'Classification and answer text',
  's4':'Postgres database for the tasks','s5':'Small Linux server in Falkenstein',
- 'next.h':'What comes next','next.s':'Planned, not built yet.',
- 'n1':'Voice messages. Telegram delivers the audio file, a Whisper model through Groq transcribes it, and the rest stays the same.',
+ 'next.h':'Currently in progress','next.s':'What I am working on right now.',
+ 'n1':'Voice messages, so the agent also works while walking. Telegram delivers the audio file, a Whisper model through Groq transcribes it, and the rest of the workflow stays the same.',
  'n2':'A daily page in Notion that fills itself with the open items every morning.',
- 'n3':'A separate path for ideas, so half-formed thoughts do not end up in the same list as real tasks.',
+ 'n3':'A knowledge base of my own, through vector search. My notes get split into passages, stored as embeddings with pgvector in Supabase, and searched by similarity rather than by keyword when a question comes in. That way the agent stops looking only at its own task table and starts looking at everything I have written down anyway.',
  'learn.h':'What I took away from it',
  'learn.p1':'The hard part was not the prompt, it was working out what happens when the model gets it wrong. A misfiled message is worse than no automation at all, because you stop trusting it. So the bot echoes every stored task back in plain text. You see immediately what arrived and can correct it.',
  'learn.p2':'The second thing was operations. A workflow that only runs while the laptop is open does not get used. A server for just over five euros a month turned a side project into something I use every day.',

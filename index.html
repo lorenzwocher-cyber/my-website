@@ -89,6 +89,23 @@
       </div>
     </div>
   </article>
+
+  <article class="proj" id="p4">
+    <div class="proj-n">04</div>
+    <div class="proj-body">
+      <div class="proj-head">
+        <h3 data-i18n="p4.h">Bewerbungstracker</h3>
+        <span class="badge live" data-i18n="badge.daily">Täglich in Benutzung</span>
+      </div>
+      <p class="proj-sub" data-i18n="p4.sub">Pipeline und vorgefilterter Job-Einlauf</p>
+      <p class="proj-txt" data-i18n="p4.txt">Eine Tabelle trägt ungefähr zwanzig Bewerbungen, danach gehen Fristen unter und dieselbe Firma taucht dreimal auf. Also habe ich mir eine eigene Seite gebaut: links die Pipeline mit Status und nächstem Schritt, rechts ein Einlauf neuer Stellen, den ein Assistent vorfiltert und als JSON-Block einspielt. Kein Backend, kein Login, alles in einer einzigen Datei.</p>
+      <div class="tags"><span>Vanilla JS</span><span>Claude</span><span>JSON</span></div>
+      <div class="proj-links">
+        <a class="btn" href="bewerbungstracker-demo.html" data-i18n="p4.link1">Demo öffnen</a>
+        <span class="hint" data-i18n="p4.hint">Die Demo läuft mit erfundenen Firmen; meine echten Bewerbungen bleiben privat.</span>
+      </div>
+    </div>
+  </article>
 </section>
 </main>
 
@@ -124,7 +141,12 @@ SITE.dict.en = {
  'p2.link1':'How it works',
  'p3.h':'Travel agent prompts','p3.sub':'Three prompt generators',
  'p3.txt':'My first attempt with Claude Code: three forms that turn a handful of inputs into a very detailed search prompt, for rental cars, trip planning and hiking routes. No backend, no database, just JavaScript in the browser. I keep it online because it shows where I started.',
- 'p3.link1':'Open the generators','p3.note':'The generators themselves are in German.'
+ 'p3.link1':'Open the generators','p3.note':'The generators themselves are in German.',
+ 'badge.daily':'In daily use',
+ 'p4.h':'Application tracker','p4.sub':'Pipeline and a pre-filtered job inbox',
+ 'p4.txt':'A spreadsheet carries about twenty applications. After that deadlines slip through and the same company shows up three times. So I built myself a page: on one side the pipeline with status and next step, on the other an inbox of new roles that an assistant pre-filters and hands over as a JSON block. No backend, no login, all in a single file.',
+ 'p4.link1':'Open the demo',
+ 'p4.hint':'The demo runs on invented companies; my real applications stay private. The tracker itself is in German.'
 };
 SITE.init();
 </script>

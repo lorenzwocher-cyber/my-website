@@ -1,0 +1,1672 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Bewerbungstracker Demo &middot; Lorenz Wocher</title>
+<meta name="description" content="Interaktive Demo eines selbstgebauten Bewerbungstrackers: Pipeline, vorgefilterte Job-Inbox, Blitz-Round. Alle Daten sind erfunden.">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Instrument+Sans:wght@400;500;600&display=swap">
+<style>
+/* Palette und Schriften identisch mit style.css / databook.html. */
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --paper:#F5F1EA; --card:#FBF9F5; --band:#EFEAE1; --sunk:#F1ECE3;
+  --olive:#55603A; --olive-d:#3F4A28; --ochre:#8F6410; --terra:#B5623C;
+  --ink:rgba(43,34,28,.94); --ink2:rgba(43,34,28,.66); --ink3:rgba(43,34,28,.46);
+  --line:rgba(58,46,38,.11); --line2:rgba(58,46,38,.19); --line3:rgba(58,46,38,.30);
+  --blue:#1F6FA8;
+  --serif:'Instrument Serif',Georgia,serif;
+  --sans:'Instrument Sans',-apple-system,system-ui,sans-serif;
+  --mono:ui-monospace,SFMono-Regular,Menlo,monospace;
+  --sh1:0 1px 2px rgba(58,46,38,.05);
+  --sh2:0 2px 4px rgba(58,46,38,.05), 0 8px 20px -8px rgba(58,46,38,.14);
+
+  /* Rollenfarben der App, auf die Seitenpalette abgebildet */
+  --ground:var(--paper); --surface:var(--card); --surface-2:var(--band); --surface-3:var(--sunk);
+  --line-2:var(--line2);
+  --ink-2:var(--ink2); --ink-3:var(--ink3);
+  --accent:var(--olive); --accent-ink:#FBF9F5;
+  --accent-soft:rgba(85,96,58,.10); --accent-line:rgba(85,96,58,.34);
+  --warn:var(--ochre); --warn-soft:rgba(143,100,16,.11);
+  --danger:var(--terra); --danger-soft:rgba(181,98,60,.12);
+  --info:var(--blue); --info-soft:rgba(31,111,168,.10);
+  --focus:var(--blue);
+  --shadow:var(--sh1);
+}
+
+body{
+  margin:0; background:var(--paper); color:var(--ink);
+  font-family:var(--sans);
+  font-size:15px; line-height:1.62; -webkit-font-smoothing:antialiased;
+}
+a{color:var(--olive); text-decoration:none}
+a:hover{color:var(--olive-d)}
+button{font:inherit; color:inherit}
+:focus-visible{outline:2px solid var(--focus); outline-offset:2px; border-radius:3px}
+em{font-style:italic}
+.wrap{max-width:1280px; margin:0 auto; padding:28px 28px 80px}
+
+/* ---- Kopfleiste wie auf der Website ---- */
+.topnav{position:sticky; top:0; z-index:50; display:flex; justify-content:space-between; align-items:center;
+  gap:20px; padding:14px 28px; background:rgba(251,249,245,.9); backdrop-filter:blur(8px);
+  border-bottom:1px solid var(--line)}
+.topnav .logo{font-size:11px; letter-spacing:.24em; text-transform:uppercase; color:var(--ink); font-weight:600}
+.topnav ul{display:flex; gap:20px; list-style:none; align-items:center}
+.topnav ul a{font-size:12px; letter-spacing:.14em; text-transform:uppercase; color:var(--ink3)}
+.topnav ul a:hover{color:var(--ink)}
+.topnav ul a.ghost{border:1px solid var(--line2); border-radius:999px; padding:5px 13px; color:var(--olive)}
+.topnav ul a.ghost:hover{border-color:var(--olive); background:rgba(85,96,58,.07)}
+
+/* ---- Demo-Hinweis ---- */
+.demobar{background:var(--olive); color:#FBF9F5; font-size:13px; padding:9px 0}
+.demobar .inner{max-width:1280px; margin:0 auto; padding:0 28px; display:flex; align-items:center; gap:12px; flex-wrap:wrap}
+.demobar b{font-weight:600}
+.demobar .sep{opacity:.45}
+.demobar .grow{flex:1 1 auto}
+.demobar a{color:#FBF9F5; text-decoration:underline; text-underline-offset:2px}
+
+.top{display:flex; align-items:flex-start; justify-content:space-between; gap:24px; flex-wrap:wrap; margin-top:26px}
+h1{font-family:var(--serif); font-weight:400; font-size:clamp(31px,4.4vw,46px); line-height:1.06; margin:0 0 10px; letter-spacing:-.018em}
+.sub{margin:0; color:var(--ink2); font-size:15px; max-width:62ch}
+
+.saver{display:flex; align-items:center; gap:10px; flex-wrap:wrap; justify-content:flex-end}
+.pill{display:inline-flex; align-items:center; gap:8px; white-space:nowrap;
+  background:var(--card); border:1px solid var(--line); border-radius:999px;
+  padding:7px 14px; font-size:12.5px; color:var(--ink2); box-shadow:var(--sh1)}
+.pill .dot{width:7px; height:7px; border-radius:50%; background:var(--ink3); flex:none}
+.pill[data-state="demo"] .dot{background:var(--olive)}
+.pill[data-state="dirty"] .dot{background:var(--ochre)}
+.pill[data-state="dirty"]{color:var(--ochre)}
+
+.banner{margin:16px 0 0; padding:12px 16px; border-radius:8px; font-size:13.5px;
+  background:var(--info-soft); color:var(--info); border:1px solid rgba(31,111,168,.3)}
+.banner[hidden]{display:none}
+
+.tabs{display:flex; gap:2px; margin:26px 0 0; border-bottom:1px solid var(--line)}
+.tab{appearance:none; background:none; border:0; border-bottom:2px solid transparent; padding:10px 16px 12px;
+  font-size:13px; letter-spacing:.06em; font-weight:600; color:var(--ink3); cursor:pointer}
+.tab:hover{color:var(--ink)}
+.tab[aria-selected="true"]{color:var(--ink); border-bottom-color:var(--olive)}
+.tab .count{font-family:var(--mono); font-size:11px; background:var(--band); border-radius:999px; padding:2px 7px; margin-left:8px; color:var(--ink2)}
+.page{padding-top:24px}
+.page[hidden]{display:none}
+
+.stats{display:grid; grid-template-columns:repeat(auto-fit,minmax(158px,1fr)); background:var(--card);
+  border:1px solid var(--line); border-radius:10px; overflow:hidden; box-shadow:var(--sh1)}
+.stat{padding:16px 20px; border-right:1px solid var(--line)}
+.stat:last-child{border-right:0}
+.stat b{display:block; font-family:var(--serif); font-weight:400; font-size:31px; line-height:1; font-variant-numeric:tabular-nums; color:var(--ink)}
+.stat span{display:block; margin-top:6px; font-size:11.5px; color:var(--ink3); line-height:1.4}
+.stat.alert b{color:var(--ochre)}
+
+.bar{display:flex; align-items:center; gap:10px; flex-wrap:wrap; margin:22px 0 14px}
+.search{flex:1 1 240px; min-width:190px; background:var(--card); border:1px solid var(--line); border-radius:8px;
+  padding:9px 12px; font:inherit; font-size:14px; color:var(--ink)}
+.search::placeholder{color:var(--ink3)}
+.chips{display:flex; gap:6px; flex-wrap:wrap}
+.chip{appearance:none; background:var(--card); border:1px solid var(--line); border-radius:999px;
+  padding:6px 14px; font-size:12.5px; cursor:pointer; color:var(--ink2)}
+.chip:hover{border-color:var(--line3); color:var(--ink)}
+.chip[aria-pressed="true"]{background:rgba(85,96,58,.10); border-color:var(--accent-line); color:var(--olive); font-weight:600}
+.spacer{flex:1 1 auto}
+.btn{appearance:none; border:1px solid var(--line2); background:var(--card); color:var(--ink); border-radius:999px;
+  padding:8px 16px; font-size:13px; font-weight:500; cursor:pointer; transition:.16s}
+.btn:hover{border-color:var(--line3)}
+.btn:disabled{opacity:.45; cursor:default}
+.btn-primary{background:var(--olive); border-color:var(--olive); color:#FBF9F5; font-weight:600}
+.btn-primary:hover{background:var(--olive-d); border-color:var(--olive-d)}
+.btn-quiet{background:none; border-color:transparent; color:var(--ink3); font-size:12.5px; padding:6px 8px}
+.btn-quiet:hover{color:var(--ink); background:var(--band)}
+.btn-danger{color:var(--terra); border-color:var(--terra); background:var(--danger-soft)}
+
+.legend{position:relative}
+.legend-panel{position:absolute; right:0; top:calc(100% + 8px); z-index:30; width:300px; background:var(--card);
+  border:1px solid var(--line); border-radius:10px; padding:14px 16px; box-shadow:var(--sh2)}
+.legend-panel[hidden]{display:none}
+.legend-panel dt{font-weight:600; font-size:13px; margin-top:10px}
+.legend-panel dt:first-child{margin-top:0}
+.legend-panel dd{margin:1px 0 0; font-size:12.5px; color:var(--ink2)}
+
+.scroller{overflow-x:auto; border:1px solid var(--line); border-radius:10px; background:var(--card); box-shadow:var(--sh1)}
+.grid{min-width:1154px}
+.cols{display:grid; grid-template-columns:44px minmax(160px,1.4fr) 126px 82px 100px minmax(140px,1.2fr) 116px 100px 104px 74px; gap:12px; align-items:start}
+.head{padding:12px 16px; background:var(--band); border-bottom:1px solid var(--line); border-radius:10px 10px 0 0;
+  font-size:10px; letter-spacing:.14em; text-transform:uppercase; color:var(--ink3); font-weight:600}
+.entry{border-bottom:1px solid var(--line)}
+.entry:last-child{border-bottom:0}
+.entry[hidden]{display:none}
+.entry-main{padding:14px 16px 15px}
+.entry:hover .entry-main{background:rgba(58,46,38,.028)}
+.c-id{font-family:var(--mono); font-size:11px; color:var(--ink3); padding-top:3px}
+.strong{font-weight:600; font-size:14.5px}
+.sub2{font-size:12.5px; color:var(--ink2); margin-top:2px}
+.rowbadges{display:flex; flex-wrap:wrap; gap:4px; margin-top:6px}
+.rowbadges .badge{font-size:10px; padding:2px 7px; max-width:100%; overflow:hidden; text-overflow:ellipsis; white-space:nowrap}
+.koeln{color:var(--ochre)}
+
+.ed{min-height:1.35em; border-radius:4px; padding:1px 3px; margin:0 -3px; outline:none; white-space:pre-wrap; overflow-wrap:anywhere}
+.ed:hover{background:var(--sunk)}
+.ed:focus{background:var(--card); box-shadow:0 0 0 2px var(--focus)}
+.ed:empty::before{content:attr(data-placeholder); color:var(--ink3)}
+select.pick{appearance:none; font:inherit; font-size:12px; border-radius:999px; cursor:pointer;
+  padding:5px 24px 5px 11px; max-width:100%; border:1px solid var(--line2); color:var(--ink);
+  background-color:var(--band);
+  background-image:linear-gradient(45deg,transparent 50%,currentColor 50%),linear-gradient(135deg,currentColor 50%,transparent 50%);
+  background-repeat:no-repeat; background-size:4px 4px,4px 4px; background-position:right 12px top 12px,right 8px top 12px}
+.entry[data-status="vorbereitung"] select.status{background-color:var(--accent-soft); color:var(--olive); border-color:var(--accent-line)}
+.entry[data-status="abgeschickt"] select.status{background-color:var(--info-soft); color:var(--info); border-color:rgba(31,111,168,.3)}
+.entry[data-status="gespraech"] select.status{background-color:var(--warn-soft); color:var(--ochre); border-color:rgba(143,100,16,.3)}
+.entry[data-status="angenommen"] select.status{background-color:var(--olive); color:#FBF9F5; border-color:var(--olive)}
+.entry[data-status="abgelehnt"] select.status,.entry[data-status="verworfen"] select.status{background-color:var(--danger-soft); color:var(--terra); border-color:rgba(181,98,60,.3)}
+.entry[data-prio="hoch"] select.prio{background-color:var(--warn-soft); color:var(--ochre); border-color:rgba(143,100,16,.3)}
+input.date{font:inherit; font-family:var(--mono); font-size:12px; background:var(--card); border:1px solid var(--line2);
+  border-radius:6px; padding:5px 7px; color:var(--ink); max-width:100%}
+.src{font-size:12.5px; overflow-wrap:anywhere}
+.src.off{color:var(--ink3); pointer-events:none; text-decoration:none}
+
+.entry-detail{padding:6px 16px 20px; background:var(--sunk); border-top:1px dashed var(--line2);
+  display:grid; grid-template-columns:repeat(auto-fit,minmax(210px,1fr)); gap:16px 20px; min-width:1154px}
+.entry-detail[hidden]{display:none}
+.field{display:flex; flex-direction:column; gap:4px}
+.field.full{grid-column:1/-1}
+.lbl{font-size:10px; letter-spacing:.14em; text-transform:uppercase; color:var(--ink3); font-weight:600}
+.detail-actions{grid-column:1/-1; display:flex; gap:8px; justify-content:flex-end; align-items:center}
+
+.inbox-head{display:flex; justify-content:space-between; align-items:flex-end; gap:20px; flex-wrap:wrap; margin-bottom:16px}
+.inbox-head p{margin:0; color:var(--ink2); font-size:14.6px; max-width:72ch}
+.stamp{font-family:var(--mono); font-size:11.5px; color:var(--ink3); white-space:nowrap}
+.cardkey{display:grid; grid-template-columns:repeat(auto-fit,minmax(230px,1fr)); gap:16px 22px;
+  background:var(--card); border:1px solid var(--line); border-radius:10px; padding:16px 18px; box-shadow:var(--sh1)}
+.cardkey p{margin:6px 0 0; font-size:12.5px; color:var(--ink2); line-height:1.75}
+.cardkey .badge{margin-right:3px}
+.tier{margin-top:28px}
+.tier-head{display:flex; align-items:baseline; gap:10px; margin-bottom:12px}
+.tier-head h2{font-family:var(--serif); font-weight:400; font-size:25px; margin:0}
+.tier-head .note{font-size:12.5px; color:var(--ink3)}
+.jobs{display:grid; grid-template-columns:repeat(auto-fill,minmax(320px,1fr)); gap:12px}
+.job{background:var(--card); border:1px solid var(--line); border-radius:10px; padding:16px 18px;
+  display:flex; flex-direction:column; gap:9px; box-shadow:var(--sh1); transition:box-shadow .22s,transform .22s}
+.job:hover{box-shadow:var(--sh2); transform:translateY(-1px)}
+.job h3{margin:0; font-size:16px; font-weight:600; line-height:1.3; font-family:var(--sans)}
+.job .firma{font-size:12.5px; letter-spacing:.06em; text-transform:uppercase; color:var(--ink3)}
+.badges{display:flex; flex-wrap:wrap; gap:5px}
+.badge{font-size:11px; padding:3px 9px; border-radius:5px; background:var(--sunk); color:var(--ink3); border:1px solid var(--line)}
+.badge.region{background:rgba(85,96,58,.10); color:var(--olive); border-color:var(--accent-line); font-weight:600}
+.badge.size{background:var(--sunk); border-color:transparent}
+.badge.size.wish{background:var(--warn-soft); color:var(--ochre)}
+.badge.vc{background:var(--info-soft); color:var(--info); border-color:transparent}
+.badge.boot{background:var(--sunk); border-color:transparent}
+.badge.role{background:var(--warn-soft); color:var(--ochre); border-color:transparent}
+.badge.sdr{background:var(--danger-soft); color:var(--terra); border-color:transparent}
+.job .desc{font-size:13.6px; color:var(--ink2); margin:0}
+.badge.stage{background:var(--sunk); border-color:transparent}
+.badge.stage.early{background:var(--warn-soft); color:var(--ochre)}
+.badge.again{background:var(--danger-soft); color:var(--terra); border-color:transparent}
+.job .again-note{font-size:11.5px; color:var(--terra); margin:0}
+.inbox-filters{display:flex; gap:6px; flex-wrap:wrap; margin:20px 0 2px; align-items:center}
+.inbox-filters .lbl{margin-right:4px}
+.blitz{margin-top:30px; background:var(--card); border:1px solid var(--line); border-radius:10px; padding:14px 16px; box-shadow:var(--sh1)}
+.blitz > summary{font-size:13.5px; color:var(--ink); font-weight:600; cursor:pointer}
+.blitz-stage{margin-top:14px}
+.blitz-stage .job{max-width:560px; margin:0 auto}
+.blitz-meta{display:flex; justify-content:space-between; align-items:center; gap:12px; max-width:560px; margin:0 auto 10px; font-size:12px; color:var(--ink3)}
+.blitz-keys{font-family:var(--mono)}
+.blitz-done{text-align:center; color:var(--ink3); font-size:13.5px; padding:18px}
+.job-foot{display:flex; align-items:center; gap:8px; margin-top:auto; padding-top:4px}
+.job-foot .src{margin-right:auto}
+.empty{border:1px dashed var(--line3); border-radius:10px; padding:20px; text-align:center; color:var(--ink3); font-size:13.5px; margin:0}
+.ledger{margin-top:30px; border-top:1px solid var(--line); padding-top:16px}
+.ledger summary,.paster summary{cursor:pointer; font-size:13px; color:var(--ink3)}
+.ledger ul{margin:12px 0 0; padding-left:18px; font-size:12.5px; color:var(--ink2)}
+.paster{margin-top:14px}
+.exchange,.howto{margin-top:38px; border-top:1px solid var(--line); padding-top:24px}
+.exchange h2,.howto h2{font-family:var(--serif); font-weight:400; font-size:26px; margin:0 0 8px}
+.exchange > .hint{margin:0 0 14px; max-width:78ch; color:var(--ink2); font-size:14.6px}
+.exchange details{background:var(--card); border:1px solid var(--line); border-radius:10px; padding:14px 16px; margin-bottom:10px; box-shadow:var(--sh1)}
+.exchange summary{font-size:13.5px; color:var(--ink); font-weight:600; cursor:pointer}
+#expArea{width:100%; min-height:130px; margin-top:10px; font-family:var(--mono); font-size:11px;
+  background:var(--sunk); color:var(--ink2); border:1px solid var(--line); border-radius:8px; padding:10px}
+.paster textarea{width:100%; min-height:150px; margin-top:10px; font-family:var(--mono); font-size:12px;
+  background:var(--card); color:var(--ink); border:1px solid var(--line2); border-radius:8px; padding:10px}
+.paster .row{display:flex; gap:8px; align-items:center; margin-top:8px; flex-wrap:wrap}
+.paster .hint{font-size:12px; color:var(--ink3); margin:8px 0 0; line-height:1.75}
+code{font-family:var(--mono); font-size:12px; background:var(--sunk); border:1px solid var(--line); padding:1px 5px; border-radius:4px}
+.howto ol{margin:0; padding-left:20px; color:var(--ink2); font-size:14.4px; line-height:1.95; max-width:78ch}
+.howto li b{color:var(--ink)}
+
+#toast{position:fixed; left:50%; bottom:26px; transform:translate(-50%,14px); background:var(--ink); color:var(--paper);
+  padding:10px 18px; border-radius:999px; font-size:13.5px; opacity:0; pointer-events:none;
+  transition:opacity .2s, transform .2s; z-index:60}
+#toast.on{opacity:1; transform:translate(-50%,0)}
+.foot{border-top:1px solid var(--line); background:var(--card); padding:28px 0 44px; margin-top:44px}
+.footgrid{max-width:1280px; margin:0 auto; padding:0 28px; display:flex; justify-content:space-between; align-items:flex-end; gap:24px; flex-wrap:wrap}
+.footname{font-family:var(--serif); font-size:19px}
+.foottag{font-size:12px; color:var(--ink3); margin-top:2px}
+.footlinks{display:flex; gap:18px; list-style:none; flex-wrap:wrap}
+.footlinks a{font-size:12px; letter-spacing:.12em; text-transform:uppercase; color:var(--ink3)}
+.footlinks a:hover{color:var(--olive)}
+@media (prefers-reduced-motion: reduce){*{transition:none !important}}
+@media (max-width:620px){
+  .topnav{padding:12px 18px}
+  .topnav ul{gap:14px}
+  .wrap{padding:20px 18px 60px}
+  .demobar .inner{padding:0 18px}
+  .footgrid{padding:0 18px; align-items:flex-start}
+}
+</style>
+</head>
+<body>
+<script id="seed" type="application/json">
+{
+  "v": 1,
+  "refDate": "2026-08-23",
+  "stamp": "2026-08-23 08:40 (Demo-Einlauf, erfundene Firmen)",
+  "entries": [
+    {
+      "id": "B001",
+      "firma": "Vireo Systems",
+      "position": "Chief of Staff (m/w/d)",
+      "status": "gespraech",
+      "prio": "hoch",
+      "ort": "Köln",
+      "ortart": "Hybrid",
+      "next": "Case Study (Markteintritt AT) bis Mittwoch einreichen",
+      "frist": "2026-08-26",
+      "srcLabel": "LinkedIn",
+      "srcUrl": "https://example.com/jobs/vireo-chief-of-staff",
+      "kontakt": "Marit Lehnhoff, COO",
+      "firmaDesc": "Planungssoftware für Handwerksbetriebe: Termine, Material und Abrechnung in einem Tool.",
+      "size": "11–30",
+      "vc": "VC · Seed 4,2 Mio. €, Nordkap Ventures, Rheinwerk Capital",
+      "role": "Chief of Staff",
+      "notizen": "Erstgespräch am 18.08. mit Marit (COO) — sehr gut gelaufen, 45 statt 30 Minuten. Rolle ist neu geschaffen, direkte Berichtslinie an die Gründerin. Schwerpunkt in den ersten sechs Monaten: Markteintritt Österreich vorbereiten und das interne Reporting aufsetzen (aktuell drei Tabellen, kein gemeinsames KPI-Bild). Nächster Schritt ist eine Case Study, danach ein Gespräch mit dem Gründerteam. Achtung: Sie suchen jemanden, der ab Oktober kann.",
+      "kontakte": "Jonas Prill — Studienkollege, seit 2025 im Vertrieb bei Vireo. Hat intern schon ein gutes Wort eingelegt.",
+      "gehalt": "62.000 €/Jahr + 0,25 % VSOP",
+      "portal": "https://example.com/jobs/vireo-chief-of-staff",
+      "updated": "2026-08-22",
+      "anschreiben": "Was mich an Vireo reizt, ist der Zeitpunkt: Sie haben Produkt-Markt-Fit im Handwerk und stehen vor der Frage, wie sich das auf einen zweiten Markt überträgt. Genau diese Art von Frage habe ich in meiner letzten Rolle bearbeitet — von der Marktanalyse bis zum operativen Setup vor Ort …"
+    },
+    {
+      "id": "B002",
+      "firma": "Klarblick",
+      "position": "Founder's Associate (m/w/d)",
+      "status": "abgeschickt",
+      "prio": "hoch",
+      "ort": "Köln",
+      "ortart": "Vor Ort",
+      "next": "Nachfassen, falls bis 29.08. keine Rückmeldung",
+      "frist": "2026-08-29",
+      "srcLabel": "Firmenwebsite",
+      "srcUrl": "https://example.com/klarblick/karriere",
+      "kontakt": "Sina Bergmann, Gründerin",
+      "firmaDesc": "Prüft Versicherungsverträge von Mittelständlern per KI auf Doppelversicherung und Deckungslücken.",
+      "size": "1–10",
+      "vc": "VC · Pre-Seed 1,1 Mio. €, Domstadt Ventures, drei Angels",
+      "role": "Founder's Associate",
+      "notizen": "Beworben am 19.08. direkt per Mail an Sina statt über das Formular — Antwort kam nach zwei Stunden, dass sie sich Anfang der Woche meldet. Team ist zu siebt, Rolle ist die erste nicht-technische Einstellung neben Vertrieb. Sehr breit: Pricing, erste Partnerschaften mit Maklern, Aufbau des Onboardings. Kleine Warnung aus dem Gespräch mit Jonas: Gehalt ist am unteren Rand, dafür ordentlich Equity.",
+      "kontakte": "",
+      "gehalt": "48.000 – 54.000 €/Jahr (laut Ausschreibung) + Equity",
+      "portal": "https://example.com/klarblick/karriere",
+      "updated": "2026-08-21",
+      "anschreiben": "Kurzes, direktes Mail-Anschreiben — kein PDF. Aufhänger: Ich habe zwei ihrer Landingpages durchgespielt und drei konkrete Beobachtungen zum Onboarding notiert."
+    },
+    {
+      "id": "B003",
+      "firma": "Tellurium Health",
+      "position": "Founder's Associate — CEO Office (m/f/d)",
+      "status": "vorbereitung",
+      "prio": "hoch",
+      "ort": "Berlin",
+      "ortart": "Hybrid",
+      "next": "Anschreiben fertigstellen und über das Portal einreichen",
+      "frist": "2026-08-28",
+      "srcLabel": "LinkedIn",
+      "srcUrl": "https://example.com/jobs/tellurium-ceo-office",
+      "kontakt": "",
+      "firmaDesc": "Digitale Nachsorge nach Operationen: App plus Sensorik, angebunden an rund 60 Kliniken in DE und AT.",
+      "size": "51–200",
+      "vc": "VC · Series A 22 Mio. $, Halden Capital, Meridian Health Fund",
+      "role": "Chief of Staff / CEO Office",
+      "notizen": "Rolle sitzt direkt beim CEO, explizit als Sprungbrett gedacht — die letzten beiden auf der Position leiten heute eigene Bereiche. Verlangt wird 1+ Jahr Beratung, IB oder Startup-Ops. Kein Muss: Healthcare-Erfahrung. Bewerberzahl laut LinkedIn bei 130+, also braucht das Anschreiben einen echten Aufhänger. Idee: die Zahlen aus ihrem letzten Geschäftsbericht zur Wiedereinweisungsquote aufgreifen.",
+      "kontakte": "Noch niemand gefunden. Zwei Alumni bei einer Portfolio-Firma von Halden Capital — Umweg möglich.",
+      "gehalt": "Nicht angegeben (\"competitive\")",
+      "portal": "https://example.com/jobs/tellurium-ceo-office",
+      "updated": "2026-08-23",
+      "anschreiben": "Rohfassung steht, muss noch auf eine Seite gekürzt werden. Aufhänger: Wiedereinweisungsquote als Kennzahl, an der sich der Produktnutzen messen lässt."
+    },
+    {
+      "id": "B004",
+      "firma": "Nordfeld Robotics",
+      "position": "Strategy & Operations Associate",
+      "status": "beobachten",
+      "prio": "mittel",
+      "ort": "München",
+      "ortart": "Vor Ort",
+      "next": "Entscheiden, ob München realistisch ist",
+      "frist": "",
+      "srcLabel": "LinkedIn",
+      "srcUrl": "https://example.com/jobs/nordfeld-strategy-ops",
+      "kontakt": "",
+      "firmaDesc": "Autonome Transportroboter für Lagerhallen, im Einsatz bei mehreren Zulieferern der Automobilindustrie.",
+      "size": "51–200",
+      "vc": "VC · Series B 40 Mio. €, Alpsee Growth, Fraunhofer-nah",
+      "role": "Strategy / Ops",
+      "notizen": "Spannende Rolle, aber Vor-Ort-Pflicht in München. Umzug wäre ein Thema, das ich erst klären will. Fachlich der beste Fit im Feld Operations. Kein Zeitdruck erkennbar, Anzeige läuft seit sechs Wochen.",
+      "kontakte": "",
+      "gehalt": "58.000 – 66.000 €/Jahr",
+      "portal": "https://example.com/jobs/nordfeld-strategy-ops",
+      "updated": "2026-08-18",
+      "anschreiben": ""
+    },
+    {
+      "id": "B005",
+      "firma": "Marlow & Kestrel",
+      "position": "Business Development Manager DACH",
+      "status": "abgelehnt",
+      "prio": "",
+      "ort": "Düsseldorf",
+      "ortart": "Hybrid",
+      "next": "Erledigt — Feedback abgeheftet",
+      "frist": "",
+      "srcLabel": "Indeed",
+      "srcUrl": "https://example.com/jobs/marlow-kestrel-bd",
+      "kontakt": "Recruiting-Team",
+      "firmaDesc": "Beratungsboutique für Nachfolgeregelungen im Mittelstand, rund 40 Mitarbeitende.",
+      "size": "31–50",
+      "vc": "Bootstrapped · inhabergeführt seit 2009",
+      "role": "BD / Sales",
+      "notizen": "Absage nach dem zweiten Gespräch am 12.08. Begründung: Sie wollten jemanden mit bestehendem Netzwerk im Mittelstand, das habe ich nicht. Faires Feedback, gut geführter Prozess. Für später gemerkt: Sie stellen jedes Jahr im Frühjahr nach.",
+      "kontakte": "",
+      "gehalt": "55.000 € fix + Bonus",
+      "portal": "https://example.com/jobs/marlow-kestrel-bd",
+      "updated": "2026-08-13",
+      "anschreiben": ""
+    },
+    {
+      "id": "B006",
+      "firma": "Ostwind Energy",
+      "position": "Expansion Associate (m/w/d)",
+      "status": "gespraech",
+      "prio": "hoch",
+      "ort": "Köln",
+      "ortart": "Vor Ort",
+      "next": "Zweitgespräch am 27.08., 10:00 — Fragen vorbereiten",
+      "frist": "2026-08-27",
+      "srcLabel": "LinkedIn",
+      "srcUrl": "https://example.com/jobs/ostwind-expansion",
+      "kontakt": "Deniz Aksoy, Head of Expansion",
+      "firmaDesc": "Vermietet Balkonkraftwerke im Abo an Mieterinnen und Mieter, inklusive Montage und Anmeldung.",
+      "size": "11–30",
+      "vc": "VC · Seed 6 Mio. €, Rheinwerk Capital, Klimafonds NRW",
+      "role": "Expansion / Launch",
+      "notizen": "Erstgespräch am 20.08. Rolle: neue Städte aufmachen — Handwerkerpartner finden, Preise lokal kalkulieren, die ersten 100 Installationen begleiten. Sehr operativ, viel Reisen innerhalb NRW. Deniz war sehr direkt: Sie hatten schon jemanden, der nach drei Monaten hingeschmissen hat, weil die Rolle rauer ist als sie klingt. Zweitgespräch mit dem Gründer plus ein kurzer Praxisteil.",
+      "kontakte": "Lea Fenninger — kennt Deniz aus dem vorherigen Job, hat angeboten anzurufen.",
+      "gehalt": "56.000 €/Jahr + Firmenwagen",
+      "portal": "https://example.com/jobs/ostwind-expansion",
+      "updated": "2026-08-22",
+      "anschreiben": "Bereits eingereicht."
+    },
+    {
+      "id": "B007",
+      "firma": "Papierflug",
+      "position": "Founder's Associate — Growth",
+      "status": "abgeschickt",
+      "prio": "mittel",
+      "ort": "Berlin",
+      "ortart": "Remote",
+      "next": "Warten — sie melden sich laut Bestätigung binnen 10 Tagen",
+      "frist": "2026-09-02",
+      "srcLabel": "LinkedIn",
+      "srcUrl": "https://example.com/jobs/papierflug-growth",
+      "kontakt": "",
+      "firmaDesc": "Digitalisiert Behördenpost für Unternehmen: Briefe werden gescannt, klassifiziert und mit Fristen versehen.",
+      "size": "11–30",
+      "vc": "VC · Seed 3,5 Mio. €, Spreequell Ventures",
+      "role": "Founder's Associate",
+      "notizen": "Über das Formular eingereicht am 17.08., Eingangsbestätigung mit Hinweis auf zehn Werktage. Vollständig remote, Team trifft sich einmal im Quartal in Berlin. Aufgabenmix laut Anzeige zu zwei Dritteln Growth (Kanäle testen, Content, Partnerschaften), ein Drittel allgemeine Gründerthemen.",
+      "kontakte": "",
+      "gehalt": "50.000 – 58.000 €/Jahr",
+      "portal": "https://example.com/jobs/papierflug-growth",
+      "updated": "2026-08-17",
+      "anschreiben": ""
+    },
+    {
+      "id": "B008",
+      "firma": "Silberbach Capital",
+      "position": "Chief of Staff to the CFO",
+      "status": "beobachten",
+      "prio": "niedrig",
+      "ort": "Frankfurt",
+      "ortart": "Vor Ort",
+      "next": "Prüfen, ob das nicht doch zu Corporate ist",
+      "frist": "",
+      "srcLabel": "Firmenwebsite",
+      "srcUrl": "https://example.com/silberbach/careers",
+      "kontakt": "",
+      "firmaDesc": "Family Office mit Beteiligungen an rund 20 mittelständischen Industrieunternehmen.",
+      "size": "31–50",
+      "vc": "Kein VC · Eigenkapital der Eigentümerfamilie",
+      "role": "Chief of Staff",
+      "notizen": "Inhaltlich reizvoll (Beteiligungscontrolling, Post-Merger), aber der Ton der Anzeige ist sehr konservativ: Anzugpflicht, fünf Tage vor Ort, Frankfurt. Passt eigentlich nicht zum Suchprofil. Liegt hier, um es nicht zu vergessen, falls die Startup-Spur nichts bringt.",
+      "kontakte": "",
+      "gehalt": "Nicht angegeben",
+      "portal": "https://example.com/silberbach/careers",
+      "updated": "2026-08-15",
+      "anschreiben": ""
+    },
+    {
+      "id": "B009",
+      "firma": "Aurelio Foods",
+      "position": "Operations Associate (Junior)",
+      "status": "vorbereitung",
+      "prio": "mittel",
+      "ort": "Köln",
+      "ortart": "Vor Ort",
+      "next": "CV auf Ops zuschneiden, dann einreichen",
+      "frist": "2026-08-30",
+      "srcLabel": "LinkedIn",
+      "srcUrl": "https://example.com/jobs/aurelio-ops",
+      "kontakt": "Pia Runge, Ops Lead",
+      "firmaDesc": "Beliefert Kantinen mit vorgekochten regionalen Gerichten, eigene Produktion in Köln-Ehrenfeld.",
+      "size": "31–50",
+      "vc": "VC · Seed 5 Mio. €, Domstadt Ventures, Rewe-nahe Angels",
+      "role": "Operations",
+      "notizen": "Klassisches Ops-Profil: Lieferpläne, Lieferantenverhandlungen, Schichtplanung in der Produktion. Weniger strategisch als die anderen Rollen, dafür sehr greifbar und in Köln. Pia hat auf LinkedIn geantwortet und gesagt, ein zugeschnittener CV reicht, kein Anschreiben nötig.",
+      "kontakte": "Pia Runge hat direkt auf meine Nachricht geantwortet.",
+      "gehalt": "46.000 – 52.000 €/Jahr",
+      "portal": "https://example.com/jobs/aurelio-ops",
+      "updated": "2026-08-23",
+      "anschreiben": "Kein Anschreiben gefordert — stattdessen drei Sätze in der Mail."
+    },
+    {
+      "id": "B010",
+      "firma": "Cobalt Peak",
+      "position": "Account Executive DACH",
+      "status": "verworfen",
+      "prio": "",
+      "ort": "Remote (DACH)",
+      "ortart": "Remote",
+      "next": "Erledigt",
+      "frist": "",
+      "srcLabel": "Indeed",
+      "srcUrl": "https://example.com/jobs/cobalt-peak-ae",
+      "kontakt": "",
+      "firmaDesc": "US-Anbieter für Vertragsmanagement-Software, baut gerade ein DACH-Team auf.",
+      "size": "200+",
+      "vc": "VC · Series C, Investoren nicht öffentlich",
+      "role": "Account Executive",
+      "notizen": "Nach Prüfung verworfen: reine Quotenrolle mit 70/30-Split und starkem Cold-Calling-Anteil, dazu über 500 Mitarbeitende. Das ist genau das Gegenteil von dem, was ich suche. Zur Dokumentation hier gelassen statt gelöscht.",
+      "kontakte": "",
+      "gehalt": "60.000 € OTE (70/30)",
+      "portal": "https://example.com/jobs/cobalt-peak-ae",
+      "updated": "2026-08-14",
+      "anschreiben": ""
+    },
+    {
+      "id": "B011",
+      "firma": "Halden Analytics",
+      "position": "Venture Associate",
+      "status": "beobachten",
+      "prio": "mittel",
+      "ort": "München",
+      "ortart": "Hybrid",
+      "next": "Bis 05.09. entscheiden — Bewerbungsschluss beachten",
+      "frist": "2026-09-05",
+      "srcLabel": "Firmenwebsite",
+      "srcUrl": "https://example.com/halden/associate",
+      "kontakt": "",
+      "firmaDesc": "Frühphasen-Fonds mit Fokus auf Industrie-Software, investiert Tickets zwischen 0,5 und 3 Mio. €.",
+      "size": "11–30",
+      "vc": "Fonds II, 120 Mio. € Volumen",
+      "role": "VC / Investment",
+      "notizen": "Zweijähriges Associate-Programm mit fester Struktur: erstes Jahr Sourcing und Screening, zweites Jahr eigene Deals begleiten. Bewerbungsschluss 05.09., danach ein mehrstufiger Prozess mit Case. Realistisch gesehen kompetitiv, aber der Bewerbungsaufwand ist überschaubar.",
+      "kontakte": "",
+      "gehalt": "54.000 €/Jahr + Bonus",
+      "portal": "https://example.com/halden/associate",
+      "updated": "2026-08-19",
+      "anschreiben": ""
+    },
+    {
+      "id": "B012",
+      "firma": "Fjordlicht",
+      "position": "Founder's Associate (m/w/d)",
+      "status": "abgeschickt",
+      "prio": "mittel",
+      "ort": "Hamburg",
+      "ortart": "Hybrid",
+      "next": "Kennenlernen am 25.08. bestätigen",
+      "frist": "2026-08-25",
+      "srcLabel": "LinkedIn",
+      "srcUrl": "https://example.com/jobs/fjordlicht-fa",
+      "kontakt": "Ole Sandvik, Co-Founder",
+      "firmaDesc": "Vermietet Lichtplanung und Beleuchtung als Service an Ladenketten, statt Verkauf der Leuchten.",
+      "size": "1–10",
+      "vc": "VC · Pre-Seed 900.000 €, Elbwerk Angels",
+      "role": "Founder's Associate",
+      "notizen": "Sehr kleines Team (sechs Personen), Rolle wäre Nummer sieben. Ole hat auf die Bewerbung persönlich geantwortet und ein lockeres Kennenlernen für den 25.08. vorgeschlagen. Hamburg ist weiter weg als gewünscht, aber zwei Tage remote sind möglich.",
+      "kontakte": "",
+      "gehalt": "45.000 €/Jahr + 1 % Equity über vier Jahre",
+      "portal": "https://example.com/jobs/fjordlicht-fa",
+      "updated": "2026-08-22",
+      "anschreiben": ""
+    },
+    {
+      "id": "B013",
+      "firma": "Rubinweg",
+      "position": "Operations Lead — Pilotmarkt",
+      "status": "angenommen",
+      "prio": "",
+      "ort": "Köln",
+      "ortart": "Hybrid",
+      "next": "Vertrag unterschrieben — Start 01.10.",
+      "frist": "",
+      "srcLabel": "Empfehlung",
+      "srcUrl": "https://example.com/rubinweg",
+      "kontakt": "Hanna Vogt, Gründerin",
+      "firmaDesc": "Organisiert Handwerkerleistungen für Wohnungsgenossenschaften über eine gemeinsame Plattform.",
+      "size": "11–30",
+      "vc": "VC · Seed 4,8 Mio. €, Rheinwerk Capital",
+      "role": "Operations Lead",
+      "notizen": "Angebot am 21.08. erhalten und angenommen. Vier Gespräche plus ein bezahlter Probetag. Start am 01.10., erste Aufgabe ist der Pilotmarkt Bonn. Diese Zeile bleibt im Tracker, damit der komplette Verlauf dokumentiert ist — inklusive der Frage, welche Kanäle am Ende tatsächlich zum Ziel geführt haben (hier: Empfehlung, nicht Jobportal).",
+      "kontakte": "Über Lea Fenninger vermittelt.",
+      "gehalt": "60.000 €/Jahr + 0,4 % VSOP",
+      "portal": "",
+      "updated": "2026-08-21",
+      "anschreiben": ""
+    },
+    {
+      "id": "B014",
+      "firma": "Stellaris Mobility",
+      "position": "Strategy Associate (m/f/d)",
+      "status": "beobachten",
+      "prio": "",
+      "ort": "Berlin",
+      "ortart": "Hybrid",
+      "next": "Stelle prüfen und entscheiden",
+      "frist": "",
+      "srcLabel": "LinkedIn",
+      "srcUrl": "https://example.com/jobs/stellaris-strategy",
+      "kontakt": "",
+      "firmaDesc": "Software für Verkehrsbetriebe: plant Umläufe und Ladezeiten von E-Bussen.",
+      "size": "51–200",
+      "vc": "VC · Series A 15 Mio. €, Spreequell Ventures, EIC Fund",
+      "role": "Strategy",
+      "notizen": "Frisch aus der Inbox übernommen, noch nicht recherchiert.",
+      "kontakte": "",
+      "gehalt": "",
+      "portal": "https://example.com/jobs/stellaris-strategy",
+      "updated": "2026-08-23",
+      "anschreiben": ""
+    }
+  ],
+  "inbox": [
+    {
+      "key": "helioquell|founder's associate (m/w/d)",
+      "tier": "top5", "region": "Köln",
+      "firma": "Helioquell", "position": "Founder's Associate (m/w/d)",
+      "ort": "Köln", "ortart": "Hybrid",
+      "desc": "Baut Wärmepumpen-Finanzierung für Eigenheimbesitzer: Beratung, Förderantrag und Ratenmodell aus einer Hand.",
+      "size": "11–30", "wish": true, "stage": "Seed",
+      "vc": "VC · Seed 5,5 Mio. €, Domstadt Ventures, Klimafonds NRW",
+      "role": "Founder's Associate", "sdr": false,
+      "quelle": "LinkedIn", "url": "https://example.com/jobs/helioquell-fa", "againOf": ""
+    },
+    {
+      "key": "brunnenhof|chief of staff (m/w/d)",
+      "tier": "top5", "region": "Köln",
+      "firma": "Brunnenhof", "position": "Chief of Staff (m/w/d)",
+      "ort": "Köln", "ortart": "Vor Ort",
+      "desc": "Betreibt Co-Working-Flächen in Leerständen von Innenstadt-Kaufhäusern, aktuell vier Standorte in NRW.",
+      "size": "11–30", "wish": true, "stage": "Seed",
+      "vc": "VC · Seed 3,2 Mio. €, Rheinwerk Capital",
+      "role": "Chief of Staff", "sdr": false,
+      "quelle": "LinkedIn", "url": "https://example.com/jobs/brunnenhof-cos", "againOf": ""
+    },
+    {
+      "key": "aurum labs|founding operations associate",
+      "tier": "top5", "region": "München",
+      "firma": "Aurum Labs", "position": "Founding Operations Associate",
+      "ort": "München", "ortart": "Hybrid",
+      "desc": "Automatisiert Laborabläufe in der Materialforschung — Probenverwaltung, Messreihen, Auswertung.",
+      "size": "1–10", "wish": true, "stage": "Pre-Seed",
+      "vc": "VC · Pre-Seed 1,8 Mio. €, Alpsee Growth, zwei Professoren als Angels",
+      "role": "Founder's Associate", "sdr": false,
+      "quelle": "LinkedIn", "url": "https://example.com/jobs/aurum-ops", "againOf": ""
+    },
+    {
+      "key": "mittelweg|business development associate (dach)",
+      "tier": "top5", "region": "Berlin",
+      "firma": "Mittelweg", "position": "Business Development Associate (DACH)",
+      "ort": "Berlin", "ortart": "Hybrid",
+      "desc": "Marktplatz für gebrauchte Industriemaschinen inklusive Prüfung, Transport und Gewährleistung.",
+      "size": "31–50", "wish": false, "stage": "Series A",
+      "vc": "VC · Series A 12 Mio. €, Spreequell Ventures",
+      "role": "BD mit Verantwortung", "sdr": false,
+      "quelle": "Indeed", "url": "https://example.com/jobs/mittelweg-bd", "againOf": ""
+    },
+    {
+      "key": "sonnenblick|strategy & ops (founding team)",
+      "tier": "top5", "region": "Köln",
+      "firma": "Sonnenblick", "position": "Strategy & Ops (Founding Team)",
+      "ort": "Köln", "ortart": "Vor Ort",
+      "desc": "Digitale Pflegeberatung für Angehörige: Anspruchsprüfung, Anträge und Vermittlung von Diensten.",
+      "size": "1–10", "wish": true, "stage": "Pre-Seed",
+      "vc": "VC · Pre-Seed 750.000 €, Angels aus dem Gesundheitswesen",
+      "role": "Founder's Associate", "sdr": false,
+      "quelle": "LinkedIn", "url": "https://example.com/jobs/sonnenblick-ops", "againOf": ""
+    },
+    {
+      "key": "kranichbau|projektentwickler:in (quereinstieg)",
+      "tier": "top10", "region": "Köln",
+      "firma": "Kranichbau", "position": "Projektentwickler:in (Quereinstieg)",
+      "ort": "Köln", "ortart": "Hybrid",
+      "desc": "Serielle Aufstockung von Bestandsgebäuden in Holzbauweise, bislang elf Projekte in NRW.",
+      "size": "31–50", "wish": false, "stage": "Series A",
+      "vc": "VC · Series A 18 Mio. €, Klimafonds NRW, Bauzulieferer als strategischer Investor",
+      "role": "Projektentwicklung", "sdr": false,
+      "quelle": "LinkedIn", "url": "https://example.com/jobs/kranichbau-pe", "againOf": ""
+    },
+    {
+      "key": "vantara|operations associate",
+      "tier": "top10", "region": "Berlin",
+      "firma": "Vantara", "position": "Operations Associate",
+      "ort": "Berlin", "ortart": "Remote",
+      "desc": "Abo für Fahrradreparatur am Arbeitsplatz, Kunden sind Unternehmen mit über 200 Mitarbeitenden.",
+      "size": "11–30", "wish": true, "stage": "Seed",
+      "vc": "VC · Seed 2,4 Mio. €, Elbwerk Angels",
+      "role": "Operations", "sdr": false,
+      "quelle": "LinkedIn", "url": "https://example.com/jobs/vantara-ops", "againOf": ""
+    },
+    {
+      "key": "lindwerk|junior account executive",
+      "tier": "top10", "region": "München",
+      "firma": "Lindwerk", "position": "Junior Account Executive",
+      "ort": "München", "ortart": "Hybrid",
+      "desc": "Vertriebssoftware für Maschinenbauer: Angebote konfigurieren, kalkulieren und nachverfolgen.",
+      "size": "51–200", "wish": false, "stage": "Series B",
+      "vc": "VC · Series B 30 Mio. €, Alpsee Growth",
+      "role": "Account Executive", "sdr": false,
+      "quelle": "Indeed", "url": "https://example.com/jobs/lindwerk-ae", "againOf": ""
+    },
+    {
+      "key": "torfhaus|sales development representative",
+      "tier": "top10", "region": "Berlin",
+      "firma": "Torfhaus", "position": "Sales Development Representative",
+      "ort": "Berlin", "ortart": "Vor Ort",
+      "desc": "CO2-Bilanzierung für Speditionen, Kunden sind mittelgroße Logistikunternehmen.",
+      "size": "51–200", "wish": false, "stage": "Series A",
+      "vc": "VC · Series A 14 Mio. €, Spreequell Ventures",
+      "role": "klassischer SDR", "sdr": true,
+      "quelle": "LinkedIn", "url": "https://example.com/jobs/torfhaus-sdr", "againOf": ""
+    },
+    {
+      "key": "westhalde|associate to the ceo",
+      "tier": "top10", "region": "Düsseldorf",
+      "firma": "Westhalde", "position": "Associate to the CEO",
+      "ort": "Düsseldorf", "ortart": "Hybrid",
+      "desc": "Übernimmt Handwerksbetriebe von Inhabern ohne Nachfolge und führt sie unter gemeinsamer Marke weiter.",
+      "size": "51–200", "wish": false, "stage": "Series A",
+      "vc": "VC · Series A 25 Mio. €, Nordkap Ventures, Search-Fund-Investoren",
+      "role": "Chief of Staff", "sdr": false,
+      "quelle": "LinkedIn", "url": "https://example.com/jobs/westhalde-associate", "againOf": ""
+    },
+    {
+      "key": "quellgrund|growth generalist",
+      "tier": "edge", "region": "Remote",
+      "firma": "Quellgrund", "position": "Growth Generalist",
+      "ort": "Remote (EU)", "ortart": "Remote",
+      "desc": "Newsletter-Netzwerk für Fachpublikum in Bau und Immobilien, finanziert über Sponsoring.",
+      "size": "1–10", "wish": true, "stage": "Bootstrapped",
+      "vc": "Bootstrapped — profitabel seit 2024",
+      "role": "Growth", "sdr": false,
+      "quelle": "LinkedIn", "url": "https://example.com/jobs/quellgrund-growth", "againOf": ""
+    },
+    {
+      "key": "pelikanstraße|community & partnerships lead",
+      "tier": "edge", "region": "Köln",
+      "firma": "Pelikanstraße", "position": "Community & Partnerships Lead",
+      "ort": "Köln", "ortart": "Vor Ort",
+      "desc": "Veranstaltungsreihe und Mitgliederclub für Gründerinnen und Gründer im Rheinland.",
+      "size": "1–10", "wish": true, "stage": "Bootstrapped",
+      "vc": "Bootstrapped · Mitgliedsbeiträge und Sponsoren",
+      "role": "Community / Partnerships", "sdr": false,
+      "quelle": "Empfehlung", "url": "https://example.com/jobs/pelikanstrasse-community", "againOf": ""
+    },
+    {
+      "key": "hafenkante|analyst — beteiligungen",
+      "tier": "edge", "region": "Hamburg",
+      "firma": "Hafenkante", "position": "Analyst — Beteiligungen",
+      "ort": "Hamburg", "ortart": "Vor Ort",
+      "desc": "Beteiligungsgesellschaft für Logistik-Startups, investiert aus Familienvermögen einer Reederei.",
+      "size": "11–30", "wish": true, "stage": "Series A",
+      "vc": "Kein VC · Evergreen-Struktur",
+      "role": "Investment / Analyst", "sdr": false,
+      "quelle": "Firmenwebsite", "url": "https://example.com/jobs/hafenkante-analyst", "againOf": ""
+    },
+    {
+      "key": "grünspan|expansion intern → festanstellung",
+      "tier": "edge", "region": "Berlin",
+      "firma": "Grünspan", "position": "Expansion Intern → Festanstellung",
+      "ort": "Berlin", "ortart": "Vor Ort",
+      "desc": "Vertikale Landwirtschaft in stillgelegten Parkhäusern, beliefert Berliner Gastronomie.",
+      "size": "11–30", "wish": true, "stage": "Seed",
+      "vc": "VC · Seed 4 Mio. €, Spreequell Ventures",
+      "role": "Expansion", "sdr": false,
+      "quelle": "LinkedIn", "url": "https://example.com/jobs/gruenspan-expansion", "againOf": ""
+    }
+  ],
+  "rejected": [
+    { "key": "borealis softworks|sales development representative", "firma": "Borealis Softworks", "position": "Sales Development Representative", "date": "2026-08-19" },
+    { "key": "kranstett|junior consultant", "firma": "Kranstett", "position": "Junior Consultant", "date": "2026-08-19" },
+    { "key": "novumhaus|trainee vertrieb (18 monate)", "firma": "Novumhaus", "position": "Trainee Vertrieb (18 Monate)", "date": "2026-08-20" },
+    { "key": "silberbach capital|analyst — reporting", "firma": "Silberbach Capital", "position": "Analyst — Reporting", "date": "2026-08-20" },
+    { "key": "zederblick|account manager smb", "firma": "Zederblick", "position": "Account Manager SMB", "date": "2026-08-21" }
+  ],
+  "blitz": [
+    {
+      "key": "borealis softworks|founder's associate (m/w/d)",
+      "tier": "blitz", "region": "Köln",
+      "firma": "Borealis Softworks", "position": "Founder's Associate (m/w/d)",
+      "ort": "Köln", "ortart": "Hybrid",
+      "desc": "Werkzeuge für Softwareteams zur Fehlersuche in verteilten Systemen.",
+      "size": "11–30", "wish": true, "stage": "Seed",
+      "vc": "VC · Seed 4 Mio. €, Nordkap Ventures",
+      "role": "Founder's Associate", "sdr": false,
+      "quelle": "LinkedIn", "url": "https://example.com/jobs/borealis-fa",
+      "againOf": "Sales Development Representative"
+    },
+    {
+      "key": "zederblick|chief of staff (interim, 12 monate)",
+      "tier": "blitz", "region": "Düsseldorf",
+      "firma": "Zederblick", "position": "Chief of Staff (Interim, 12 Monate)",
+      "ort": "Düsseldorf", "ortart": "Hybrid",
+      "desc": "Abrechnungssoftware für Physiotherapiepraxen, rund 900 Praxen als Kunden.",
+      "size": "31–50", "wish": false, "stage": "Series A",
+      "vc": "VC · Series A 11 Mio. €, Rheinwerk Capital",
+      "role": "Chief of Staff", "sdr": false,
+      "quelle": "LinkedIn", "url": "https://example.com/jobs/zederblick-cos",
+      "againOf": "Account Manager SMB"
+    },
+    {
+      "key": "novumhaus|projektleitung neue märkte",
+      "tier": "blitz", "region": "Köln",
+      "firma": "Novumhaus", "position": "Projektleitung Neue Märkte",
+      "ort": "Köln", "ortart": "Vor Ort",
+      "desc": "Modulare Kleinstwohnungen für Studierendenwerke, Produktion in Nordrhein-Westfalen.",
+      "size": "51–200", "wish": false, "stage": "Series B",
+      "vc": "VC · Series B 28 Mio. €, Klimafonds NRW",
+      "role": "Expansion", "sdr": false,
+      "quelle": "Indeed", "url": "https://example.com/jobs/novumhaus-neue-maerkte",
+      "againOf": "Trainee Vertrieb (18 Monate)"
+    }
+  ]
+}
+</script>
+
+<nav class="topnav">
+  <a class="logo" href="index.html">L.&nbsp;Wocher</a>
+  <ul>
+    <li><a href="index.html">Projekte</a></li>
+    <li><a href="agent.html">AI Agent</a></li>
+    <li><a class="ghost" href="databook.html#de/ov">Databook</a></li>
+  </ul>
+</nav>
+
+<div class="demobar">
+  <div class="inner">
+    <span><b>Demo</b> · alle Firmen, Namen und Notizen sind frei erfunden.</span>
+    <span class="sep">·</span>
+    <span>Alles ist anklickbar und veränderbar; nichts wird gespeichert oder übertragen.</span>
+    <span class="grow"></span>
+    <span id="enNote" hidden>The tracker interface is in German.</span>
+    <a href="index.html">&#8592; zurück zu den Projekten</a>
+  </div>
+</div>
+
+<div class="wrap">
+  <header class="top">
+    <div>
+      <p class="lbl" style="margin-bottom:10px">Projekt 04 &middot; Demo mit erfundenen Daten</p>
+      <h1>Bewerbungs<em>tracker</em></h1>
+      <p class="sub">Eine Pipeline für Bewerbungen und ein vorgefilterter Einlauf neuer Stellen. Gebaut, weil eine Tabelle ab der zwanzigsten Bewerbung nicht mehr trägt: Fristen gehen unter, dieselbe Firma taucht dreimal auf, und der nächste Schritt steht nirgends.</p>
+    </div>
+    <div class="saver">
+      <span class="pill" id="saveState" data-state="demo"><span class="dot"></span><span id="saveText">Demo — nichts wird gespeichert</span></span>
+      <button class="btn" id="resetNow" type="button">Demo zurücksetzen</button>
+    </div>
+  </header>
+
+  <p class="banner" id="banner" hidden></p>
+
+  <nav class="tabs" role="tablist">
+    <button class="tab" id="tab-tracker" type="button" role="tab" aria-selected="true">Bewerbungen<span class="count" id="cnt-tracker">0</span></button>
+    <button class="tab" id="tab-inbox" type="button" role="tab" aria-selected="false">Job-Inbox<span class="count" id="cnt-inbox">0</span></button>
+  </nav>
+
+  <section class="page" id="page-tracker">
+    <div class="stats">
+      <div class="stat"><b id="s-total">0</b><span>Einträge gesamt</span></div>
+      <div class="stat"><b id="s-beworben">0</b><span>Tatsächlich beworben</span></div>
+      <div class="stat"><b id="s-gespraech">0</b><span>In Gespräch / Interview</span></div>
+      <div class="stat alert"><b id="s-frist">0</b><span>Frist läuft (≤ 7 Tage)</span></div>
+      <div class="stat"><b id="s-offen">0</b><span>Zu entscheiden</span></div>
+    </div>
+
+    <div class="bar">
+      <input class="search" id="search" type="search" placeholder="Suchen: Unternehmen, Position, Notizen …" autocomplete="off">
+      <div class="chips" id="chips">
+        <button class="chip" data-filter="alle" type="button" aria-pressed="true">Alle</button>
+        <button class="chip" data-filter="beworben" type="button" aria-pressed="false">Beworben</button>
+        <button class="chip" data-filter="eventuell" type="button" aria-pressed="false">Eventuell</button>
+        <button class="chip" data-filter="mussnoch" type="button" aria-pressed="false">Muss noch</button>
+        <button class="chip" data-filter="archiv" type="button" aria-pressed="false">Archiv</button>
+      </div>
+      <span class="spacer"></span>
+      <span class="legend">
+        <button class="btn" type="button" id="legendBtn">Status-Legende</button>
+        <div class="legend-panel" id="legendPanel" hidden>
+          <dl>
+            <dt>Beobachten</dt><dd>Interessant, Entscheidung offen</dd>
+            <dt>Vorbereitung</dt><dd>Anschreiben/Unterlagen werden erstellt</dd>
+            <dt>Abgeschickt → Angenommen</dt><dd>Bewerbungsprozess läuft bzw. erfolgreich</dd>
+            <dt>Abgelehnt</dt><dd>Abgelehnt oder zurückgezogen</dd>
+            <dt>Verworfen</dt><dd>Nach Prüfung doch nicht beworben</dd>
+            <dt>★ neben dem Unternehmen</dt><dd>Job liegt in/bei Köln — die bevorzugte Stadt</dd>
+          </dl>
+        </div>
+      </span>
+      <button class="btn btn-primary" id="add" type="button">+ Neue Bewerbung</button>
+    </div>
+
+    <div class="scroller">
+      <div class="grid">
+        <div class="cols head">
+          <div>ID</div><div>Unternehmen &amp; Position</div><div>Status</div><div>Priorität</div>
+          <div>Standort</div><div>Nächster Schritt</div><div>Frist</div><div>Quelle</div><div>Kontakt</div><div></div>
+        </div>
+        <div id="entries"></div>
+      </div>
+    </div>
+    <p class="empty" id="noHits" hidden>Kein Eintrag passt zu Filter und Suche.</p>
+  </section>
+
+  <section class="page" id="page-inbox" hidden>
+    <div class="inbox-head">
+      <p>Hier laufen die neuen Treffer aus den LinkedIn- und Indeed-Alerts ein — vorgefiltert auf Startups (keine Corporates), sortiert nach Köln → München → Berlin. <strong>Übernehmen</strong> legt den Job als Zeile in „Bewerbungen" an, <strong>Ablehnen</strong> merkt ihn dauerhaft als erledigt, damit er nie wieder auftaucht.</p>
+      <span class="stamp" id="stamp">Letzter Einlauf: noch keiner</span>
+    </div>
+
+    <div class="cardkey">
+      <div>
+        <span class="lbl">Firma in einem Satz</span>
+        <p>Was das Unternehmen macht — kurz genug, um in drei Sekunden zu entscheiden.</p>
+      </div>
+      <div>
+        <span class="lbl">Teamgröße</span>
+        <p><span class="badge size wish">1–10 ★</span><span class="badge size wish">11–30 ★</span><span class="badge size">31–50</span><span class="badge size">51–200</span><br>★ = Wunschgröße (extrem fast-paced). Über 200 fliegt raus, ebenso alles, was nach Corporate aussieht.</p>
+      </div>
+      <div>
+        <span class="lbl">Finanzierung</span>
+        <p><span class="badge stage early">Pre-Seed</span><span class="badge stage early">Seed</span><span class="badge stage">Series A</span><br>Die Stufe steht als eigenes Badge auf jeder Karte, die Investoren daneben. Über „Frühphase" lässt sich quer durch alle Tiers filtern.</p>
+      </div>
+      <div>
+        <span class="lbl">Rollen-Einordnung</span>
+        <p><span class="badge role">Founder's Associate</span><span class="badge role">Chief of Staff</span><span class="badge sdr">klassischer SDR</span><br>Klassische SDR-Einstiege werden rot markiert, damit sie sofort auffallen.</p>
+      </div>
+    </div>
+
+    <div class="inbox-filters" id="inboxFilters">
+      <span class="lbl">Filter</span>
+      <button class="chip" data-if="alle" type="button" aria-pressed="true">Alle</button>
+      <button class="chip" data-if="fruehphase" type="button" aria-pressed="false">Frühphase (Pre-Seed / Seed)</button>
+      <button class="chip" data-if="klein" type="button" aria-pressed="false">Kleines Team (≤ 30)</button>
+      <button class="chip" data-if="nrw" type="button" aria-pressed="false">Köln &amp; NRW</button>
+    </div>
+
+    <div class="tier" data-tier="top5">
+      <div class="tier-head"><h2>Top 5</h2><span class="note">beste Fits nach Rolle, Größe und Standort</span></div>
+      <div class="jobs" id="jobs-top5"></div>
+      <p class="empty" id="empty-top5">Noch leer — der erste Einlauf steht aus.</p>
+    </div>
+    <div class="tier" data-tier="top10">
+      <div class="tier-head"><h2>Weitere Top 10</h2><span class="note">solide Treffer, einen Blick wert</span></div>
+      <div class="jobs" id="jobs-top10"></div>
+      <p class="empty" id="empty-top10">Noch leer.</p>
+    </div>
+    <div class="tier" data-tier="edge">
+      <div class="tier-head"><h2>Edge Cases</h2><span class="note">spekulativer, könnten aber trotzdem passen</span></div>
+      <div class="jobs" id="jobs-edge"></div>
+      <p class="empty" id="empty-edge">Noch leer.</p>
+    </div>
+
+    <details class="blitz" id="blitzBox">
+      <summary>Blitz-Round — schnell durchklicken (<span id="blitzCount">0</span>)</summary>
+      <div class="blitz-stage" id="blitzStage"></div>
+    </details>
+
+    <details class="ledger">
+      <summary>Abgelehnte Vorschläge — werden beim nächsten Einlauf übersprungen (<span id="rejCount">0</span>)</summary>
+      <ul id="rejected"></ul>
+    </details>
+  </section>
+
+  <section class="exchange">
+    <h2>Austausch mit dem Assistenten</h2>
+    <p class="hint">Der Tracker läuft als reine Browser-Seite ohne Backend. Damit ein KI-Assistent neue Stellen einspielen kann, ohne die Seite anzufassen, läuft der Austausch über zwei Textfelder: einmal Stand raus, einmal Vorschläge rein.</p>
+
+    <details id="expBox">
+      <summary>1 · Stand exportieren</summary>
+      <textarea id="expArea" spellcheck="false" readonly></textarea>
+      <div class="row">
+        <button class="btn" id="expCopy" type="button">In die Zwischenablage</button>
+        <span id="expMsg" class="hint"></span>
+      </div>
+      <p class="hint">Enthält alle Bewerbungen, die offene Inbox und die Ablehnliste als JSON.</p>
+    </details>
+
+    <details class="paster">
+      <summary>2 · Vorschläge einfügen (JSON-Block)</summary>
+      <textarea id="pasteBox" spellcheck="false" placeholder='[{"tier":"top5","region":"Köln","firma":"Beispiel GmbH","position":"Founder&apos;s Associate","ort":"Köln","ortart":"Hybrid","desc":"Was die Firma macht, in einem Satz.","size":"11–30","wish":true,"stage":"Seed","vc":"VC · Seed 4 Mio. €","role":"Founder&apos;s Associate","quelle":"LinkedIn","url":"https://example.com/job"}]'></textarea>
+      <div class="row">
+        <button class="btn btn-primary" id="pasteAdd" type="button">Einfügen</button>
+        <button class="btn" id="pasteDemo" type="button">Beispiel einsetzen</button>
+        <span id="pasteMsg" class="hint"></span>
+      </div>
+      <p class="hint">Felder je Job: <code>tier</code> (top5 · top10 · edge · blitz), <code>region</code>, <code>firma</code>, <code>position</code>, <code>ort</code>, <code>ortart</code>, <code>desc</code>, <code>size</code>, <code>wish</code> (true bei 1–30), <code>stage</code> (Pre-Seed · Seed · Series A · Bootstrapped), <code>vc</code>, <code>role</code>, <code>sdr</code>, <code>quelle</code>, <code>url</code>. Exakt dieselbe Anzeige wird nie doppelt eingespielt. Eine <em>neue</em> Rolle bei einer Firma, die schon einmal abgelehnt wurde, landet automatisch in der Blitz-Round statt in den Tiers.</p>
+    </details>
+  </section>
+
+  <section class="howto">
+    <h2>Was hier ausprobiert werden kann</h2>
+    <ol>
+      <li><b>Zeile bearbeiten:</b> Firma, Position, nächster Schritt und Kontakt sind direkt in der Tabelle beschreibbar — einfach hineinklicken und tippen.</li>
+      <li><b>Details öffnen:</b> Rechts in jeder Zeile auf „Details" — dort liegen Notizen, Gehalt, Finanzierung, Kontakte und der Text fürs Anschreiben.</li>
+      <li><b>Filtern und suchen:</b> Die Chips über der Tabelle gruppieren nach Phase; die Suche greift auch in Notizen und Anschreiben.</li>
+      <li><b>Job-Inbox:</b> Zweiter Tab. Karten mit <em>Übernehmen</em> in die Pipeline holen oder mit <em>Ablehnen</em> dauerhaft ausblenden — abgelehnte Firmen tauchen bei einer neuen Rolle in der Blitz-Round wieder auf.</li>
+      <li><b>Blitz-Round:</b> Am Ende der Inbox aufklappen und mit den Pfeiltasten ← / → durchgehen.</li>
+      <li><b>Zurücksetzen:</b> Der Knopf oben rechts stellt den Demo-Stand wieder her.</li>
+    </ol>
+  </section>
+
+</div>
+
+<footer class="foot">
+  <div class="footgrid">
+    <div>
+      <p class="footname">Lorenz Wocher</p>
+      <p class="foottag">Demo &middot; vollständig im Browser, ohne Server, ohne Tracking</p>
+    </div>
+    <ul class="footlinks">
+      <li><a href="index.html">Projekte</a></li>
+      <li><a href="databook.html#de/ov">Databook</a></li>
+      <li><a href="mailto:lorenz.wocher@gmail.com">E-Mail</a></li>
+      <li><a href="https://www.linkedin.com/in/lorenz-wocher-498263200/" rel="noopener">LinkedIn</a></li>
+      <li><a href="https://github.com/lorenzwocher-cyber" rel="noopener">GitHub</a></li>
+    </ul>
+  </div>
+</footer>
+<div id="toast"></div>
+
+<script>
+(function(){
+"use strict";
+
+var STATUS = [
+  ["beobachten","Beobachten","eventuell"],
+  ["vorbereitung","Vorbereitung","mussnoch"],
+  ["abgeschickt","Abgeschickt","beworben"],
+  ["gespraech","Im Gespräch","beworben"],
+  ["angenommen","Angenommen","beworben"],
+  ["abgelehnt","Abgelehnt","archiv"],
+  ["verworfen","Verworfen","archiv"]
+];
+var PRIO = [["","– Prio"],["hoch","Hoch"],["mittel","Mittel"],["niedrig","Niedrig"]];
+var GROUP = {}; STATUS.forEach(function(s){ GROUP[s[0]] = s[2]; });
+
+var SEED = JSON.parse(document.getElementById("seed").textContent);
+var state = null;
+var ui = { tab:"tracker", filter:"alle", q:"", open:{}, inboxFilter:"alle", blitzIdx:0 };
+
+var $ = function(id){ return document.getElementById(id); };
+function esc(s){ return String(s == null ? "" : s); }
+function clone(o){ return JSON.parse(JSON.stringify(o)); }
+function todayISO(){
+  var d = new Date();
+  return d.getFullYear() + "-" + String(d.getMonth()+1).padStart(2,"0") + "-" + String(d.getDate()).padStart(2,"0");
+}
+function nowTime(){
+  var d = new Date();
+  return String(d.getHours()).padStart(2,"0") + ":" + String(d.getMinutes()).padStart(2,"0");
+}
+function keyOf(firma, position){
+  return (esc(firma) + "|" + esc(position)).toLowerCase().replace(/\s+/g," ").trim();
+}
+var toastTimer;
+function say(msg){
+  var t = $("toast"); t.textContent = msg; t.classList.add("on");
+  clearTimeout(toastTimer); toastTimer = setTimeout(function(){ t.classList.remove("on"); }, 2400);
+}
+
+/* Demo-Modus: Änderungen leben nur im Browser. */
+var pillTimer = null;
+function markDirty(){
+  var p = $("saveState");
+  p.setAttribute("data-state","dirty");
+  $("saveText").textContent = "Geändert — nur in dieser Ansicht";
+  clearTimeout(pillTimer);
+  pillTimer = setTimeout(function(){
+    p.setAttribute("data-state","demo");
+    $("saveText").textContent = "Demo — nichts wird gespeichert";
+  }, 2600);
+}
+
+/* ---------- rendering ---------- */
+function makeEd(cls, fieldName, value, placeholder, entryId){
+  var d = document.createElement("div");
+  d.className = "ed " + cls;
+  d.setAttribute("contenteditable", "plaintext-only");
+  d.setAttribute("data-f", fieldName);
+  d.setAttribute("data-eid", entryId);
+  if(placeholder) d.setAttribute("data-placeholder", placeholder);
+  d.textContent = esc(value);
+  return d;
+}
+function makeSelect(cls, fieldName, opts, value, entryId){
+  var s = document.createElement("select");
+  s.className = "pick " + cls;
+  s.setAttribute("data-f", fieldName);
+  s.setAttribute("data-eid", entryId);
+  opts.forEach(function(o){
+    var op = document.createElement("option");
+    op.value = o[0]; op.textContent = o[1];
+    if(o[0] === value) op.selected = true;
+    s.appendChild(op);
+  });
+  return s;
+}
+function makeDate(fieldName, value, entryId){
+  var i = document.createElement("input");
+  i.type = "date"; i.className = "date";
+  i.setAttribute("data-f", fieldName); i.setAttribute("data-eid", entryId);
+  i.value = esc(value);
+  return i;
+}
+function cell(child){ var d = document.createElement("div"); if(child) d.appendChild(child); return d; }
+
+function isKoeln(e){
+  var o = (esc(e.ort) + " " + esc(e.ortart)).toLowerCase();
+  return o.indexOf("köln") >= 0 || o.indexOf("koeln") >= 0 || o.indexOf("cologne") >= 0;
+}
+
+function renderEntry(e){
+  var art = document.createElement("article");
+  art.className = "entry";
+  art.setAttribute("data-eid", e.id);
+  art.setAttribute("data-status", e.status || "beobachten");
+  art.setAttribute("data-prio", e.prio || "");
+
+  var main = document.createElement("div");
+  main.className = "entry-main cols";
+
+  var id = document.createElement("div"); id.className = "c-id"; id.textContent = e.id;
+  main.appendChild(id);
+
+  var firmaWrap = document.createElement("div");
+  firmaWrap.appendChild(makeEd("strong", "firma", e.firma, "Unternehmen", e.id));
+  if(isKoeln(e)){
+    var star = document.createElement("div");
+    star.className = "koeln"; star.style.fontSize = "11px"; star.textContent = "★ Köln";
+    firmaWrap.appendChild(star);
+  }
+  firmaWrap.appendChild(makeEd("sub2", "position", e.position, "Position", e.id));
+  if(e.size || e.vc){
+    var bw = document.createElement("div"); bw.className = "rowbadges";
+    if(e.size){
+      var wish = (e.size === "1–10" || e.size === "11–30");
+      var b1 = document.createElement("span");
+      b1.className = "badge size" + (wish ? " wish" : "");
+      b1.textContent = e.size + (wish ? " ★" : "");
+      bw.appendChild(b1);
+    }
+    if(e.vc){
+      var b2 = document.createElement("span");
+      b2.className = "badge " + (/bootstrap/i.test(e.vc) ? "boot" : "vc");
+      b2.textContent = e.vc; b2.title = e.vc;
+      bw.appendChild(b2);
+    }
+    firmaWrap.appendChild(bw);
+  }
+  main.appendChild(firmaWrap);
+
+  main.appendChild(cell(makeSelect("status", "status", STATUS.map(function(s){ return [s[0], s[1]]; }), e.status, e.id)));
+  main.appendChild(cell(makeSelect("prio", "prio", PRIO, e.prio || "", e.id)));
+
+  var ortWrap = document.createElement("div");
+  ortWrap.appendChild(makeEd("", "ort", e.ort, "Stadt", e.id));
+  ortWrap.appendChild(makeEd("sub2", "ortart", e.ortart, "Vor Ort / Hybrid / Remote", e.id));
+  main.appendChild(ortWrap);
+
+  main.appendChild(makeEd("", "next", e.next, "Was ist der nächste Schritt?", e.id));
+  main.appendChild(cell(makeDate("frist", e.frist, e.id)));
+
+  var a = document.createElement("a");
+  a.className = "src" + (e.srcUrl ? "" : " off");
+  a.href = e.srcUrl || "#"; a.target = "_blank"; a.rel = "noopener";
+  a.textContent = (e.srcLabel || "Quelle") + " ↗";
+  main.appendChild(cell(a));
+
+  main.appendChild(makeEd("", "kontakt", e.kontakt, "Kontaktperson …", e.id));
+
+  var tog = document.createElement("button");
+  tog.className = "btn btn-quiet js-toggle"; tog.type = "button";
+  tog.textContent = ui.open[e.id] ? "Schließen" : "Details";
+  main.appendChild(cell(tog));
+
+  art.appendChild(main);
+
+  var det = document.createElement("div");
+  det.className = "entry-detail";
+  det.hidden = !ui.open[e.id];
+  function fld(label, node, full){
+    var w = document.createElement("div"); w.className = "field" + (full ? " full" : "");
+    var l = document.createElement("span"); l.className = "lbl"; l.textContent = label;
+    w.appendChild(l); w.appendChild(node); return w;
+  }
+  det.appendChild(fld("Firma in einem Satz", makeEd("", "firmaDesc", e.firmaDesc, "Was macht die Firma? …", e.id), true));
+  det.appendChild(fld("Teamgröße", makeEd("", "size", e.size, "1–10 · 11–30 · 31–50 · 51–200 · 200+", e.id)));
+  det.appendChild(fld("Finanzierung", makeEd("", "vc", e.vc, "z. B. VC · Seed 4 Mio. € · Bootstrapped", e.id)));
+  det.appendChild(fld("Rollen-Einordnung", makeEd("", "role", e.role, "Founder's Associate / Chief of Staff / AE …", e.id)));
+  det.appendChild(fld("Notizen", makeEd("", "notizen", e.notizen, "Notizen …", e.id), true));
+  det.appendChild(fld("Kenne ich jmd?", makeEd("", "kontakte", e.kontakte, "Alumni/Kontakte, die ich anschreiben kann …", e.id)));
+  det.appendChild(fld("Gehalt", makeEd("", "gehalt", e.gehalt, "z. B. 55.000 €/Jahr", e.id)));
+  det.appendChild(fld("Bewerbungsportal", makeEd("", "portal", e.portal, "Link zum Bewerbungsformular …", e.id)));
+  det.appendChild(fld("Quelle — Bezeichnung", makeEd("", "srcLabel", e.srcLabel, "LinkedIn / Firmenwebsite …", e.id)));
+  det.appendChild(fld("Quelle — Link", makeEd("", "srcUrl", e.srcUrl, "https://…", e.id)));
+  det.appendChild(fld("Letztes Update", makeDate("updated", e.updated, e.id)));
+  det.appendChild(fld("Text zum Anschreiben", makeEd("", "anschreiben", e.anschreiben, "Vorformulierter Text fürs Anschreiben …", e.id), true));
+
+  var acts = document.createElement("div"); acts.className = "detail-actions";
+  var del = document.createElement("button");
+  del.className = "btn btn-quiet js-del"; del.type = "button"; del.textContent = "Eintrag löschen";
+  acts.appendChild(del); det.appendChild(acts);
+
+  art.appendChild(det);
+  return art;
+}
+
+function renderJob(j){
+  var art = document.createElement("article");
+  art.className = "job"; art.setAttribute("data-key", j.key);
+
+  var h = document.createElement("h3"); h.textContent = esc(j.position); art.appendChild(h);
+  var f = document.createElement("div"); f.className = "firma"; f.textContent = esc(j.firma); art.appendChild(f);
+
+  var bs = document.createElement("div"); bs.className = "badges";
+  function badge(cls, text){ if(!text) return; var s = document.createElement("span"); s.className = "badge " + cls; s.textContent = text; bs.appendChild(s); }
+  badge("region", j.region);
+  badge("size" + (j.wish ? " wish" : ""), j.size ? (j.size + (j.wish ? " ★" : "")) : "");
+  badge("stage" + (isEarly(j) ? " early" : ""), j.stage);
+  badge(/bootstrap/i.test(esc(j.vc)) ? "boot" : "vc", j.vc);
+  badge(j.sdr ? "sdr" : "role", j.role);
+  if(j.againOf) badge("again", "schon mal abgelehnt");
+  art.appendChild(bs);
+
+  var d = document.createElement("p"); d.className = "desc"; d.textContent = esc(j.desc); art.appendChild(d);
+  if(j.againOf){
+    var an = document.createElement("p"); an.className = "again-note";
+    an.textContent = "Von dieser Firma wurde schon abgelehnt: " + esc(j.againOf);
+    art.appendChild(an);
+  }
+
+  var foot = document.createElement("div"); foot.className = "job-foot";
+  var a = document.createElement("a");
+  a.className = "src" + (j.url ? "" : " off"); a.href = j.url || "#"; a.target = "_blank"; a.rel = "noopener";
+  a.textContent = (j.quelle || "Quelle") + " ↗";
+  foot.appendChild(a);
+  var take = document.createElement("button"); take.className = "btn btn-primary js-take"; take.type = "button"; take.textContent = "Übernehmen";
+  var drop = document.createElement("button"); drop.className = "btn js-drop"; drop.type = "button"; drop.textContent = "Ablehnen";
+  foot.appendChild(take); foot.appendChild(drop);
+  art.appendChild(foot);
+  return art;
+}
+
+function render(){
+  var box = $("entries");
+  box.textContent = "";
+  state.entries.forEach(function(e){ box.appendChild(renderEntry(e)); });
+  applyFilter();
+  renderInbox();
+  refreshStats();
+}
+
+function isEarly(j){
+  var t = (esc(j.stage) + " " + esc(j.vc)).toLowerCase();
+  if(/series\s*[a-z]/.test(t) && !/pre-?seed|pre seed/.test(t)) return false;
+  return /pre-?seed|pre seed|angel|\bseed\b|bootstrap/.test(t);
+}
+function isSmall(j){ return j.size === "1–10" || j.size === "11–30"; }
+function isNRW(j){
+  var t = (esc(j.region) + " " + esc(j.ort)).toLowerCase();
+  return /köln|koeln|cologne|düsseldorf|duesseldorf|neuss|bonn|nrw|aachen|essen|dortmund/.test(t);
+}
+function passesInboxFilter(j){
+  if(ui.inboxFilter === "fruehphase") return isEarly(j);
+  if(ui.inboxFilter === "klein") return isSmall(j);
+  if(ui.inboxFilter === "nrw") return isNRW(j);
+  return true;
+}
+
+function renderBlitz(){
+  var host = $("blitzStage");
+  host.textContent = "";
+  $("blitzCount").textContent = state.blitz.length;
+  if(!state.blitz.length){
+    var d = document.createElement("p"); d.className = "blitz-done";
+    d.textContent = "Nichts mehr in der Blitz-Round. Alles durch.";
+    host.appendChild(d); return;
+  }
+  if(ui.blitzIdx >= state.blitz.length) ui.blitzIdx = 0;
+  var j = state.blitz[ui.blitzIdx];
+
+  var meta = document.createElement("div"); meta.className = "blitz-meta";
+  var left = document.createElement("span");
+  left.textContent = (ui.blitzIdx + 1) + " von " + state.blitz.length;
+  var right = document.createElement("span"); right.className = "blitz-keys";
+  right.textContent = "← weg   ·   → interessant";
+  meta.appendChild(left); meta.appendChild(right);
+  host.appendChild(meta);
+
+  var card = renderJob(j);
+  var foot = card.querySelector(".job-foot");
+  foot.querySelector(".js-take").remove();
+  foot.querySelector(".js-drop").remove();
+  var keep = document.createElement("button");
+  keep.className = "btn btn-primary js-blitz-keep"; keep.type = "button"; keep.textContent = "Interessant →";
+  var skip = document.createElement("button");
+  skip.className = "btn js-blitz-skip"; skip.type = "button"; skip.textContent = "Weg";
+  foot.appendChild(skip); foot.appendChild(keep);
+  host.appendChild(card);
+}
+
+function renderInbox(){
+  ["top5","top10","edge"].forEach(function(t){
+    var host = $("jobs-" + t); host.textContent = "";
+    var list = state.inbox.filter(function(j){ return j.tier === t && passesInboxFilter(j); });
+    var order = { "köln":0, "koeln":0, "cologne":0, "münchen":1, "muenchen":1, "munich":1, "berlin":2 };
+    list.sort(function(a,b){
+      var ra = order[esc(a.region).toLowerCase()], rb = order[esc(b.region).toLowerCase()];
+      return (ra === undefined ? 9 : ra) - (rb === undefined ? 9 : rb);
+    });
+    list.forEach(function(j){ host.appendChild(renderJob(j)); });
+    var emp = $("empty-" + t);
+    emp.hidden = list.length > 0;
+    if(!list.length && ui.inboxFilter !== "alle") emp.textContent = "Kein Treffer für diesen Filter.";
+  });
+  var ul = $("rejected"); ul.textContent = "";
+  state.rejected.forEach(function(r){
+    var li = document.createElement("li");
+    li.textContent = esc(r.firma) + " — " + esc(r.position) + " (abgelehnt " + esc(r.date) + ")";
+    ul.appendChild(li);
+  });
+  $("rejCount").textContent = state.rejected.length;
+  $("cnt-inbox").textContent = state.inbox.length + state.blitz.length;
+  renderBlitz();
+  $("stamp").textContent = state.stamp ? ("Letzter Einlauf: " + state.stamp) : "Letzter Einlauf: noch keiner";
+}
+
+var rerenderTimer = null;
+function scheduleRerender(){
+  clearTimeout(rerenderTimer);
+  rerenderTimer = setTimeout(function(){
+    var a = document.activeElement;
+    var keep = a && a.getAttribute ? { eid: a.getAttribute("data-eid"), f: a.getAttribute("data-f") } : null;
+    render();
+    if(keep && keep.eid && keep.f){
+      var el = document.querySelector('[data-eid="' + keep.eid + '"][data-f="' + keep.f + '"]');
+      if(el){
+        el.focus();
+        try{
+          var r = document.createRange(), sel = window.getSelection();
+          r.selectNodeContents(el); r.collapse(false); sel.removeAllRanges(); sel.addRange(r);
+        }catch(err){}
+      }
+    }
+  }, 1500);
+}
+
+function refreshStats(){
+  var beworben = 0, gespraech = 0, offen = 0, frist = 0;
+  var today = todayISO();
+  var soon = new Date(); soon.setDate(soon.getDate() + 7);
+  var soonISO = soon.getFullYear() + "-" + String(soon.getMonth()+1).padStart(2,"0") + "-" + String(soon.getDate()).padStart(2,"0");
+  state.entries.forEach(function(e){
+    var st = e.status || "beobachten";
+    if(st === "abgeschickt" || st === "gespraech" || st === "angenommen") beworben++;
+    if(st === "gespraech") gespraech++;
+    if(st === "beobachten") offen++;
+    if(e.frist && e.frist >= today && e.frist <= soonISO && GROUP[st] !== "archiv") frist++;
+  });
+  $("s-total").textContent = state.entries.length;
+  $("s-beworben").textContent = beworben;
+  $("s-gespraech").textContent = gespraech;
+  $("s-frist").textContent = frist;
+  $("s-offen").textContent = offen;
+  $("cnt-tracker").textContent = state.entries.length;
+}
+
+function applyFilter(){
+  var q = ui.q.toLowerCase(), shown = 0;
+  state.entries.forEach(function(e){
+    var node = document.querySelector('.entry[data-eid="' + e.id + '"]');
+    if(!node) return;
+    var okF = ui.filter === "alle" || GROUP[e.status || "beobachten"] === ui.filter;
+    var hay = [e.id,e.firma,e.position,e.ort,e.ortart,e.next,e.kontakt,e.notizen,e.kontakte,e.gehalt,e.anschreiben,e.firmaDesc,e.size,e.vc,e.role].join(" ").toLowerCase();
+    var okQ = !q || hay.indexOf(q) >= 0;
+    node.hidden = !(okF && okQ);
+    if(okF && okQ) shown++;
+  });
+  $("noHits").hidden = shown > 0;
+}
+
+/* ---------- events ---------- */
+function entryById(id){
+  for(var i = 0; i < state.entries.length; i++) if(state.entries[i].id === id) return state.entries[i];
+  return null;
+}
+
+document.addEventListener("input", function(ev){
+  var el = ev.target;
+  if(el.isContentEditable && el.hasAttribute("data-f")){
+    if(!el.textContent.trim() && el.innerHTML !== "") el.innerHTML = "";
+    var e = entryById(el.getAttribute("data-eid"));
+    if(!e) return;
+    var f = el.getAttribute("data-f");
+    e[f] = el.textContent;
+    if(f === "size" || f === "vc"){ scheduleRerender(); }
+    if(f === "srcUrl" || f === "srcLabel"){
+      var a = el.closest(".entry").querySelector(".src");
+      if(a){ a.href = e.srcUrl || "#"; a.className = "src" + (e.srcUrl ? "" : " off"); a.textContent = (e.srcLabel || "Quelle") + " ↗"; }
+    }
+    markDirty();
+  }
+  if(el.id === "search"){ ui.q = el.value; applyFilter(); }
+});
+
+document.addEventListener("change", function(ev){
+  var el = ev.target;
+  if(!el.hasAttribute || !el.hasAttribute("data-f")) return;
+  var e = entryById(el.getAttribute("data-eid"));
+  if(!e) return;
+  var f = el.getAttribute("data-f");
+  e[f] = el.value;
+  if(f === "status" || f === "prio"){
+    var art = el.closest(".entry");
+    art.setAttribute(f === "status" ? "data-status" : "data-prio", el.value);
+    applyFilter();
+  }
+  refreshStats();
+  markDirty();
+});
+
+document.addEventListener("click", function(ev){
+  var t = ev.target;
+
+  var ifc = t.closest("#inboxFilters .chip");
+  if(ifc){
+    ui.inboxFilter = ifc.getAttribute("data-if");
+    document.querySelectorAll("#inboxFilters .chip").forEach(function(c){ c.setAttribute("aria-pressed", String(c === ifc)); });
+    renderInbox(); return;
+  }
+
+  if(t.closest(".js-blitz-keep")){ blitzDecide(true); return; }
+  if(t.closest(".js-blitz-skip")){ blitzDecide(false); return; }
+
+  var chip = t.closest("#chips .chip");
+  if(chip){
+    ui.filter = chip.getAttribute("data-filter");
+    document.querySelectorAll("#chips .chip").forEach(function(c){ c.setAttribute("aria-pressed", String(c === chip)); });
+    applyFilter(); return;
+  }
+  if(t.closest("#legendBtn")){ ev.stopPropagation(); $("legendPanel").hidden = !$("legendPanel").hidden; return; }
+  if(!t.closest("#legendPanel")) $("legendPanel").hidden = true;
+
+  var tog = t.closest(".js-toggle");
+  if(tog){
+    var art = tog.closest(".entry"), eid = art.getAttribute("data-eid");
+    ui.open[eid] = !ui.open[eid];
+    art.querySelector(".entry-detail").hidden = !ui.open[eid];
+    tog.textContent = ui.open[eid] ? "Schließen" : "Details";
+    return;
+  }
+
+  var del = t.closest(".js-del");
+  if(del){
+    if(del.getAttribute("data-armed") === "1"){
+      var id = del.closest(".entry").getAttribute("data-eid");
+      state.entries = state.entries.filter(function(x){ return x.id !== id; });
+      render(); markDirty(); say("Eintrag gelöscht");
+    } else {
+      del.setAttribute("data-armed", "1"); del.classList.add("btn-danger"); del.textContent = "Wirklich löschen?";
+      setTimeout(function(){ del.setAttribute("data-armed", "0"); del.classList.remove("btn-danger"); del.textContent = "Eintrag löschen"; }, 4000);
+    }
+    return;
+  }
+
+  var take = t.closest(".js-take"), drop = t.closest(".js-drop");
+  if(take || drop){
+    var card = t.closest(".job"), key = card.getAttribute("data-key");
+    var job = state.inbox.filter(function(j){ return j.key === key; })[0];
+    if(!job) return;
+    state.inbox = state.inbox.filter(function(j){ return j.key !== key; });
+    if(take){
+      state.entries.push({
+        id: nextId(), firma: job.firma, position: job.position, status: "beobachten", prio: "",
+        ort: job.ort || job.region || "", ortart: job.ortart || "",
+        next: "Stelle prüfen und entscheiden", frist: "",
+        srcLabel: job.quelle || "Quelle", srcUrl: job.url || "", kontakt: "",
+        firmaDesc: job.desc || "", size: job.size || "", vc: job.vc || "", role: job.role || "",
+        notizen: "", kontakte: "", gehalt: "", portal: job.url || "",
+        updated: todayISO(), anschreiben: ""
+      });
+      say("Übernommen: " + job.firma + " → Bewerbungen");
+    } else {
+      state.rejected.push({ key: key, firma: job.firma, position: job.position, date: todayISO() });
+      say("Abgelehnt — kommt nicht wieder");
+    }
+    render(); markDirty();
+    return;
+  }
+
+  if(t.closest("#add")){
+    var e2 = {
+      id: nextId(), firma: "", position: "", status: "beobachten", prio: "",
+      ort: "", ortart: "", next: "Stelle prüfen und entscheiden", frist: "",
+      srcLabel: "", srcUrl: "", kontakt: "", firmaDesc: "", size: "", vc: "", role: "",
+      notizen: "", kontakte: "", gehalt: "", portal: "", updated: todayISO(), anschreiben: ""
+    };
+    state.entries.push(e2); ui.open[e2.id] = true; ui.filter = "alle";
+    document.querySelectorAll("#chips .chip").forEach(function(c){ c.setAttribute("aria-pressed", String(c.getAttribute("data-filter") === "alle")); });
+    render(); markDirty();
+    var node = document.querySelector('.entry[data-eid="' + e2.id + '"]');
+    node.scrollIntoView({ block: "center", behavior: "smooth" });
+    node.querySelector('[data-f="firma"]').focus();
+    return;
+  }
+
+  if(t.closest("#resetNow")){ resetDemo(); return; }
+  if(t.closest("#pasteAdd")){ importJobs(); return; }
+  if(t.closest("#pasteDemo")){
+    $("pasteBox").value = JSON.stringify([{
+      tier:"top5", region:"Köln", firma:"Beispiel GmbH", position:"Founder's Associate",
+      ort:"Köln", ortart:"Hybrid", desc:"Beispielfirma, die es nicht gibt — zum Ausprobieren des Imports.",
+      size:"11–30", wish:true, stage:"Seed", vc:"VC · Seed 4 Mio. €, Beispiel Ventures",
+      role:"Founder's Associate", quelle:"LinkedIn", url:"https://example.com/job"
+    }], null, 2);
+    $("pasteMsg").textContent = "Beispiel eingesetzt — jetzt auf „Einfügen\" klicken.";
+    return;
+  }
+
+  if(t.closest("#expCopy")){
+    var ta = $("expArea"), msg = $("expMsg");
+    ta.select(); ta.setSelectionRange(0, ta.value.length);
+    if(navigator.clipboard && navigator.clipboard.writeText){
+      navigator.clipboard.writeText(ta.value).then(
+        function(){ msg.textContent = "Kopiert."; },
+        function(){ msg.textContent = "Text ist markiert — mit Strg/Cmd+C kopieren."; }
+      );
+    } else {
+      msg.textContent = "Text ist markiert — mit Strg/Cmd+C kopieren.";
+    }
+    return;
+  }
+});
+
+$("expBox").addEventListener("toggle", function(){
+  if($("expBox").open){ $("expArea").value = JSON.stringify(state, null, 2); $("expMsg").textContent = ""; }
+});
+
+$("tab-tracker").addEventListener("click", function(){ switchTab("tracker"); });
+$("tab-inbox").addEventListener("click", function(){ switchTab("inbox"); });
+function switchTab(name){
+  ui.tab = name;
+  $("tab-tracker").setAttribute("aria-selected", String(name === "tracker"));
+  $("tab-inbox").setAttribute("aria-selected", String(name === "inbox"));
+  $("page-tracker").hidden = name !== "tracker";
+  $("page-inbox").hidden = name !== "inbox";
+}
+
+function blitzDecide(keep){
+  var j = state.blitz[ui.blitzIdx];
+  if(!j) return;
+  state.blitz.splice(ui.blitzIdx, 1);
+  if(keep){
+    j.tier = ["top5","top10","edge"].indexOf(j.tier) >= 0 ? j.tier : "edge";
+    state.inbox.push(j);
+    say("Interessant — liegt jetzt in den Edge Cases");
+  } else {
+    state.rejected.push({ key: j.key, firma: j.firma, position: j.position, date: todayISO() });
+    say("Weg");
+  }
+  if(ui.blitzIdx >= state.blitz.length) ui.blitzIdx = 0;
+  renderInbox(); markDirty();
+}
+
+document.addEventListener("keydown", function(ev){
+  var box = $("blitzBox");
+  if(!box || !box.open || ui.tab !== "inbox") return;
+  var a = document.activeElement;
+  if(a && (a.isContentEditable || a.tagName === "INPUT" || a.tagName === "TEXTAREA" || a.tagName === "SELECT")) return;
+  if(ev.key === "ArrowRight"){ ev.preventDefault(); blitzDecide(true); }
+  else if(ev.key === "ArrowLeft"){ ev.preventDefault(); blitzDecide(false); }
+});
+
+function nextId(){
+  var max = 0;
+  state.entries.forEach(function(e){
+    var n = parseInt(String(e.id || "").replace(/\D/g, ""), 10);
+    if(n > max) max = n;
+  });
+  return "B" + String(max + 1).padStart(3, "0");
+}
+
+function importJobs(){
+  var raw = $("pasteBox").value.trim();
+  var msg = $("pasteMsg");
+  if(!raw){ msg.textContent = "Nichts eingefügt."; return; }
+  var list;
+  try{ list = JSON.parse(raw); }catch(err){ msg.textContent = "Das ist kein gültiges JSON."; return; }
+  if(!Array.isArray(list)) list = [list];
+  var known = {}, firmRejected = {};
+  state.entries.forEach(function(e){ known[keyOf(e.firma, e.position)] = 1; });
+  state.inbox.forEach(function(j){ known[j.key] = 1; });
+  state.blitz.forEach(function(j){ known[j.key] = 1; });
+  state.rejected.forEach(function(r){
+    known[r.key] = 1;
+    var f = esc(r.firma).toLowerCase().trim();
+    if(f && !firmRejected[f]) firmRejected[f] = r.position;
+  });
+  var added = 0, skipped = 0, toBlitz = 0;
+  list.forEach(function(j){
+    var k = keyOf(j.firma, j.position);
+    if(known[k]){ skipped++; return; }
+    known[k] = 1;
+    var before = firmRejected[esc(j.firma).toLowerCase().trim()];
+    var card = {
+      key: k, tier: ["top5","top10","edge","blitz"].indexOf(j.tier) >= 0 ? j.tier : "edge",
+      region: j.region || j.ort || "", firma: j.firma || "", position: j.position || "",
+      ort: j.ort || "", ortart: j.ortart || "", desc: j.desc || "", size: j.size || "",
+      wish: !!j.wish, stage: j.stage || "", vc: j.vc || "", role: j.role || "", sdr: !!j.sdr,
+      quelle: j.quelle || "", url: j.url || "", againOf: before || ""
+    };
+    if(before && card.tier !== "blitz") card.tier = "blitz";
+    if(card.tier === "blitz"){ state.blitz.push(card); toBlitz++; }
+    else { state.inbox.push(card); added++; }
+  });
+  state.stamp = todayISO() + " " + nowTime();
+  $("pasteBox").value = "";
+  msg.textContent = added + " in die Tiers, " + toBlitz + " in die Blitz-Round, " + skipped + " übersprungen (schon bekannt).";
+  renderInbox(); markDirty();
+}
+
+/* Hält die Demo frisch: verschiebt alle Datumsangaben so, dass sie relativ
+   zum heutigen Tag genauso liegen wie am Tag, an dem die Demo gebaut wurde. */
+function shiftDays(iso, days){
+  if(!/^\d{4}-\d{2}-\d{2}$/.test(esc(iso))) return iso;
+  var d = new Date(iso + "T12:00:00");
+  d.setDate(d.getDate() + days);
+  return d.getFullYear() + "-" + String(d.getMonth()+1).padStart(2,"0") + "-" + String(d.getDate()).padStart(2,"0");
+}
+function freshen(st){
+  if(!st.refDate) return st;
+  var ref = new Date(st.refDate + "T12:00:00");
+  var now = new Date(todayISO() + "T12:00:00");
+  var delta = Math.round((now - ref) / 86400000);
+  if(!delta) return st;
+  st.entries.forEach(function(e){
+    e.frist = shiftDays(e.frist, delta);
+    e.updated = shiftDays(e.updated, delta);
+  });
+  st.rejected.forEach(function(r){ r.date = shiftDays(r.date, delta); });
+  st.stamp = esc(st.stamp).replace(/^\d{4}-\d{2}-\d{2}/, shiftDays(st.refDate, delta));
+  return st;
+}
+
+function resetDemo(){
+  state = freshen(clone(SEED));
+  $("saveState").setAttribute("data-state","demo");
+  $("saveText").textContent = "Demo — nichts wird gespeichert";
+  clearTimeout(pillTimer);
+  ui = { tab: ui.tab, filter:"alle", q:"", open:{}, inboxFilter:"alle", blitzIdx:0 };
+  $("search").value = "";
+  document.querySelectorAll("#chips .chip").forEach(function(c){ c.setAttribute("aria-pressed", String(c.getAttribute("data-filter") === "alle")); });
+  document.querySelectorAll("#inboxFilters .chip").forEach(function(c){ c.setAttribute("aria-pressed", String(c.getAttribute("data-if") === "alle")); });
+  render();
+  say("Demo zurückgesetzt");
+}
+
+/* Sprache aus dem Hash weitertragen. Die Tracker-Oberflaeche bleibt deutsch,
+   aber wer aus der englischen Ansicht kommt, landet auch wieder dort. */
+(function(){
+  if(!/^#en/.test(location.hash)) return;
+  document.querySelectorAll('a[href$=".html"]').forEach(function(a){
+    a.setAttribute("href", a.getAttribute("href") + "#en");
+  });
+  var db = document.querySelector('a[href="databook.html#de/ov"]');
+  if(db) db.setAttribute("href", "databook.html#en/ov");
+  var note = document.getElementById("enNote");
+  if(note) note.hidden = false;
+})();
+
+/* ---------- boot ---------- */
+state = clone(SEED);
+if(!state.inbox) state.inbox = [];
+if(!state.rejected) state.rejected = [];
+if(!state.entries) state.entries = [];
+if(!state.blitz) state.blitz = [];
+freshen(state);
+render();
+})();
+</script>
+</body>
+</html>

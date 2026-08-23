@@ -12,3 +12,4 @@ dashboards.html
 # Systemdateien
 .DS_Store
 node_modules/
+index-vorher-*.html

@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Projekte · Lorenz Wocher</title>
+<meta name="description" content="Lorenz Wocher — Projekte an der Schnittstelle von Produkt, Daten und KI.">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Instrument+Sans:wght@400;500;600&display=swap">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<nav class="topnav">
+  <a class="logo" href="index.html">L.&nbsp;Wocher</a>
+  <div class="navright">
+    <div class="lang" id="lang">
+      <button data-lng="de" aria-pressed="true">DE</button>
+      <button data-lng="en" aria-pressed="false">EN</button>
+    </div>
+    <ul class="navlinks">
+      <li><a href="index.html" data-i18n="nav.timeline">Zeitachse</a></li>
+      <li><a href="#projects" data-i18n="nav.projects">Projekte</a></li>
+      <li><a class="ghost" href="databook.html" data-db data-i18n="nav.databook">Databook</a></li>
+    </ul>
+  </div>
+</nav>
+
+<header class="hero">
+  <div class="hero-bg" aria-hidden="true"></div>
+  <div class="hero-inner">
+    <p class="eyebrow" data-i18n="hero.eyebrow">Lorenz Wocher</p>
+    <h1 data-i18n="hero.h">From nothing to something<br><em>to everything.</em></h1>
+    <p class="hero-line" data-i18n="hero.line">Ich baue Dinge mit AI. Vier davon sind hier :)</p>
+  </div>
+</header>
+
+<main>
+<section id="projects" class="wrap">
+  <p class="eyebrow" data-i18n="proj.eyebrow">Projekte</p>
+  <h2 class="sect" data-i18n="proj.h">Was ich gebaut habe</h2>
+
+  <article class="proj" id="p1">
+    <div class="proj-n">01</div>
+    <div class="proj-body">
+      <div class="proj-head">
+        <h3>Roamly</h3>
+        <span class="badge live" data-i18n="badge.live">MVP live</span>
+      </div>
+      <p class="proj-sub" data-i18n="p1.sub">Trust your closest recommendations</p>
+      <p class="proj-txt" data-i18n="p1.txt">Statt anonymer Bewertungen sieht man auf einer Karte, welche Orte Freunde empfehlen, mit Foto und eigener Notiz. Zwei Personen bauen daran, der Stack läuft in den Freikontingenten, laufende Kosten null. Das MVP steht, der erste Launch als App ist in Planung.</p>
+      <div class="tags"><span>React</span><span>Supabase</span><span>Mapbox</span><span>Cloudflare</span></div>
+      <div class="proj-links">
+        <a class="btn" href="https://roamly-d0g.pages.dev" rel="noopener" data-i18n="p1.link0">Roamly öffnen</a>
+        <a class="btn ghost" href="databook.html" data-db data-i18n="p1.link1">Marktanalyse ansehen</a>
+        <span class="hint" data-i18n="p1.hint">Das Databook dahinter: Markt, Zielgruppe und Wettbewerb, auf amtlichen Daten</span>
+      </div>
+    </div>
+  </article>
+
+  <article class="proj" id="p2">
+    <div class="proj-n">02</div>
+    <div class="proj-body">
+      <div class="proj-head">
+        <h3 data-i18n="p2.h">Personal AI Agent</h3>
+        <span class="badge live" data-i18n="badge.live24">Läuft 24/7</span>
+      </div>
+      <p class="proj-sub" data-i18n="p2.sub">Telegram-Assistent auf eigenem Server</p>
+      <p class="proj-txt" data-i18n="p2.txt">Eine Nachricht an einen Telegram-Bot, ein Sprachmodell entscheidet, ob es eine Aufgabe oder eine Frage ist, und schreibt sie in eine Datenbank oder beantwortet sie. Läuft rund um die Uhr auf einem eigenen kleinen Server für gut fünf Euro im Monat.</p>
+      <div class="tags"><span>n8n</span><span>Docker</span><span>Claude</span><span>Supabase</span><span>Hetzner</span></div>
+      <div class="proj-links">
+        <a class="btn" href="agent.html" data-i18n="p2.link1">Wie es funktioniert</a>
+      </div>
+    </div>
+  </article>
+
+  <article class="proj" id="p3">
+    <div class="proj-n">03</div>
+    <div class="proj-body">
+      <div class="proj-head">
+        <h3 data-i18n="p3.h">Travel Agent Prompts</h3>
+        <span class="badge draft" data-i18n="badge.draft">Erster Entwurf</span>
+      </div>
+      <p class="proj-sub" data-i18n="p3.sub">Drei Prompt-Generatoren</p>
+      <p class="proj-txt" data-i18n="p3.txt">Mein erster Versuch mit Claude Code: drei Formulare, die aus ein paar Eingaben einen sehr ausführlichen Such-Prompt bauen, für Mietwagen, Reiseplanung und Wanderrouten. Kein Backend, keine Datenbank, nur Javascript im Browser. Ich lasse es online, weil es zeigt, wo ich angefangen habe.</p>
+      <div class="tags"><span>Claude Code</span><span>Vanilla JS</span></div>
+      <div class="proj-links">
+        <a class="btn ghost" href="agents.html" data-i18n="p3.link1">Generatoren öffnen</a>
+        <span class="hint" data-i18n="p3.note">Die Generatoren selbst sind auf Deutsch.</span>
+      </div>
+    </div>
+  </article>
+
+  <article class="proj" id="p4">
+    <div class="proj-n">04</div>
+    <div class="proj-body">
+      <div class="proj-head">
+        <h3 data-i18n="p4.h">Bewerbungstracker</h3>
+        <span class="badge live" data-i18n="badge.daily">Täglich in Benutzung</span>
+      </div>
+      <p class="proj-sub" data-i18n="p4.sub">Pipeline und vorgefilterter Job-Einlauf</p>
+      <p class="proj-txt" data-i18n="p4.txt">Eine Tabelle trägt ungefähr zwanzig Bewerbungen, danach gehen Fristen unter und dieselbe Firma taucht dreimal auf. Also habe ich mir eine eigene Seite gebaut: links die Pipeline mit Status und nächstem Schritt, rechts ein Einlauf neuer Stellen, den ein Assistent vorfiltert und als JSON-Block einspielt. Kein Backend, kein Login, alles in einer einzigen Datei.</p>
+      <div class="tags"><span>Vanilla JS</span><span>Claude</span><span>JSON</span></div>
+      <div class="proj-links">
+        <a class="btn" href="bewerbungstracker-demo.html" data-i18n="p4.link1">Demo öffnen</a>
+        <span class="hint" data-i18n="p4.hint">Die Demo läuft mit erfundenen Firmen; meine echten Bewerbungen bleiben privat.</span>
+      </div>
+    </div>
+  </article>
+</section>
+</main>
+
+<footer class="foot">
+  <div class="wrap footgrid">
+    <div>
+      <p class="footname">Lorenz Wocher</p>
+    </div>
+    <ul class="footlinks">
+      <li><a href="mailto:lorenz.wocher@gmail.com">E-Mail</a></li>
+      <li><a href="https://www.linkedin.com/in/lorenz-wocher-498263200/" rel="noopener">LinkedIn</a></li>
+      <li><a href="https://github.com/lorenzwocher-cyber" rel="noopener">GitHub</a></li>
+      <li><a href="databook.html" data-db data-i18n="nav.databook">Databook</a></li>
+    </ul>
+  </div>
+</footer>
+
+<script src="site.js"></script>
+<script>
+SITE.dict.en = {
+ 'nav.projects':'Projects','nav.databook':'Databook','nav.timeline':'Timeline',
+ 'hero.eyebrow':'Lorenz Wocher',
+ 'hero.h':'From nothing to something<br><em>to everything.</em>',
+ 'hero.line':'I build things with AI. Four of them are here :)',
+ 'proj.eyebrow':'Projects','proj.h':'What I have built',
+ 'badge.live':'MVP live','badge.live24':'Running 24/7','badge.draft':'First draft',
+ 'p1.sub':'Trust your closest recommendations',
+ 'p1.txt':'Instead of anonymous reviews you see on a map which places your friends recommend, with a photo and a personal note. Two people build it, the stack sits inside the free tiers, running costs are zero. The MVP is done and a first app launch is being planned.',
+ 'p1.link0':'Open Roamly','p1.link1':'See the market analysis',
+ 'p1.hint':'The databook behind it: market, audience and competition, built on official statistics',
+ 'p2.h':'Personal AI Agent','p2.sub':'Telegram assistant on my own server',
+ 'p2.txt':'A message to a Telegram bot, a language model decides whether it is a task or a question, and either writes it to a database or answers it. It runs around the clock on a small server of my own for just over five euros a month.',
+ 'p2.link1':'How it works',
+ 'p3.h':'Travel agent prompts','p3.sub':'Three prompt generators',
+ 'p3.txt':'My first attempt with Claude Code: three forms that turn a handful of inputs into a very detailed search prompt, for rental cars, trip planning and hiking routes. No backend, no database, just JavaScript in the browser. I keep it online because it shows where I started.',
+ 'p3.link1':'Open the generators','p3.note':'The generators themselves are in German.',
+ 'badge.daily':'In daily use',
+ 'p4.h':'Application tracker','p4.sub':'Pipeline and a pre-filtered job inbox',
+ 'p4.txt':'A spreadsheet carries about twenty applications. After that deadlines slip through and the same company shows up three times. So I built myself a page: on one side the pipeline with status and next step, on the other an inbox of new roles that an assistant pre-filters and hands over as a JSON block. No backend, no login, all in a single file.',
+ 'p4.link1':'Open the demo',
+ 'p4.hint':'The demo runs on invented companies; my real applications stay private. The tracker itself is in German.'
+};
+SITE.init();
+</script>
+</body>
+</html>

@@ -79,6 +79,10 @@ body.moved #hint{opacity:0}
 .stn.is-active{border-color:#D5C8B1;box-shadow:0 1px 2px rgba(43,34,28,.03),0 38px 84px -20px rgba(43,34,28,.20)}
 .stn .top{display:flex;align-items:center;justify-content:space-between;gap:12px}
 .stn .num{font-family:var(--mono);font-size:11px;letter-spacing:.2em;color:var(--ink-3)}
+.stn .badges{display:flex;gap:8px;align-items:center;flex-wrap:wrap;justify-content:flex-end}
+.stn .tag{white-space:nowrap;font-family:var(--mono);font-size:10.5px;letter-spacing:.14em;
+  text-transform:uppercase;color:var(--ochre);background:rgba(143,100,16,.09);border-radius:100px;padding:6px 12px}
+body.overview .stn .tag{display:none}
 .stn .when{white-space:nowrap;font-family:var(--mono);font-size:10.5px;letter-spacing:.14em;
   text-transform:uppercase;color:var(--ink-2);background:rgba(43,34,28,.05);border-radius:100px;padding:6px 12px}
 .stn .when.laeuft{color:var(--olive);background:rgba(85,96,58,.09)}
@@ -148,10 +152,10 @@ body:not(.mode-3d) #endfoot,body.overview #endfoot{display:none}
   <p class="lede" data-i18n="lede">Fünf Dinge, die ich mit AI gebaut habe oder gerade noch baue :)</p>
 
   <article class="stn" data-side="up" data-t="2.0" data-month="Januar" data-month-en="January">
-    <div class="top"><span class="num">01</span><span class="when" data-i18n="s1.when">Jan 2026</span></div>
+    <div class="top"><span class="num">01</span><span class="badges"><span class="tag" data-i18n="s1.tag">Erster Versuch mit Claude Code</span><span class="when" data-i18n="s1.when">Jan 2026</span></span></div>
     <h2>Travel Agent Prompts</h2>
     <div class="kicker" data-i18n="s1.kick">Weniger planen, mehr reisen</div>
-    <p data-i18n="s1.txt">Eine Reise zu planen hat sehr spezifische Anforderungen, und ich habe keine Seite gefunden, die mir dabei wirklich hilft. Nur mit einem LLM einen Plan aufzustellen reicht auch nicht, dabei vergisst man Sachen. Also habe ich mir diese Prompt-Generatoren nach meinen eigenen Wünschen und Filtern gebaut. Nichts geht mehr unter, und der teilweise nervige Teil der Planung wird einfacher und schneller, damit ich schneller zum schönen Teil komme.</p>
+    <p data-i18n="s1.txt">Eine Reise zu planen hat sehr spezifische Anforderungen, und ich habe keine Seite gefunden, die mir dabei wirklich hilft. Nur mit einem LLM einen Plan aufzustellen reicht auch nicht, dabei vergisst man Sachen. Also habe ich mir diese Prompt-Generatoren nach meinen eigenen Wünschen und Filtern gebaut. Nichts geht mehr unter, und der teilweise nervige Teil der Planung wird einfacher und schneller, damit ich schneller zum schönen Teil komme. Das war mein erster Versuch mit Claude Code, es steht hier als Anfangspunkt und nicht als Vorzeigestück.</p>
     <div class="foot"><span class="stack">Claude Code · Vanilla JS</span>
       <span class="links"><a href="agents.html" data-i18n="s1.l1">Ausprobieren</a></span></div>
   </article>
@@ -969,8 +973,9 @@ const EN = {
   'ui.ov': 'Overview', 'ui.back': 'Back', 'ui.list': 'List', 'ui.scroll': 'Scroll',
   'ax.today': 'TODAY', 'ax.roamly': 'ROAMLY · RUNNING', 'ax.on': 'STILL RUNNING →',
 
-  's1.when': 'Jan 2026', 's1.kick': 'Less planning, more travelling',
-  's1.txt': 'Planning a trip has very specific requirements, and I never found a site that really helps with all of them. Just building a plan with an LLM is not enough either, you forget things. So I built these prompt generators around my own preferences and filters. Nothing slips through any more, and the tedious part of planning gets easier and faster, so I get to the good part sooner.',
+  's1.when': 'Jan 2026', 's1.tag': 'First try with Claude Code',
+  's1.kick': 'Less planning, more travelling',
+  's1.txt': 'Planning a trip has very specific requirements, and I never found a site that really helps with all of them. Just building a plan with an LLM is not enough either, you forget things. So I built these prompt generators around my own preferences and filters. Nothing slips through any more, and the tedious part of planning gets easier and faster, so I get to the good part sooner. This was my first try with Claude Code, it is here as a starting point and not as a showpiece.',
   's1.l1': 'Try it',
 
   's2.when': 'Apr 2026', 's2.kick': 'Keeping pace',

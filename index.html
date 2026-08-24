@@ -150,7 +150,7 @@ body:not(.mode-3d) #endfoot,body.overview #endfoot{display:none}
   <article class="stn" data-side="up" data-t="2.0" data-month="Januar" data-month-en="January">
     <div class="top"><span class="num">01</span><span class="when" data-i18n="s1.when">Jan 2026</span></div>
     <h2>Travel Agent Prompts</h2>
-    <div class="kicker" data-i18n="s1.kick">Aus meinen Anforderungen wird ein fertiger Prompt</div>
+    <div class="kicker" data-i18n="s1.kick">Weniger planen, mehr reisen</div>
     <p data-i18n="s1.txt">Eine Reise zu planen hat sehr spezifische Anforderungen, und ich habe keine Seite gefunden, die mir dabei wirklich hilft. Nur mit einem LLM einen Plan aufzustellen reicht auch nicht, dabei vergisst man Sachen. Also habe ich mir diese Prompt-Generatoren nach meinen eigenen Wünschen und Filtern gebaut. Nichts geht mehr unter, und der teilweise nervige Teil der Planung wird einfacher und schneller, damit ich schneller zum schönen Teil komme.</p>
     <div class="foot"><span class="stack">Claude Code · Vanilla JS</span>
       <span class="links"><a href="agents.html" data-i18n="s1.l1">Ausprobieren</a></span></div>
@@ -159,7 +159,7 @@ body:not(.mode-3d) #endfoot,body.overview #endfoot{display:none}
   <article class="stn" data-side="down" data-t="3.3" data-month="April" data-month-en="April">
     <div class="top"><span class="num">02</span><span class="when" data-i18n="s2.when">Apr 2026</span></div>
     <h2>Weekly AI Brief</h2>
-    <div class="kicker" data-i18n="s2.kick">Der Überblick kommt zu mir</div>
+    <div class="kicker" data-i18n="s2.kick">Keeping pace</div>
     <p data-i18n="s2.txt">AI ist extrem fast paced. Gefühlt ist man eine Woche nicht auf dem neusten Stand, und schon hat Claude über Skills und Connectoren wieder irgendwelche Geschäftsbereiche obsolet gemacht, oder es gibt ein neues High-End-AI-Modell. Um da trotzdem auf dem neusten Stand zu bleiben, habe ich mir meinen eigenen Newsletter gebaut. Er zieht Substacks wie Philipp Klöckner, AI-Newsletter, Bloomberg und TechCrunch, Meldungen aus dem VC-Umfeld und die Blogs von Anthropic und OpenAI und schickt mir montags eine Mail. Angefangen habe ich mit Groq, umgestiegen bin ich auf Claude, weil die Qualität spürbar besser wurde.</p>
     <div class="foot"><span class="stack">n8n · Docker · Groq · Claude API · Gmail</span></div>
   </article>
@@ -176,7 +176,7 @@ body:not(.mode-3d) #endfoot,body.overview #endfoot{display:none}
   <article class="stn" data-side="down" data-t="5.9" data-month="August" data-month-en="August">
     <div class="top"><span class="num">04</span><span class="when" data-i18n="s4.when">Aug 2026</span></div>
     <h2>Bewerbungstracker</h2>
-    <div class="kicker" data-i18n="s4.kick">Bewerbungen nach meinen Kriterien</div>
+    <div class="kicker" data-i18n="s4.kick">Bewerben, ohne zu suchen</div>
     <p data-i18n="s4.txt">Ich glaube, jeder weiß, wie aufwendig es ist, den passenden Job zu finden, und wie viele Stunden man dabei allein mit der Suche über die verschiedenen Plattformen wie LinkedIn verliert. Um das schneller und effizienter zu machen, habe ich mir den Tracker gebaut. Er sammelt nachts Job-Alerts und offene Stellen aus VC-Portfolios und legt sie mir morgens vorsortiert als JSON hin. Gefiltert nach meinen eigenen Kriterien, also Finanzierungsstand, Teamgröße, welche Investoren dahinterstehen und wo sie sitzen. Dazu der Stand jeder laufenden Bewerbung an einer Stelle. Welche Firmen darin stehen, zeigt die Demo nicht.</p>
     <div class="foot"><span class="stack">Vanilla JS · Claude · JSON</span>
       <span class="links"><a href="bewerbungstracker-demo.html" data-i18n="s4.l1">Demo öffnen</a></span></div>
@@ -969,18 +969,18 @@ const EN = {
   'ui.ov': 'Overview', 'ui.back': 'Back', 'ui.list': 'List', 'ui.scroll': 'Scroll',
   'ax.today': 'TODAY', 'ax.roamly': 'ROAMLY · RUNNING', 'ax.on': 'STILL RUNNING →',
 
-  's1.when': 'Jan 2026', 's1.kick': 'My requirements become a finished prompt',
+  's1.when': 'Jan 2026', 's1.kick': 'Less planning, more travelling',
   's1.txt': 'Planning a trip has very specific requirements, and I never found a site that really helps with all of them. Just building a plan with an LLM is not enough either, you forget things. So I built these prompt generators around my own preferences and filters. Nothing slips through any more, and the tedious part of planning gets easier and faster, so I get to the good part sooner.',
   's1.l1': 'Try it',
 
-  's2.when': 'Apr 2026', 's2.kick': 'The overview comes to me',
+  's2.when': 'Apr 2026', 's2.kick': 'Keeping pace',
   's2.txt': 'AI moves extremely fast. It feels like one week off the pace and Claude has already made whole business areas obsolete through skills and connectors, or there is a new high end AI model. To stay on top of it I built my own newsletter. It pulls Substacks like Philipp Klöckner, AI newsletters, Bloomberg and TechCrunch, news from the VC world and the blogs of Anthropic and OpenAI, and sends me a mail on Mondays. I started with Groq and moved to Claude because the quality got noticeably better.',
 
   's3.when': 'May 2026', 's3.kick': 'A brain for everything',
   's3.txt': 'My setup and my stored knowledge were scattered, I could not simply reach into them or capture an idea and file it in the right place straight away. I wanted an assistant that runs permanently, is always reachable and has all of my knowledge behind it. Hence Telegram, I write to it like I would to a person. An LLM decides whether my message is a task or a question. Tasks come back sorted, questions go through the Obsidian connection to everything I have written down about my projects. It has been running since May on a server of my own.',
   's3.l1': 'How it works',
 
-  's4.when': 'Aug 2026', 's4.kick': 'Applications by my own criteria',
+  's4.when': 'Aug 2026', 's4.kick': 'Applying, not searching',
   's4.txt': 'Everyone knows how much work it is to find the right job, and how many hours go into searching across LinkedIn and the other platforms. To make that faster and more efficient I built the tracker. It collects job alerts and open roles from VC portfolios overnight and hands them to me pre-sorted as JSON. Filtered by my own criteria, meaning funding stage, team size, which investors are behind it and where they sit. Plus the status of every open application in one place. Which companies are in there is not something the demo shows.',
   's4.l1': 'Open the demo',
 

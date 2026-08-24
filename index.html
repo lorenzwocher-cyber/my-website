@@ -145,8 +145,8 @@ body:not(.mode-3d) #endfoot,body.overview #endfoot{display:none}
 <main id="flow">
   <p class="lede">Fünf Dinge, die ich mit KI gebaut habe oder gerade noch baue :)</p>
 
-  <article class="stn" data-side="up" data-t="2.0" data-month="Mrz">
-    <div class="top"><span class="num">01</span><span class="when">Mrz 2026</span></div>
+  <article class="stn" data-side="up" data-t="2.0" data-month="Januar">
+    <div class="top"><span class="num">01</span><span class="when">Jan 2026</span></div>
     <h2>Travel Agent Prompts</h2>
     <div class="kicker">Das erste, das ich gebaut habe</div>
     <p>Angefangen hat es in einem Uni-Kurs und auf einer Italienreise. Einen Mietwagen zu finden, der alle Bedingungen erfüllt, hat mich jedes Mal einen Abend gekostet. Jetzt klicke ich die Filter in einem Formular durch und bekomme einen fertigen Suchprompt. Ein Agent ist das nicht. Es war aber das erste, das ich gebaut habe, statt es zu benutzen.</p>
@@ -154,7 +154,7 @@ body:not(.mode-3d) #endfoot,body.overview #endfoot{display:none}
       <span class="links"><a href="agents.html">Ausprobieren</a></span></div>
   </article>
 
-  <article class="stn" data-side="down" data-t="3.3" data-month="Apr">
+  <article class="stn" data-side="down" data-t="3.3" data-month="April">
     <div class="top"><span class="num">02</span><span class="when">Apr 2026</span></div>
     <h2>Weekly AI Brief</h2>
     <div class="kicker">Einmal pro Woche ein Stand</div>
@@ -171,7 +171,7 @@ body:not(.mode-3d) #endfoot,body.overview #endfoot{display:none}
       <span class="links"><a href="agent.html">Wie es funktioniert</a></span></div>
   </article>
 
-  <article class="stn" data-side="down" data-t="5.9" data-month="Aug">
+  <article class="stn" data-side="down" data-t="5.9" data-month="August">
     <div class="top"><span class="num">04</span><span class="when">Aug 2026</span></div>
     <h2>Bewerbungstracker</h2>
     <div class="kicker">Jeden Morgen eine vorsortierte Liste</div>
@@ -957,7 +957,7 @@ const FOG = 0.0140, FOG_OV = 0.0016;
 const PANEL_SCALE = 1 / 22, PANEL_SCALE_OV = 0.128;
 
 const T_START = -0.4, T_END = 7.4;         // Startpuffer links vor der ersten Karte
-const T_HEUTE = 7.4, T_ROAMLY = 1.3, T_MAX = 9.6;
+const T_HEUTE = 7.4, T_ROAMLY = 0.85, T_MAX = 9.6;
 
 const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
 let webglOk = false;
@@ -1002,7 +1002,7 @@ function boot() {
     const g = new TubeGeometry(curve, Math.ceil((t1 - t0) * 26), radius, 8, false);
     return new Mesh(g, new MeshBasicMaterial({ color, transparent: true, opacity, fog: true }));
   }
-  scene.add(tube(T_START - 1.4, T_HEUTE, 0, .085, 0x5d5548, .95));
+  scene.add(tube(T_ROAMLY, T_HEUTE, 0, .085, 0x5d5548, .95));
 
   // Nach heute wird nichts behauptet: der Faden wird zur Punktreihe.
   const fut = new Group();
@@ -1097,6 +1097,8 @@ function boot() {
   const endfoot = document.getElementById('endfoot');
   const railDot = document.querySelector('#rail i');
   const intro = document.getElementById('intro');
+  const layerGL = document.getElementById('webgl');
+  const layerCSS = document.getElementById('css3d');
   const look = new Vector3(), tmp = new Vector3(), tmp2 = new Vector3();
   const qA = new Quaternion(), eul = new Euler();
   let lastMonth = '', t0 = performance.now();
@@ -1150,6 +1152,11 @@ function boot() {
 
     const iv = clamp(1 - scrollY / (innerHeight * .7), 0, 1);
     intro.style.opacity = (iv * iv * (1 - e)).toFixed(3);
+
+    // Vor dem ersten Scrollen steht nur der Satz auf leerem Papier.
+    const sceneIn = Math.max(smooth(0, innerHeight * .42, scrollY), e).toFixed(3);
+    layerGL.style.opacity = sceneIn;
+    layerCSS.style.opacity = sceneIn;
 
     const m = (active && best < 1.5) ? (active.element.dataset.month || '') : '';
     if (m !== lastMonth) {

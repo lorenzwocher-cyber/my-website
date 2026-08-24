@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Lorenz Wocher</title>
-<meta name="description" content="Fünf Projekte von Lorenz Wocher an der Schnittstelle von Produkt, Daten und KI, auf einer Zeitachse.">
+<meta name="description" content="Fünf Projekte von Lorenz Wocher an der Schnittstelle von Produkt, Daten und AI, auf einer Zeitachse.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=Instrument+Sans:wght@400;500;600&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet">
@@ -36,16 +36,15 @@ body:not(.mode-3d) #webgl,body:not(.mode-3d) #css3d{display:none}
 #chrome>*{pointer-events:auto}
 .mark{font-size:13px;font-weight:600;letter-spacing:.16em;text-transform:uppercase}
 .tools{display:flex;align-items:center;gap:16px;font-family:var(--mono);font-size:11px;letter-spacing:.13em;text-transform:uppercase;color:var(--ink-3)}
-.tools button{font:inherit;letter-spacing:inherit;text-transform:inherit;background:rgba(252,250,247,.7);
-  color:var(--ink-2);border:1px solid var(--line);border-radius:100px;padding:9px 18px;cursor:pointer;
-  transition:.3s cubic-bezier(.2,.8,.2,1);backdrop-filter:blur(8px)}
-.tools button:hover{color:var(--olive);border-color:#cdbfa6}
-.tools .lnk{font:inherit;letter-spacing:inherit;text-transform:inherit;color:var(--ink-2);
-  background:rgba(252,250,247,.72);border:1px solid var(--line);border-radius:100px;padding:9px 18px;
-  transition:.3s cubic-bezier(.2,.8,.2,1);backdrop-filter:blur(8px)}
-.tools .lnk:hover{color:var(--olive);border-color:#cdbfa6}
-body.overview .tools button.ov{color:#FCFAF7;background:var(--olive);border-color:var(--olive)}
-
+.tools .pill{display:inline-flex;align-items:center;background:rgba(252,250,247,.72);
+  border:1px solid var(--line);border-radius:100px;padding:0 4px;backdrop-filter:blur(8px)}
+.tools .pill i{font-style:normal;color:var(--line)}
+.tools button,.tools .pill a{font:inherit;letter-spacing:inherit;text-transform:inherit;background:none;
+  color:var(--ink-3);border:0;border-radius:100px;padding:9px 13px;cursor:pointer;
+  transition:color .28s cubic-bezier(.2,.8,.2,1)}
+.tools button:hover,.tools .pill a:hover{color:var(--olive)}
+.tools .pill.lang button.on{color:var(--ink)}
+body.overview .tools button.ov{color:var(--olive)}
 /* ---------- Eingang ---------- */
 #intro{position:fixed;inset:0;z-index:15;display:none;flex-direction:column;align-items:center;
   justify-content:center;gap:26px;pointer-events:none;text-align:center;padding:0 24px}
@@ -73,8 +72,8 @@ body.moved #hint{opacity:0}
 .axlab.roamly{color:var(--terra);font-size:12px;letter-spacing:.3em}
 
 /* ---------- Karten · Fassung A, Editorial ---------- */
-.stn{width:520px;background:var(--card);border:1px solid var(--line);border-radius:26px;
-  padding:38px 42px 32px;user-select:text;-webkit-user-select:text;position:relative;
+.stn{width:600px;background:var(--card);border:1px solid var(--line);border-radius:26px;
+  padding:34px 40px 28px;user-select:text;-webkit-user-select:text;position:relative;
   box-shadow:0 1px 2px rgba(43,34,28,.03),0 26px 70px -20px rgba(43,34,28,.16);
   transition:box-shadow .6s cubic-bezier(.2,.8,.2,1),border-color .6s}
 .stn.is-active{border-color:#D5C8B1;box-shadow:0 1px 2px rgba(43,34,28,.03),0 38px 84px -20px rgba(43,34,28,.20)}
@@ -83,10 +82,10 @@ body.moved #hint{opacity:0}
 .stn .when{white-space:nowrap;font-family:var(--mono);font-size:10.5px;letter-spacing:.14em;
   text-transform:uppercase;color:var(--ink-2);background:rgba(43,34,28,.05);border-radius:100px;padding:6px 12px}
 .stn .when.laeuft{color:var(--olive);background:rgba(85,96,58,.09)}
-.stn h2{font-family:var(--serif);font-weight:400;font-size:41px;line-height:1.03;letter-spacing:-.015em;margin:22px 0 0}
+.stn h2{font-family:var(--serif);font-weight:400;font-size:38px;line-height:1.03;letter-spacing:-.015em;margin:18px 0 0}
 .stn .kicker{font-size:15.5px;color:var(--ink-2);margin-top:8px}
-.stn p{font-size:16.5px;line-height:1.6;color:rgba(43,34,28,.84);margin-top:18px;text-wrap:pretty}
-.stn .foot{margin-top:28px;padding-top:18px;border-top:1px solid var(--line);display:flex;flex-wrap:wrap;
+.stn p{font-size:15.5px;line-height:1.56;color:rgba(43,34,28,.84);margin-top:15px;text-wrap:pretty}
+.stn .foot{margin-top:22px;padding-top:15px;border-top:1px solid var(--line);display:flex;flex-wrap:wrap;
   gap:10px 20px;align-items:center;justify-content:space-between}
 .stn .stack{font-family:var(--mono);font-size:11px;letter-spacing:.04em;color:var(--ink-3)}
 .stn .links{display:flex;gap:8px}
@@ -130,63 +129,66 @@ body:not(.mode-3d) #endfoot,body.overview #endfoot{display:none}
 
 <header id="chrome">
   <span class="mark">Lorenz Wocher</span>
-  <span class="tools"><button class="ov" type="button">Übersicht</button><a class="lnk" href="projekte.html">Liste / EN</a></span>
+  <span class="tools">
+    <span class="pill"><button class="ov" type="button" data-i18n="ui.ov">Übersicht</button><i>/</i><a class="ls" href="projekte.html" data-i18n="ui.list">Liste</a></span>
+    <span class="pill lang"><button data-lng="de">DE</button><i>/</i><button data-lng="en">EN</button></span>
+  </span>
 </header>
 
 <div id="intro">
-  <span class="ld">Fünf Dinge, die ich mit KI gebaut habe<br>oder gerade noch baue <em>:)</em></span>
+  <span class="ld" data-i18n="intro">Fünf Dinge, die ich mit AI gebaut habe<br>oder gerade noch baue <em>:)</em></span>
 </div>
 
 <div id="hud"><span class="now"></span><span class="sub"></span></div>
 <div id="endfoot"><a href="mailto:lorenz.wocher@gmail.com">lorenz.wocher@gmail.com</a><span>·</span><a href="https://www.linkedin.com/in/lorenz-wocher-498263200/">LinkedIn</a><span>·</span><a href="databook.html">Databook</a></div>
 <div id="rail"><i></i></div>
-<div id="hint">Scrollen</div>
+<div id="hint" data-i18n="ui.scroll">Scrollen</div>
 
 <main id="flow">
-  <p class="lede">Fünf Dinge, die ich mit KI gebaut habe oder gerade noch baue :)</p>
+  <p class="lede" data-i18n="lede">Fünf Dinge, die ich mit AI gebaut habe oder gerade noch baue :)</p>
 
-  <article class="stn" data-side="up" data-t="2.0" data-month="Januar">
-    <div class="top"><span class="num">01</span><span class="when">Jan 2026</span></div>
+  <article class="stn" data-side="up" data-t="2.0" data-month="Januar" data-month-en="January">
+    <div class="top"><span class="num">01</span><span class="when" data-i18n="s1.when">Jan 2026</span></div>
     <h2>Travel Agent Prompts</h2>
-    <div class="kicker">Das erste, das ich gebaut habe</div>
-    <p>Angefangen hat es in einem Uni-Kurs und auf einer Italienreise. Einen Mietwagen zu finden, der alle Bedingungen erfüllt, hat mich jedes Mal einen Abend gekostet. Jetzt klicke ich die Filter in einem Formular durch und bekomme einen fertigen Suchprompt. Ein Agent ist das nicht. Es war aber das erste, das ich gebaut habe, statt es zu benutzen.</p>
+    <div class="kicker" data-i18n="s1.kick">Aus meinen Anforderungen wird ein fertiger Prompt</div>
+    <p data-i18n="s1.txt">Eine Reise zu planen hat sehr spezifische Anforderungen, und ich habe keine Seite gefunden, die mir dabei wirklich hilft. Nur mit einem LLM einen Plan aufzustellen reicht auch nicht, dabei vergisst man Sachen. Also habe ich mir diese Prompt-Generatoren nach meinen eigenen Wünschen und Filtern gebaut. Nichts geht mehr unter, und der teilweise nervige Teil der Planung wird einfacher und schneller, damit ich schneller zum schönen Teil komme.</p>
     <div class="foot"><span class="stack">Claude Code · Vanilla JS</span>
-      <span class="links"><a href="agents.html">Ausprobieren</a></span></div>
+      <span class="links"><a href="agents.html" data-i18n="s1.l1">Ausprobieren</a></span></div>
   </article>
 
-  <article class="stn" data-side="down" data-t="3.3" data-month="April">
-    <div class="top"><span class="num">02</span><span class="when">Apr 2026</span></div>
+  <article class="stn" data-side="down" data-t="3.3" data-month="April" data-month-en="April">
+    <div class="top"><span class="num">02</span><span class="when" data-i18n="s2.when">Apr 2026</span></div>
     <h2>Weekly AI Brief</h2>
-    <div class="kicker">Einmal pro Woche ein Stand</div>
-    <p>Es passiert gerade zu viel auf einmal. Ich wollte einen Stand pro Woche, nicht dreißig offene Tabs. Der Ablauf zieht Substacks wie Philipp Klöckner, KI-Newsletter, Bloomberg und TechCrunch, VC-Meldungen und die Blogs von Anthropic und OpenAI, und schickt montags eine Mail. Angefangen habe ich mit Groq, weil die API nichts kostet, umgestiegen auf Claude, weil die Mail damit besser wurde.</p>
+    <div class="kicker" data-i18n="s2.kick">Der Überblick kommt zu mir</div>
+    <p data-i18n="s2.txt">AI ist extrem fast paced. Gefühlt ist man eine Woche nicht auf dem neusten Stand, und schon hat Claude über Skills und Connectoren wieder irgendwelche Geschäftsbereiche obsolet gemacht, oder es gibt ein neues High-End-AI-Modell. Um da trotzdem auf dem neusten Stand zu bleiben, habe ich mir meinen eigenen Newsletter gebaut. Er zieht Substacks wie Philipp Klöckner, AI-Newsletter, Bloomberg und TechCrunch, Meldungen aus dem VC-Umfeld und die Blogs von Anthropic und OpenAI und schickt mir montags eine Mail. Angefangen habe ich mit Groq, umgestiegen bin ich auf Claude, weil die Qualität spürbar besser wurde.</p>
     <div class="foot"><span class="stack">n8n · Docker · Groq · Claude API · Gmail</span></div>
   </article>
 
-  <article class="stn" data-side="up" data-t="4.6" data-month="Mai">
-    <div class="top"><span class="num">03</span><span class="when">Mai 2026</span></div>
+  <article class="stn" data-side="up" data-t="4.6" data-month="Mai" data-month-en="May">
+    <div class="top"><span class="num">03</span><span class="when" data-i18n="s3.when">Mai 2026</span></div>
     <h2>Telegram-Agent</h2>
-    <div class="kicker">Ein Eingang für alles</div>
-    <p>Meine Notizen lagen an fünf Stellen und keine davon war die richtige. Ich wollte einen Eingang, vom Handy aus, ohne noch eine App. Eine Nachricht geht an den Bot, ein Sprachmodell entscheidet, ob das eine Aufgabe oder eine Frage ist. Aufgaben kommen sortiert zurück, Fragen gehen an meine Obsidian-Notizen. Läuft seit Mai durch, auf einem eigenen Server.</p>
+    <div class="kicker" data-i18n="s3.kick">Ein Brain für alles</div>
+    <p data-i18n="s3.txt">Mein Setup und mein gespeichertes Wissen war sehr verteilt, ich konnte nicht einfach darauf zugreifen oder Ideen festhalten und gleich richtig einsortieren. Ich wollte einen Assistenten, der dauerhaft läuft, immer erreichbar ist und über mein gesamtes Wissen verfügt. Deshalb Telegram, da schreibe ich ihm wie einer Person. Ein LLM entscheidet, ob meine Nachricht eine Aufgabe oder eine Frage ist. Aufgaben kommen sortiert zurück, Fragen gehen über die Obsidian-Anbindung an alles, was ich zu meinen Projekten festgehalten habe. Läuft seit Mai durch, auf einem eigenen Server.</p>
     <div class="foot"><span class="stack">n8n · Claude · Supabase · Obsidian · Docker · Hetzner</span>
-      <span class="links"><a href="agent.html">Wie es funktioniert</a></span></div>
+      <span class="links"><a href="agent.html" data-i18n="s3.l1">Wie es funktioniert</a></span></div>
   </article>
 
-  <article class="stn" data-side="down" data-t="5.9" data-month="August">
-    <div class="top"><span class="num">04</span><span class="when">Aug 2026</span></div>
+  <article class="stn" data-side="down" data-t="5.9" data-month="August" data-month-en="August">
+    <div class="top"><span class="num">04</span><span class="when" data-i18n="s4.when">Aug 2026</span></div>
     <h2>Bewerbungstracker</h2>
-    <div class="kicker">Jeden Morgen eine vorsortierte Liste</div>
-    <p>Ich war es leid, jeden Morgen dieselben Seiten abzuklappern. Der Tracker sammelt nachts Job-Alerts und offene Stellen aus VC-Portfolios und legt sie mir morgens als JSON hin, gefiltert nach dem, was für mich zählt: Finanzierungsstand, Teamgröße, welche Investoren dahinterstehen, wo sie sitzen. Dazu der Stand jeder laufenden Bewerbung. Welche Firmen darin stehen und wie weit ich bin, zeigt die Demo nicht.</p>
+    <div class="kicker" data-i18n="s4.kick">Bewerbungen nach meinen Kriterien</div>
+    <p data-i18n="s4.txt">Ich glaube, jeder weiß, wie aufwendig es ist, den passenden Job zu finden, und wie viele Stunden man dabei allein mit der Suche über die verschiedenen Plattformen wie LinkedIn verliert. Um das schneller und effizienter zu machen, habe ich mir den Tracker gebaut. Er sammelt nachts Job-Alerts und offene Stellen aus VC-Portfolios und legt sie mir morgens vorsortiert als JSON hin. Gefiltert nach meinen eigenen Kriterien, also Finanzierungsstand, Teamgröße, welche Investoren dahinterstehen und wo sie sitzen. Dazu der Stand jeder laufenden Bewerbung an einer Stelle. Welche Firmen darin stehen, zeigt die Demo nicht.</p>
     <div class="foot"><span class="stack">Vanilla JS · Claude · JSON</span>
-      <span class="links"><a href="bewerbungstracker-demo.html">Demo öffnen</a></span></div>
+      <span class="links"><a href="bewerbungstracker-demo.html" data-i18n="s4.l1">Demo öffnen</a></span></div>
   </article>
 
   <article class="stn" data-side="up" data-t="7.4" data-month="">
-    <div class="top"><span class="num">05</span><span class="when laeuft">Feb 2026 · bis heute</span></div>
+    <div class="top"><span class="num">05</span><span class="when laeuft" data-i18n="s5.when">Feb 2026 · bis heute</span></div>
     <h2>Roamly</h2>
-    <div class="kicker">Trust your closest recommendations</div>
-    <p>Die Idee lag mir seit einem Jahr im Kopf. Im Februar habe ich angefangen, sie zu bauen. Roamly zeigt auf einer Karte, welche Orte deine Freunde empfehlen, mit Foto und eigener Notiz, statt anonymer Sterne von Fremden. Das MVP steht, zwei Personen arbeiten daran, und der erste Launch als App ist in Planung.</p></p>
+    <div class="kicker" data-i18n="s5.kick">Trust your closest recommendations</div>
+    <p data-i18n="s5.txt">Das ist nicht nur eine Idee, das ist wirklich mein persönliches Herzensprojekt. Ich glaube, jeder kennt das Problem, dass alle bekannten Urlaubs-Spots überlaufen sind. Man hat Freunde, die schon da waren, weiß aber teilweise nicht mehr genau wer, und jeden einzeln zu fragen und dann Links über WhatsApp zu bekommen ist nervig. Aus diesem Problem heraus ist Roamly entstanden. Auf einer Karte sieht man, welche Orte Freunde empfehlen, mit Foto und eigener Notiz, statt anonymer Sterne von Fremden. Der erste MVP steht und ein möglicher Launch wird vielleicht auch kommen :)</p></p>
     <div class="foot"><span class="stack">React · Supabase · Mapbox · Google Places · Cloudflare</span>
-      <span class="links"><a href="https://roamly-d0g.pages.dev">Zur App</a><a href="databook.html">Databook</a></span></div>
+      <span class="links"><a href="https://roamly-d0g.pages.dev" data-i18n="s5.l1">Zur App</a><a href="databook.html" data-i18n="s5.l2">Databook</a></span></div>
   </article>
 
   <footer class="pg">
@@ -952,12 +954,70 @@ const PAPER = 0xF5F1EA, OLIVE = 0x55603A, TERRA = 0xB5623C;
 
 const MONTH = 30;                 // Welteinheiten pro Monat
 const AMP_Z = 10, DROP = 0.10;   // Schwung in die Tiefe, Gefaelle
-const CAM_BACK = 52, CAM_UP = 4.2, LEAD = 13;
+const CAM_BACK = 54, CAM_UP = 4.2, LEAD = 13;
 const FOG = 0.0140, FOG_OV = 0.0016;
-const PANEL_SCALE = 1 / 22, PANEL_SCALE_OV = 0.128;
+const PANEL_SCALE = 1 / 24, PANEL_SCALE_OV = 0.128;
 
 const T_START = -0.4, T_END = 7.4;         // Startpuffer links vor der ersten Karte
 const T_HEUTE = 7.4, T_ROAMLY = 0.85, T_MAX = 9.6;
+
+
+/* ---------- Sprache. Deutsch steht im HTML, Englisch hier. ---------- */
+const EN = {
+  'intro': 'Five things I built with AI<br>or am still building <em>:)</em>',
+  'lede': 'Five things I built with AI or am still building :)',
+  'ui.ov': 'Overview', 'ui.back': 'Back', 'ui.list': 'List', 'ui.scroll': 'Scroll',
+  'ax.today': 'TODAY', 'ax.roamly': 'ROAMLY · RUNNING', 'ax.on': 'STILL RUNNING →',
+
+  's1.when': 'Jan 2026', 's1.kick': 'My requirements become a finished prompt',
+  's1.txt': 'Planning a trip has very specific requirements, and I never found a site that really helps with all of them. Just building a plan with an LLM is not enough either, you forget things. So I built these prompt generators around my own preferences and filters. Nothing slips through any more, and the tedious part of planning gets easier and faster, so I get to the good part sooner.',
+  's1.l1': 'Try it',
+
+  's2.when': 'Apr 2026', 's2.kick': 'The overview comes to me',
+  's2.txt': 'AI moves extremely fast. It feels like one week off the pace and Claude has already made whole business areas obsolete through skills and connectors, or there is a new high end AI model. To stay on top of it I built my own newsletter. It pulls Substacks like Philipp Klöckner, AI newsletters, Bloomberg and TechCrunch, news from the VC world and the blogs of Anthropic and OpenAI, and sends me a mail on Mondays. I started with Groq and moved to Claude because the quality got noticeably better.',
+
+  's3.when': 'May 2026', 's3.kick': 'A brain for everything',
+  's3.txt': 'My setup and my stored knowledge were scattered, I could not simply reach into them or capture an idea and file it in the right place straight away. I wanted an assistant that runs permanently, is always reachable and has all of my knowledge behind it. Hence Telegram, I write to it like I would to a person. An LLM decides whether my message is a task or a question. Tasks come back sorted, questions go through the Obsidian connection to everything I have written down about my projects. It has been running since May on a server of my own.',
+  's3.l1': 'How it works',
+
+  's4.when': 'Aug 2026', 's4.kick': 'Applications by my own criteria',
+  's4.txt': 'Everyone knows how much work it is to find the right job, and how many hours go into searching across LinkedIn and the other platforms. To make that faster and more efficient I built the tracker. It collects job alerts and open roles from VC portfolios overnight and hands them to me pre-sorted as JSON. Filtered by my own criteria, meaning funding stage, team size, which investors are behind it and where they sit. Plus the status of every open application in one place. Which companies are in there is not something the demo shows.',
+  's4.l1': 'Open the demo',
+
+  's5.when': 'Feb 2026 · to date', 's5.kick': 'Trust your closest recommendations',
+  's5.txt': 'This is not just an idea, this really is my personal passion project. I think everyone knows the problem that all the well known holiday spots are overrun. You have friends who have been there, but after a while you no longer remember exactly who, and asking each of them and collecting links over WhatsApp is tedious. Roamly came out of that. On a map you see which places your friends recommend, with a photo and a personal note, instead of anonymous stars from strangers. The first MVP is done and a launch might well follow :)',
+  's5.l1': 'Open the app', 's5.l2': 'Databook'
+};
+const DE = {};
+let LNG = (location.hash.match(/^#(de|en)/) || [0, 'de'])[1];
+
+function snapshotDE() {
+  document.querySelectorAll('[data-i18n]').forEach(el => { DE[el.dataset.i18n] = el.innerHTML; });
+}
+function txt(key) { return (LNG === 'en' ? EN[key] : DE[key]) ?? DE[key] ?? ''; }
+function applyLang() {
+  document.documentElement.lang = LNG;
+  document.querySelectorAll('[data-i18n]').forEach(el => {
+    const v = txt(el.dataset.i18n); if (v) el.innerHTML = v;
+  });
+  document.querySelectorAll('.tools .lang button').forEach(b =>
+    b.classList.toggle('on', b.dataset.lng === LNG));
+  // Die Sprache wandert mit auf die anderen Seiten
+  document.querySelectorAll('a[href$="projekte.html"]').forEach(a => a.href = 'projekte.html#' + LNG);
+  document.querySelectorAll('a[href^="databook.html"]').forEach(a =>
+    a.href = 'databook.html#' + LNG + '/ov');
+  if (window.__relabel) window.__relabel();
+}
+snapshotDE();
+document.querySelectorAll('.tools .lang button').forEach(b => b.addEventListener('click', () => {
+  LNG = b.dataset.lng;
+  history.replaceState(null, '', '#' + LNG);
+  applyLang();
+}));
+addEventListener('hashchange', () => {
+  const m = location.hash.match(/^#(de|en)/);
+  if (m && m[1] !== LNG) { LNG = m[1]; applyLang(); }
+});
 
 const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
 let webglOk = false;
@@ -965,6 +1025,11 @@ try { const c = document.createElement('canvas'); webglOk = !!(c.getContext('web
 
 if (reduced || innerWidth < 900 || !webglOk) document.body.classList.add('mode-flat');
 else boot();
+DE['ui.back'] = 'Zurück';
+DE['ax.today'] = 'HEUTE';
+DE['ax.roamly'] = 'ROAMLY · LÄUFT';
+DE['ax.on'] = 'LÄUFT WEITER →';
+applyLang();
 
 function boot() {
   document.body.classList.add('mode-3d');
@@ -1028,9 +1093,9 @@ function boot() {
     scene.add(o); labels.push(o); return o;
   }
   const hp = at(T_HEUTE); hp.y -= 6.6;
-  label('HEUTE', 'today', hp, .20);
-  const rp1 = at(2.65); rp1.y -= 4.7; label('ROAMLY · LÄUFT', 'roamly', rp1, .155);
-  const rp2 = at(T_MAX - 0.8); rp2.y -= 4.7; label('LÄUFT WEITER →', 'roamly', rp2, .155);
+  const lHeute = label('HEUTE', 'today', hp, .20);
+  const rp1 = at(2.35); rp1.y -= 4.7; const lR1 = label('ROAMLY · LÄUFT', 'roamly', rp1, .155);
+  const rp2 = at(T_MAX - 0.8); rp2.y -= 4.7; const lR2 = label('LÄUFT WEITER →', 'roamly', rp2, .155);
 
   /* ---------- Stationen ---------- */
   const flow = document.getElementById('flow');
@@ -1039,7 +1104,7 @@ function boot() {
     const t = parseFloat(el.dataset.t);
     const up = el.dataset.side === 'up';
     const p = at(t);
-    p.y += up ? 12.2 : -12.9;
+    p.y += up ? 12.6 : -13.6;
     el.parentNode.removeChild(el);
     const o = new CSS3DObject(el);
     o.position.copy(p);
@@ -1052,7 +1117,7 @@ function boot() {
       new MeshBasicMaterial({ color: 0x5d5548, fog: true }));
     dot.position.copy(at(t)); marks.add(dot);
     const a = at(t), b = p.clone();
-    b.y += up ? -9.6 : 9.8;
+    b.y += up ? -9.9 : 10.3;
     const g = new BufferGeometry().setFromPoints([a, b]);
     scene.add(new Line(g, new LineBasicMaterial({ color: 0x9c9081, transparent: true, opacity: .5, fog: true })));
 
@@ -1080,8 +1145,15 @@ function boot() {
   function setOverview(v) {
     overview = v;
     document.body.classList.toggle('overview', v);
-    ovBtn.textContent = v ? 'Zurück' : 'Übersicht';
+    ovBtn.textContent = txt(v ? 'ui.back' : 'ui.ov');
   }
+  window.__relabel = () => {
+    ovBtn.textContent = txt(overview ? 'ui.back' : 'ui.ov');
+    lHeute.element.textContent = txt('ax.today');
+    lR1.element.textContent = txt('ax.roamly');
+    lR2.element.textContent = txt('ax.on');
+    lastMonth = null;
+  };
   ovBtn.addEventListener('click', () => setOverview(!overview));
   addEventListener('keydown', e => {
     if (e.key === 'o' || e.key === 'O' || e.key === 'ü') setOverview(!overview);
@@ -1158,7 +1230,8 @@ function boot() {
     layerGL.style.opacity = sceneIn;
     layerCSS.style.opacity = sceneIn;
 
-    const m = (active && best < 1.5) ? (active.element.dataset.month || '') : '';
+    const ds = (active && best < 1.5) ? active.element.dataset : null;
+    const m = ds ? ((LNG === 'en' ? ds.monthEn : ds.month) || '') : '';
     if (m !== lastMonth) {
       lastMonth = m;
       hudNow.textContent = m;
